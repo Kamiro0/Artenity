@@ -1,11 +1,12 @@
 from pydantic_settings import BaseSettings
 from pydantic import EmailStr
+from typing import Optional
 import os
 
 class Settings(BaseSettings):
-    MAIL_USERNAME: EmailStr
-    MAIL_PASSWORD: str
-    MAIL_FROM: EmailStr
+    MAIL_USERNAME: Optional[str] = None
+    MAIL_PASSWORD: Optional[str] = None
+    MAIL_FROM: Optional[str] = None
     MAIL_FROM_NAME: str = "Artiverse"
     MAIL_PORT: int = 587
     MAIL_SERVER: str = "smtp.gmail.com"
@@ -18,5 +19,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = os.path.join(os.path.dirname(__file__), ".env")
         env_file_encoding = "utf-8"
+        env_file_required = False
 
 settings = Settings()

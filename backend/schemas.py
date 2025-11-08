@@ -187,3 +187,11 @@ class EstadisticasPublicacionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# ------------------ ESTADÍSTICAS ME GUSTAS ------------------
+class EstadisticasMeGustasResponse(BaseModel):
+    me_gustas_recibidos: int
+    me_gustas_dados: int
+
+    class Config:
+        from_attributes = True

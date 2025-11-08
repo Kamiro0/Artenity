@@ -231,3 +231,4 @@ class MeGustaComentario(Base):
 
     usuario = relationship("Usuario", back_populates="me_gusta_comentarios")
     comentario = relationship("Comentario", back_populates="me_gusta_comentarios")
+

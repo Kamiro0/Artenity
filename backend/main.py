@@ -29,19 +29,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # ------------------ CONFIGURACIÓN DE CORREO ------------------
-
-conf = ConnectionConfig(
-    MAIL_USERNAME=settings.MAIL_USERNAME,
-    MAIL_PASSWORD=settings.MAIL_PASSWORD,
-    MAIL_FROM=settings.MAIL_FROM,
-    MAIL_FROM_NAME=settings.MAIL_FROM_NAME,
-    MAIL_PORT=settings.MAIL_PORT,
-    MAIL_SERVER=settings.MAIL_SERVER,
-    MAIL_STARTTLS=settings.MAIL_STARTTLS,
-    MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
-    USE_CREDENTIALS=settings.USE_CREDENTIALS,
-    VALIDATE_CERTS=settings.VALIDATE_CERTS,
-)
+conf = None
+if settings.MAIL_USERNAME and settings.MAIL_PASSWORD and settings.MAIL_FROM:
+    conf = ConnectionConfig(
+        MAIL_USERNAME=settings.MAIL_USERNAME,
+        MAIL_PASSWORD=settings.MAIL_PASSWORD,
+        MAIL_FROM=settings.MAIL_FROM,
+        MAIL_FROM_NAME=settings.MAIL_FROM_NAME,
+        MAIL_PORT=settings.MAIL_PORT,
+        MAIL_SERVER=settings.MAIL_SERVER,
+        MAIL_STARTTLS=settings.MAIL_STARTTLS,
+        MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
+        USE_CREDENTIALS=settings.USE_CREDENTIALS,
+        VALIDATE_CERTS=settings.VALIDATE_CERTS,
+    )
 # ------------------ STATIC FILES ------------------
 os.makedirs("static/perfiles", exist_ok=True)
 os.makedirs("static/posts", exist_ok=True)
@@ -644,10 +645,40 @@ def obtener_estadisticas_perfil(id_usuario: int, db: Session = Depends(get_db)):
         models.Publicacion.id_usuario == id_usuario
     ).count()
 
+    # Me gusta QUE DA el usuario (en publicaciones)
+    me_gusta_da = db.query(models.MeGusta).filter(
+        models.MeGusta.id_usuario == id_usuario
+    ).count()
+
+    # Me gusta QUE RECIBE el usuario (en sus publicaciones) - optimizado con join
+    me_gusta_recibe = db.query(models.MeGusta).join(
+        models.Publicacion, models.MeGusta.id_publicacion == models.Publicacion.id_publicacion
+    ).filter(
+        models.Publicacion.id_usuario == id_usuario
+    ).count()
+
+    # Me gusta QUE DA en comentarios
+    me_gusta_comentarios_da = db.query(models.MeGustaComentario).filter(
+        models.MeGustaComentario.id_usuario == id_usuario
+    ).count()
+
+    # Me gusta QUE RECIBE en sus comentarios - optimizado con join
+    me_gusta_comentarios_recibe = db.query(models.MeGustaComentario).join(
+        models.Comentario, models.MeGustaComentario.id_comentario == models.Comentario.id_comentario
+    ).filter(
+        models.Comentario.id_usuario == id_usuario
+    ).count()
+
     return {
         "seguidores": seguidores,
         "siguiendo": siguiendo,
-        "publicaciones": publicaciones
+        "publicaciones": publicaciones,
+        "me_gusta_da": me_gusta_da,
+        "me_gusta_recibe": me_gusta_recibe,
+        "me_gusta_comentarios_da": me_gusta_comentarios_da,
+        "me_gusta_comentarios_recibe": me_gusta_comentarios_recibe,
+        "total_me_gusta_da": me_gusta_da + me_gusta_comentarios_da,
+        "total_me_gusta_recibe": me_gusta_recibe + me_gusta_comentarios_recibe
     }
 
 # ------------------ OBTENER PUBLICACIONES DE USUARIO ESPECÍFICO ------------------
@@ -815,8 +846,11 @@ async def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get
             subtype="html"
         )
 
-        fm = FastMail(conf)
-        await fm.send_message(mensaje)
+        if conf:
+            fm = FastMail(conf)
+            await fm.send_message(mensaje)
+        else:
+            print("⚠️ Configuración de correo no disponible. No se puede enviar el email.")
         
         return {
             "mensaje": "Si el correo existe, se ha enviado un enlace de recuperación"
@@ -1525,6 +1559,57 @@ def obtener_publicaciones_guardadas(
 
     return [guardado.publicacion for guardado in guardados]
 
+# ------------------ ME GUSTA QUE HA DADO EL USUARIO ------------------
+@app.get("/usuarios/{id_usuario}/megusta-dados")
+def obtener_megusta_dados(
+    id_usuario: int,
+    db: Session = Depends(get_db)
+):
+    """Obtener todas las publicaciones a las que el usuario ha dado me gusta"""
+    me_gustas = db.query(models.MeGusta)\
+        .options(joinedload(models.MeGusta.publicacion).joinedload(models.Publicacion.usuario).joinedload(models.Usuario.perfil))\
+        .filter(models.MeGusta.id_usuario == id_usuario)\
+        .order_by(models.MeGusta.fecha.desc())\
+        .all()
+
+    resultado = []
+    for mg in me_gustas:
+        resultado.append({
+            "id_megusta": mg.id_megusta,
+            "fecha": mg.fecha,
+            "publicacion": {
+                "id_publicacion": mg.publicacion.id_publicacion,
+                "contenido": mg.publicacion.contenido,
+                "imagen": mg.publicacion.imagen,
+                "fecha_creacion": mg.publicacion.fecha_creacion,
+                "usuario": {
+                    "id_usuario": mg.publicacion.usuario.id_usuario,
+                    "nombre_usuario": mg.publicacion.usuario.nombre_usuario,
+                    "foto_perfil": mg.publicacion.usuario.perfil.foto_perfil if mg.publicacion.usuario.perfil else None
+                }
+            }
+        })
+    
+    return resultado
+
+# ------------------ OBTENER ESTADÍSTICAS DE ME GUSTAS ------------------
+@app.get("/estadisticas-me-gustas/{id_usuario}")
+def obtener_estadisticas_me_gustas(id_usuario: int, db: Session = Depends(get_db)):
+    # Me gustas RECIBIDOS (en las publicaciones del usuario)
+    me_gustas_recibidos = db.query(models.MeGusta)\
+        .join(models.Publicacion, models.MeGusta.id_publicacion == models.Publicacion.id_publicacion)\
+        .filter(models.Publicacion.id_usuario == id_usuario)\
+        .count()
+
+    # Me gustas DADOS (que el usuario ha dado a otras publicaciones)
+    me_gustas_dados = db.query(models.MeGusta)\
+        .filter(models.MeGusta.id_usuario == id_usuario)\
+        .count()
+
+    return {
+        "me_gustas_recibidos": me_gustas_recibidos,
+        "me_gustas_dados": me_gustas_dados
+    }
 # ------------------ HOME ------------------
 @app.get("/home")
 def home():
