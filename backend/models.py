@@ -53,7 +53,7 @@ class Perfil(Base):
 
     usuario = relationship("Usuario", back_populates="perfil")
 
-# ------------------ AMISTAD ------------------
+
 class Amistad(Base):
     __tablename__ = "amistades"
 
@@ -61,12 +61,12 @@ class Amistad(Base):
     id_usuario1 = Column(Integer, ForeignKey("usuarios.id_usuario", ondelete="CASCADE"))
     id_usuario2 = Column(Integer, ForeignKey("usuarios.id_usuario", ondelete="CASCADE"))
     estado = Column(String(50), default="aceptada")  # aceptada / eliminada
-    fecha_amistad = Column(DateTime, default=datetime.utcnow)
+    # Elimina esta línea si no existe en la base de datos:
+    # fecha_amistad = Column(DateTime, default=datetime.utcnow)
 
     # Relaciones
     usuario1 = relationship("Usuario", foreign_keys=[id_usuario1], back_populates="amistades_como_usuario1")
     usuario2 = relationship("Usuario", foreign_keys=[id_usuario2], back_populates="amistades_como_usuario2")
-
 # ------------------ PUBLICACIÓN ------------------
 class Publicacion(Base):
     __tablename__ = "publicaciones"

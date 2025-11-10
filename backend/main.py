@@ -1571,6 +1571,7 @@ def obtener_estadisticas_publicacion(
     }
 
 # ------------------ PUBLICACIONES GUARDADAS ------------------
+# ------------------ PUBLICACIONES GUARDADAS ------------------
 @app.get("/guardados", response_model=List[schemas.PublicacionResponse])
 def obtener_publicaciones_guardadas(
     db: Session = Depends(get_db),
@@ -1578,13 +1579,21 @@ def obtener_publicaciones_guardadas(
 ):
     """Obtener publicaciones guardadas por el usuario"""
     guardados = db.query(models.Guardado)\
-        .options(joinedload(models.Guardado.publicacion).joinedload(models.Publicacion.usuario).joinedload(models.Usuario.perfil))\
+        .options(
+            joinedload(models.Guardado.publicacion)
+            .joinedload(models.Publicacion.usuario)
+            .joinedload(models.Usuario.perfil)
+        )\
         .filter(models.Guardado.id_usuario == user_id)\
         .order_by(models.Guardado.fecha.desc())\
         .all()
 
-    return [guardado.publicacion for guardado in guardados]
+    # Extraer solo las publicaciones con la información completa del usuario y perfil
+    publicaciones = [guardado.publicacion for guardado in guardados]
+    
+    return publicaciones
 
+# ------------------ ME GUSTA QUE HA DADO EL USUARIO ------------------
 # ------------------ ME GUSTA QUE HA DADO EL USUARIO ------------------
 @app.get("/usuarios/{id_usuario}/megusta-dados")
 def obtener_megusta_dados(
@@ -1593,7 +1602,11 @@ def obtener_megusta_dados(
 ):
     """Obtener todas las publicaciones a las que el usuario ha dado me gusta"""
     me_gustas = db.query(models.MeGusta)\
-        .options(joinedload(models.MeGusta.publicacion).joinedload(models.Publicacion.usuario).joinedload(models.Usuario.perfil))\
+        .options(
+            joinedload(models.MeGusta.publicacion)
+            .joinedload(models.Publicacion.usuario)
+            .joinedload(models.Usuario.perfil)
+        )\
         .filter(models.MeGusta.id_usuario == id_usuario)\
         .order_by(models.MeGusta.fecha.desc())\
         .all()
@@ -1605,13 +1618,21 @@ def obtener_megusta_dados(
             "fecha": mg.fecha,
             "publicacion": {
                 "id_publicacion": mg.publicacion.id_publicacion,
+                "id_usuario": mg.publicacion.id_usuario,
                 "contenido": mg.publicacion.contenido,
                 "imagen": mg.publicacion.imagen,
                 "fecha_creacion": mg.publicacion.fecha_creacion,
                 "usuario": {
                     "id_usuario": mg.publicacion.usuario.id_usuario,
                     "nombre_usuario": mg.publicacion.usuario.nombre_usuario,
-                    "foto_perfil": mg.publicacion.usuario.perfil.foto_perfil if mg.publicacion.usuario.perfil else None
+                    "nombre": mg.publicacion.usuario.nombre,
+                    "perfil": {
+                        "id_perfil": mg.publicacion.usuario.perfil.id_perfil if mg.publicacion.usuario.perfil else None,
+                        "id_usuario": mg.publicacion.usuario.perfil.id_usuario if mg.publicacion.usuario.perfil else None,
+                        "descripcion": mg.publicacion.usuario.perfil.descripcion if mg.publicacion.usuario.perfil else None,
+                        "biografia": mg.publicacion.usuario.perfil.biografia if mg.publicacion.usuario.perfil else None,
+                        "foto_perfil": mg.publicacion.usuario.perfil.foto_perfil if mg.publicacion.usuario.perfil else None
+                    } if mg.publicacion.usuario.perfil else None
                 }
             }
         })

@@ -152,43 +152,70 @@ interface PublicacionConEstadisticas {
   }, [usuario?.id_usuario]);
 
   // ✅ Cargar publicaciones guardadas
-  const cargarPublicacionesGuardadas = useCallback(async () => {
-    try {
-      const posts = await obtenerPublicacionesGuardadas();
-      
-      // Cargar estadísticas para cada publicación guardada
-      const postsConEstadisticas = await Promise.all(
-        posts.map(async (post: any) => {
-          try {
-            const stats = await obtenerEstadisticasPublicacion(post.id_publicacion);
-            return {
-              ...post,
-              estadisticas: stats
-            };
-          } catch (error) {
-            console.error(`Error cargando estadísticas para publicación guardada ${post.id_publicacion}:`, error);
-            return {
-              ...post,
-              estadisticas: {
-                total_me_gusta: 0,
-                total_comentarios: 0,
-                total_guardados: 0,
-                me_gusta_dado: false,
-                guardado: true
+ const cargarPublicacionesGuardadas = useCallback(async () => {
+  try {
+    const posts = await obtenerPublicacionesGuardadas();
+    
+    console.log("Publicaciones guardadas cargadas:", posts); // Para debug
+    
+    // Cargar estadísticas para cada publicación guardada
+    const postsConEstadisticas = await Promise.all(
+      posts.map(async (post: any) => {
+        try {
+          const stats = await obtenerEstadisticasPublicacion(post.id_publicacion);
+          
+          // Asegurar que la foto de perfil tenga timestamp
+          const fotoPerfil = post.usuario?.perfil?.foto_perfil
+            ? `${post.usuario.perfil.foto_perfil}?t=${new Date().getTime()}`
+            : defaultProfile;
+
+          return {
+            ...post,
+            usuario: {
+              ...post.usuario,
+              perfil: {
+                ...post.usuario.perfil,
+                foto_perfil: fotoPerfil
               }
-            };
-          }
-        })
-      );
-      
-      setPublicacionesGuardadas(postsConEstadisticas);
-    } catch (error) {
-      console.error("Error cargando publicaciones guardadas:", error);
-    }
-  }, []);
+            },
+            estadisticas: stats
+          };
+        } catch (error) {
+          console.error(`Error cargando estadísticas para publicación guardada ${post.id_publicacion}:`, error);
+          
+          const fotoPerfil = post.usuario?.perfil?.foto_perfil
+            ? `${post.usuario.perfil.foto_perfil}?t=${new Date().getTime()}`
+            : defaultProfile;
+
+          return {
+            ...post,
+            usuario: {
+              ...post.usuario,
+              perfil: {
+                ...post.usuario.perfil,
+                foto_perfil: fotoPerfil
+              }
+            },
+            estadisticas: {
+              total_me_gusta: 0,
+              total_comentarios: 0,
+              total_guardados: 0,
+              me_gusta_dado: false,
+              guardado: true
+            }
+          };
+        }
+      })
+    );
+    
+    setPublicacionesGuardadas(postsConEstadisticas);
+  } catch (error) {
+    console.error("Error cargando publicaciones guardadas:", error);
+  }
+}, []);
 
   
- const cargarPublicacionesConLike = useCallback(async () => {
+const cargarPublicacionesConLike = useCallback(async () => {
   if (!usuario?.id_usuario) return;
   try {
     const token = localStorage.getItem("token");
@@ -200,7 +227,7 @@ interface PublicacionConEstadisticas {
     
     const parsedUsuario = JSON.parse(usuarioStorage);
     
-    // Obtener TODAS las publicaciones a las que el usuario dio like
+    // Obtener publicaciones que el usuario ha dado "Me Gusta"
     const response = await fetch(`http://localhost:8000/usuarios/${usuario.id_usuario}/megusta-dados`, {
       headers: {
         'token': token,
@@ -212,37 +239,63 @@ interface PublicacionConEstadisticas {
     if (!response.ok) throw new Error('Error al cargar me gustas');
     
     const data = await response.json();
-    
-    // Cargar estadísticas para cada publicación
+
+    // 🔥 Asegurar que cada publicación tenga la foto de perfil del autor
     const postsConEstadisticas = await Promise.all(
       data.map(async (item: any) => {
         try {
           const stats = await obtenerEstadisticasPublicacion(item.publicacion.id_publicacion);
+
+          // Asignar foto de perfil del autor
+          const fotoPerfilAutor = item.publicacion.usuario?.perfil?.foto_perfil
+            ? `${item.publicacion.usuario.perfil.foto_perfil}?t=${new Date().getTime()}`
+            : defaultProfile;
+
           return {
             ...item.publicacion,
-            estadisticas: stats
+            usuario: {
+              ...item.publicacion.usuario,
+              perfil: {
+                ...item.publicacion.usuario.perfil,
+                foto_perfil: fotoPerfilAutor,
+              },
+            },
+            estadisticas: stats,
           };
         } catch (error) {
           console.error(`Error cargando estadísticas para publicación ${item.publicacion.id_publicacion}:`, error);
+
+          const fotoPerfilAutor = item.publicacion.usuario?.perfil?.foto_perfil
+            ? `${item.publicacion.usuario.perfil.foto_perfil}?t=${new Date().getTime()}`
+            : defaultProfile;
+
           return {
             ...item.publicacion,
+            usuario: {
+              ...item.publicacion.usuario,
+              perfil: {
+                ...item.publicacion.usuario.perfil,
+                foto_perfil: fotoPerfilAutor,
+              },
+            },
             estadisticas: {
               total_me_gusta: 0,
               total_comentarios: 0,
               total_guardados: 0,
               me_gusta_dado: true,
-              guardado: false
-            }
+              guardado: false,
+            },
           };
         }
       })
     );
-    
+
     setPublicacionesConLike(postsConEstadisticas);
   } catch (error) {
     console.error("Error cargando publicaciones con like:", error);
   }
 }, [usuario?.id_usuario]);
+
 
   // ✅ Cargar amigos
   const cargarAmigos = useCallback(async () => {
@@ -495,17 +548,31 @@ interface PublicacionConEstadisticas {
   };
 
   // Componente para mostrar publicaciones
-  const PublicacionCard = ({ publicacion }: { publicacion: PublicacionConEstadisticas }) => (
+  // Componente para mostrar publicaciones
+const PublicacionCard = ({ publicacion }: { publicacion: PublicacionConEstadisticas }) => {
+  const [imgError, setImgError] = useState(false);
+  const [profileImgError, setProfileImgError] = useState(false);
+
+  const handleImageError = () => setImgError(true);
+  const handleProfileImageError = () => setProfileImgError(true);
+
+  // Asegurar que siempre haya una foto de perfil
+  const fotoPerfil = publicacion.usuario?.perfil?.foto_perfil && !profileImgError 
+    ? publicacion.usuario.perfil.foto_perfil 
+    : defaultProfile;
+
+  return (
     <div key={publicacion.id_publicacion} className="publicacion-card">
       <div className="publicacion-header">
         <img
-          src={publicacion.usuario?.perfil?.foto_perfil || defaultProfile}
+          src={fotoPerfil}
           alt="Foto perfil"
           className="publicacion-foto-perfil"
+          onError={handleProfileImageError}
         />
         <div className="publicacion-info-usuario">
           <span className="publicacion-usuario">
-            {publicacion.usuario?.nombre_usuario || "Usuario"}
+            {publicacion.usuario?.nombre_usuario || "Usuario desconocido"}
           </span>
           <span className="publicacion-fecha">
             {new Date(publicacion.fecha_creacion).toLocaleString()}
@@ -514,11 +581,12 @@ interface PublicacionConEstadisticas {
       </div>
       <div className="publicacion-contenido">
         <p className="publicacion-texto">{publicacion.contenido}</p>
-        {publicacion.imagen && (
+        {publicacion.imagen && !imgError && (
           <img
             src={publicacion.imagen}
             alt="Publicación"
             className="publicacion-imagen"
+            onError={handleImageError}
           />
         )}
       </div>
@@ -541,6 +609,7 @@ interface PublicacionConEstadisticas {
       </div>
     </div>
   );
+};
 
   // Renderizar publicaciones según la pestaña activa
   const renderPublicaciones = () => {
