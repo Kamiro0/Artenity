@@ -185,8 +185,6 @@ body.pagina-principal {
 /* Posiciones personalizables */
 .right-sidebar .card:nth-child(1) { top: 50px; left: 230px; }
 .right-sidebar .card:nth-child(2) { top: 370px; left: 230px; }
-.right-sidebar .card:nth-child(3) { top: 690px; left: 230px; }
-
 
 /* Títulos */
 .right-sidebar .card h2 {
@@ -205,7 +203,7 @@ body.pagina-principal {
   padding: 12px 24px;
   position: fixed;
   top: 5px;
-  right: 60px;
+  right: 40px;
   z-index: 1100;
 }
 

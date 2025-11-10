@@ -801,9 +801,6 @@ export default function PaginaPrincipal() {
       {/* 🔹 Sidebar derecha */}
       <aside className="right-sidebar">
         <div className="card">
-          <h2>COMUNIDADES A SEGUIR</h2>
-        </div>
-        <div className="card">
           <h2>LO QUE SUCEDE CON EL MUNDO DEL ARTE</h2>
         </div>
         <div className="card">
