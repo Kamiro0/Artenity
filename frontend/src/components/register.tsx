@@ -1,28 +1,28 @@
-import React, { useState } from "react";
-import "../styles/register.css";
-import { Link, useNavigate } from "react-router-dom";
-import { registerUsuario } from "../services/api";
+import React, { useState } from 'react';
+import '../styles/register.css';
+import { Link, useNavigate } from 'react-router-dom';
+import { registerUsuario } from '../services/api';
 
 // Imágenes decorativas
-import brushImg from "../assets/img/loginmusic.png";
-import logoImg from "../assets/img/logo.png";
+import brushImg from '../assets/img/loginmusic.png';
+import logoImg from '../assets/img/logo.png';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    nombre: "",
-    apellido: "",
-    correo_electronico: "",
-    contrasena: "",
-    fecha_nacimiento: "",
-    genero: "",
-    especifique_genero: "",
-    tipo_arte_preferido: "",
-    telefono: "",
-    nombre_usuario: "",
+    nombre: '',
+    apellido: '',
+    correo_electronico: '',
+    contrasena: '',
+    fecha_nacimiento: '',
+    genero: '',
+    especifique_genero: '',
+    tipo_arte_preferido: '',
+    telefono: '',
+    nombre_usuario: '',
   });
 
-  const [mensaje, setMensaje] = useState("");
+  const [mensaje, setMensaje] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -34,20 +34,20 @@ const Register: React.FC = () => {
       const nuevo = await registerUsuario(form);
       setMensaje(`Usuario registrado: ${nuevo.id_usuario}`);
       setForm({
-        nombre: "",
-        apellido: "",
-        correo_electronico: "",
-        contrasena: "",
-        fecha_nacimiento: "",
-        genero: "",
-        especifique_genero: "",
-        tipo_arte_preferido: "",
-        telefono: "",
-        nombre_usuario: "",
+        nombre: '',
+        apellido: '',
+        correo_electronico: '',
+        contrasena: '',
+        fecha_nacimiento: '',
+        genero: '',
+        especifique_genero: '',
+        tipo_arte_preferido: '',
+        telefono: '',
+        nombre_usuario: '',
       });
-      navigate("/login");
+      navigate('/login');
     } catch (error: any) {
-      setMensaje(error.message || "Error al registrar usuario");
+      setMensaje(error.message || 'Error al registrar usuario');
     }
   };
 
@@ -101,9 +101,9 @@ const Register: React.FC = () => {
                 type="radio"
                 name="genero"
                 value="Mujer"
-                checked={form.genero === "Mujer"}
+                checked={form.genero === 'Mujer'}
                 onChange={handleChange}
-              />{" "}
+              />{' '}
               Mujer
             </label>
             <label>
@@ -111,9 +111,9 @@ const Register: React.FC = () => {
                 type="radio"
                 name="genero"
                 value="Hombre"
-                checked={form.genero === "Hombre"}
+                checked={form.genero === 'Hombre'}
                 onChange={handleChange}
-              />{" "}
+              />{' '}
               Hombre
             </label>
             <label>
@@ -121,9 +121,9 @@ const Register: React.FC = () => {
                 type="radio"
                 name="genero"
                 value="Personalizado"
-                checked={form.genero === "Personalizado"}
+                checked={form.genero === 'Personalizado'}
                 onChange={handleChange}
-              />{" "}
+              />{' '}
               Personalizado
             </label>
           </div>
@@ -133,8 +133,8 @@ const Register: React.FC = () => {
             placeholder=" Especifique su género"
             value={form.especifique_genero}
             onChange={handleChange}
-            required={form.genero === "Personalizado"}
-            style={{ display: form.genero === "Personalizado" ? "block" : "none" }}
+            required={form.genero === 'Personalizado'}
+            style={{ display: form.genero === 'Personalizado' ? 'block' : 'none' }}
           />
 
           <input

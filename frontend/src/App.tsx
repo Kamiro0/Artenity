@@ -1,21 +1,21 @@
 // frontend/App.tsx
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 import GaleriaDeArte from './components/GaleriaDearte';
-import Artenity from "./components/artenity";
-import Login from "./components/login";
-import Register from "./components/register";
-import PaginaPrincipal from "./components/paginaprincipal";
-import Perfil from "./components/perfil";
-import Busqueda from "./components/busqueda";
-import Messages from "./components/Menssages";
-import PerfilUsuario from "./components/PerfilUsuario";
-import ForgotPassword from "./components/ForgotPassword";
-import ResetPassword from "./components/ResetPassword";
-import CompartidosPage from "./components/CompartidosPage";
-import CategoriasPage from "./components/CategoriasPage";
-import Configuraciones from "./components/configuraciones";
-import PanelAdmin from "./components/PanelAdmin";
+import Artenity from './components/artenity';
+import Login from './components/login';
+import Register from './components/register';
+import PaginaPrincipal from './components/paginaprincipal';
+import Perfil from './components/perfil';
+import Busqueda from './components/busqueda';
+import Messages from './components/Menssages';
+import PerfilUsuario from './components/PerfilUsuario';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
+import CompartidosPage from './components/CompartidosPage';
+import CategoriasPage from './components/CategoriasPage';
+import Configuraciones from './components/configuraciones';
+import PanelAdmin from './components/PanelAdmin';
 function App() {
   const { token } = useAuth();
 
@@ -29,7 +29,7 @@ function App() {
       <Route path="/register" element={token ? <Navigate to="/principal" /> : <Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
-      
+
       {/* 🔹 IMPORTANTE: Búsqueda debe ser pública */}
       <Route path="/busqueda" element={<Busqueda />} />
 
@@ -42,7 +42,10 @@ function App() {
       <Route path="/compartidos" element={token ? <CompartidosPage /> : <Navigate to="/login" />} />
       <Route path="/galeria" element={<GaleriaDeArte />} />
 
-<Route path="/configuraciones" element={token ? <Configuraciones /> : <Navigate to="/login" />} />
+      <Route
+        path="/configuraciones"
+        element={token ? <Configuraciones /> : <Navigate to="/login" />}
+      />
       <Route path="/admin" element={token ? <PanelAdmin /> : <Navigate to="/login" />} />
       {/* Ruta fallback */}
       <Route path="*" element={<Navigate to="/" />} />

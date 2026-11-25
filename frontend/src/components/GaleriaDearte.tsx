@@ -2,12 +2,41 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Folder, FileImage, FileVideo, FileAudio, FileText, Upload,
-  Edit, Trash2, Eye, Share2, Grid, List, Search,
-  FolderPlus, Download, X, FolderOpen, FolderTree,
-  BarChart3, Globe, Lock, Plus, AlertCircle, Info,
-  File, Music, Image, Video, FileIcon, Loader2,
-  ArrowLeft, Palette, Sparkles, ArrowUp, ArrowDown
+  Folder,
+  FileImage,
+  FileVideo,
+  FileAudio,
+  FileText,
+  Upload,
+  Edit,
+  Trash2,
+  Eye,
+  Share2,
+  Grid,
+  List,
+  Search,
+  FolderPlus,
+  Download,
+  X,
+  FolderOpen,
+  FolderTree,
+  BarChart3,
+  Globe,
+  Lock,
+  Plus,
+  AlertCircle,
+  Info,
+  File,
+  Music,
+  Image,
+  Video,
+  FileIcon,
+  Loader2,
+  ArrowLeft,
+  Palette,
+  Sparkles,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import {
   obtenerEstadisticasGaleria,
@@ -22,7 +51,7 @@ import {
   publicarDesdeGaleria,
   CarpetaGaleria,
   ArchivoGaleria,
-  EstadisticasGaleria
+  EstadisticasGaleria,
 } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import '../styles/GaleriaDeArte.css';
@@ -30,20 +59,29 @@ import '../styles/GaleriaDeArte.css';
 // Funciones auxiliares que pueden ser usadas fuera del componente
 const getIconoTipo = (tipo: string) => {
   switch (tipo) {
-    case 'imagen': return <Image size={24} />;
-    case 'video': return <Video size={24} />;
-    case 'audio': return <Music size={24} />;
-    default: return <FileIcon size={24} />;
+    case 'imagen':
+      return <Image size={24} />;
+    case 'video':
+      return <Video size={24} />;
+    case 'audio':
+      return <Music size={24} />;
+    default:
+      return <FileIcon size={24} />;
   }
 };
 
 const getColorTipo = (tipo: string) => {
   switch (tipo) {
-    case 'imagen': return '#4CAF50';
-    case 'video': return '#FF5722';
-    case 'audio': return '#9C27B0';
-    case 'documento': return '#2196F3';
-    default: return '#607D8B';
+    case 'imagen':
+      return '#4CAF50';
+    case 'video':
+      return '#FF5722';
+    case 'audio':
+      return '#9C27B0';
+    case 'documento':
+      return '#2196F3';
+    default:
+      return '#607D8B';
   }
 };
 
@@ -62,7 +100,7 @@ const formatFecha = (fechaString: string) => {
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
 };
 
@@ -76,7 +114,16 @@ const ConfirmDialog: React.FC<{
   confirmText?: string;
   cancelText?: string;
   tipo?: 'peligro' | 'info';
-}> = ({ isOpen, title, message, onConfirm, onCancel, confirmText = "Confirmar", cancelText = "Cancelar", tipo = 'peligro' }) => {
+}> = ({
+  isOpen,
+  title,
+  message,
+  onConfirm,
+  onCancel,
+  confirmText = 'Confirmar',
+  cancelText = 'Cancelar',
+  tipo = 'peligro',
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -98,8 +145,8 @@ const ConfirmDialog: React.FC<{
           <button className="btn-galeria btn-outline" onClick={onCancel}>
             {cancelText}
           </button>
-          <button 
-            className={`btn-galeria ${tipo === 'peligro' ? 'btn-danger' : 'btn-primary'}`} 
+          <button
+            className={`btn-galeria ${tipo === 'peligro' ? 'btn-danger' : 'btn-primary'}`}
             onClick={onConfirm}
           >
             {confirmText}
@@ -113,7 +160,7 @@ const ConfirmDialog: React.FC<{
 // Componente para mostrar previsualizaciones
 const PreviewArchivo: React.FC<{ archivo: ArchivoGaleria }> = ({ archivo }) => {
   const [error, setError] = useState(false);
-  
+
   if (error || !archivo.ruta) {
     return (
       <div className="icono-preview" style={{ backgroundColor: getColorTipo(archivo.tipo) + '20' }}>
@@ -126,8 +173,8 @@ const PreviewArchivo: React.FC<{ archivo: ArchivoGaleria }> = ({ archivo }) => {
   switch (archivo.tipo) {
     case 'imagen':
       return (
-        <img 
-          src={archivo.ruta} 
+        <img
+          src={archivo.ruta}
           alt={archivo.nombre_original}
           onError={() => setError(true)}
           loading="lazy"
@@ -136,11 +183,7 @@ const PreviewArchivo: React.FC<{ archivo: ArchivoGaleria }> = ({ archivo }) => {
     case 'video':
       return (
         <div className="video-preview">
-          <video 
-            src={archivo.ruta}
-            preload="metadata"
-            onError={() => setError(true)}
-          >
+          <video src={archivo.ruta} preload="metadata" onError={() => setError(true)}>
             Tu navegador no soporta videos.
           </video>
           <div className="video-overlay">
@@ -157,7 +200,10 @@ const PreviewArchivo: React.FC<{ archivo: ArchivoGaleria }> = ({ archivo }) => {
       );
     default:
       return (
-        <div className="icono-preview" style={{ backgroundColor: getColorTipo(archivo.tipo) + '20' }}>
+        <div
+          className="icono-preview"
+          style={{ backgroundColor: getColorTipo(archivo.tipo) + '20' }}
+        >
           {getIconoTipo(archivo.tipo)}
           <span className="extension">{archivo.extension?.toUpperCase() || 'DOC'}</span>
         </div>
@@ -170,7 +216,7 @@ const GaleriaDeArte: React.FC = () => {
   const navigate = useNavigate();
   const { usuario } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Estados principales
   const [estadisticas, setEstadisticas] = useState<EstadisticasGaleria | null>(null);
   const [carpetas, setCarpetas] = useState<CarpetaGaleria[]>([]);
@@ -180,25 +226,25 @@ const GaleriaDeArte: React.FC = () => {
   const [cargando, setCargando] = useState(true);
   const [subiendoArchivo, setSubiendoArchivo] = useState(false);
   const [hoverEffects, setHoverEffects] = useState(false);
-  
+
   // NUEVO: Estados para scroll de toda la página
   const [isScrolling, setIsScrolling] = useState(false);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const mainContainerRef = useRef<HTMLDivElement>(null);
-  
+
   // Estados existentes para scroll interno
   const [scrollPosition, setScrollPosition] = useState(0);
   const [isAtBottom, setIsAtBottom] = useState(false);
   const [isAtTop, setIsAtTop] = useState(true);
   const archivosContainerRef = useRef<HTMLDivElement>(null);
   const carpetasListaRef = useRef<HTMLDivElement>(null);
-  
+
   // Estados para modales
   const [mostrarModalCarpeta, setMostrarModalCarpeta] = useState(false);
   const [mostrarModalSubir, setMostrarModalSubir] = useState(false);
   const [mostrarModalDetalle, setMostrarModalDetalle] = useState(false);
   const [mostrarModalPublicar, setMostrarModalPublicar] = useState(false);
-  
+
   // Estados para confirmaciones
   const [confirmacionCarpeta, setConfirmacionCarpeta] = useState<{
     isOpen: boolean;
@@ -209,9 +255,9 @@ const GaleriaDeArte: React.FC = () => {
     isOpen: false,
     idCarpeta: null,
     titulo: '',
-    mensaje: ''
+    mensaje: '',
   });
-  
+
   const [confirmacionArchivo, setConfirmacionArchivo] = useState<{
     isOpen: boolean;
     idArchivo: number | null;
@@ -221,30 +267,30 @@ const GaleriaDeArte: React.FC = () => {
     isOpen: false,
     idArchivo: null,
     titulo: '',
-    mensaje: ''
+    mensaje: '',
   });
-  
+
   // Formularios
   const [formCarpeta, setFormCarpeta] = useState({
     nombre: '',
     descripcion: '',
     color: '#6C63FF',
     icono: 'folder',
-    es_publica: false
+    es_publica: false,
   });
   const [editandoCarpeta, setEditandoCarpeta] = useState<CarpetaGaleria | null>(null);
-  
+
   const [archivoSubiendo, setArchivoSubiendo] = useState<File | null>(null);
   const [descripcionArchivo, setDescripcionArchivo] = useState('');
   const [etiquetasArchivo, setEtiquetasArchivo] = useState('');
   const [esPublicoArchivo, setEsPublicoArchivo] = useState(false);
-  
+
   const [archivoSeleccionado, setArchivoSeleccionado] = useState<ArchivoGaleria | null>(null);
-  
+
   // Filtros
   const [tipoFiltro, setTipoFiltro] = useState<string>('todos');
   const [busqueda, setBusqueda] = useState('');
-  
+
   // NUEVO: Efecto para scroll de toda la página
   useEffect(() => {
     const handleGlobalScroll = () => {
@@ -267,7 +313,7 @@ const GaleriaDeArte: React.FC = () => {
     if (mainContainerRef.current) {
       mainContainerRef.current.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };
@@ -278,10 +324,10 @@ const GaleriaDeArte: React.FC = () => {
     const scrollTop = container.scrollTop;
     const scrollHeight = container.scrollHeight;
     const clientHeight = container.clientHeight;
-    
+
     setScrollPosition(scrollTop);
     setIsScrolling(scrollTop > 10);
-    
+
     // Actualizar estados para botones de navegación
     setIsAtTop(scrollTop < 100);
     setIsAtBottom(scrollHeight - scrollTop - clientHeight < 100);
@@ -294,28 +340,28 @@ const GaleriaDeArte: React.FC = () => {
       const elementRect = element.getBoundingClientRect();
       const containerRect = mainContainerRef.current.getBoundingClientRect();
       const offset = elementRect.top - containerRect.top + mainContainerRef.current.scrollTop;
-      
+
       mainContainerRef.current.scrollTo({
         top: offset - 100,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };
-  
+
   const scrollToBottomLocal = () => {
     if (archivosContainerRef.current) {
       archivosContainerRef.current.scrollTo({
         top: archivosContainerRef.current.scrollHeight,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };
-  
+
   const scrollToTopLocal = () => {
     if (archivosContainerRef.current) {
       archivosContainerRef.current.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };
@@ -324,18 +370,18 @@ const GaleriaDeArte: React.FC = () => {
   useEffect(() => {
     cargarDatos();
   }, []);
-  
+
   const cargarDatos = async () => {
     setCargando(true);
     try {
       const [estats, carpetasData] = await Promise.all([
         obtenerEstadisticasGaleria(),
-        obtenerCarpetasGaleria()
+        obtenerCarpetasGaleria(),
       ]);
-      
+
       setEstadisticas(estats);
       setCarpetas(carpetasData);
-      
+
       // Cargar archivos de la primera carpeta si existe
       if (carpetasData.length > 0) {
         await cargarArchivosCarpeta(carpetasData[0].id_carpeta);
@@ -347,7 +393,7 @@ const GaleriaDeArte: React.FC = () => {
       setCargando(false);
     }
   };
-  
+
   const cargarArchivosCarpeta = async (idCarpeta: number) => {
     try {
       setCarpetaSeleccionada(idCarpeta);
@@ -358,73 +404,80 @@ const GaleriaDeArte: React.FC = () => {
       alert('Error al cargar archivos de la carpeta');
     }
   };
-  
+
   const cargarArchivosFiltrados = useCallback(async () => {
     try {
       const filtros: any = {};
       if (carpetaSeleccionada) filtros.id_carpeta = carpetaSeleccionada;
       if (tipoFiltro !== 'todos') filtros.tipo = tipoFiltro;
       if (busqueda) filtros.busqueda = busqueda;
-      
+
       const archivosData = await obtenerArchivosGaleria(filtros);
       setArchivos(archivosData);
     } catch (error) {
       console.error('Error cargando archivos filtrados:', error);
     }
   }, [carpetaSeleccionada, tipoFiltro, busqueda]);
-  
+
   // Efecto para recargar cuando cambian los filtros
   useEffect(() => {
     if (carpetaSeleccionada) {
       cargarArchivosFiltrados();
     }
   }, [carpetaSeleccionada, tipoFiltro, cargarArchivosFiltrados]);
-  
+
   // Efecto para scroll automático al cambiar filtros
   useEffect(() => {
     if (archivos.length > 0 && archivosContainerRef.current) {
       archivosContainerRef.current.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   }, [archivos, tipoFiltro, busqueda]);
-  
+
   const handleCrearCarpeta = async () => {
     try {
       if (!formCarpeta.nombre.trim()) {
         alert('El nombre de la carpeta es requerido');
         return;
       }
-      
+
       if (editandoCarpeta) {
-        const carpetaActualizada = await actualizarCarpetaGaleria(editandoCarpeta.id_carpeta, formCarpeta);
-        setCarpetas(carpetas.map(c => c.id_carpeta === carpetaActualizada.id_carpeta ? carpetaActualizada : c));
+        const carpetaActualizada = await actualizarCarpetaGaleria(
+          editandoCarpeta.id_carpeta,
+          formCarpeta
+        );
+        setCarpetas(
+          carpetas.map((c) =>
+            c.id_carpeta === carpetaActualizada.id_carpeta ? carpetaActualizada : c
+          )
+        );
       } else {
         const nuevaCarpeta = await crearCarpetaGaleria(formCarpeta);
         setCarpetas([...carpetas, nuevaCarpeta]);
         // Seleccionar la nueva carpeta
         await cargarArchivosCarpeta(nuevaCarpeta.id_carpeta);
       }
-      
+
       setMostrarModalCarpeta(false);
       resetFormCarpeta();
     } catch (error: any) {
       alert(error.response?.data?.detail || 'Error al guardar carpeta');
     }
   };
-  
+
   const resetFormCarpeta = () => {
     setFormCarpeta({
       nombre: '',
       descripcion: '',
       color: '#6C63FF',
       icono: 'folder',
-      es_publica: false
+      es_publica: false,
     });
     setEditandoCarpeta(null);
   };
-  
+
   const editarCarpeta = (carpeta: CarpetaGaleria) => {
     setEditandoCarpeta(carpeta);
     setFormCarpeta({
@@ -432,28 +485,28 @@ const GaleriaDeArte: React.FC = () => {
       descripcion: carpeta.descripcion || '',
       color: carpeta.color,
       icono: carpeta.icono,
-      es_publica: carpeta.es_publica
+      es_publica: carpeta.es_publica,
     });
     setMostrarModalCarpeta(true);
   };
-  
+
   const solicitarEliminarCarpeta = (idCarpeta: number, nombreCarpeta: string) => {
     setConfirmacionCarpeta({
       isOpen: true,
       idCarpeta,
       titulo: 'Eliminar Carpeta',
-      mensaje: `¿Estás seguro de eliminar la carpeta "${nombreCarpeta}" y todos sus archivos? Esta acción no se puede deshacer.`
+      mensaje: `¿Estás seguro de eliminar la carpeta "${nombreCarpeta}" y todos sus archivos? Esta acción no se puede deshacer.`,
     });
   };
-  
+
   const eliminarCarpetaConfirmada = async () => {
     if (!confirmacionCarpeta.idCarpeta) return;
-    
+
     try {
       await eliminarCarpetaGaleria(confirmacionCarpeta.idCarpeta);
-      const nuevasCarpetas = carpetas.filter(c => c.id_carpeta !== confirmacionCarpeta.idCarpeta);
+      const nuevasCarpetas = carpetas.filter((c) => c.id_carpeta !== confirmacionCarpeta.idCarpeta);
       setCarpetas(nuevasCarpetas);
-      
+
       // Si la carpeta eliminada era la seleccionada
       if (carpetaSeleccionada === confirmacionCarpeta.idCarpeta) {
         if (nuevasCarpetas.length > 0) {
@@ -463,62 +516,61 @@ const GaleriaDeArte: React.FC = () => {
           setArchivos([]);
         }
       }
-      
+
       setConfirmacionCarpeta({
         isOpen: false,
         idCarpeta: null,
         titulo: '',
-        mensaje: ''
+        mensaje: '',
       });
-      
+
       // Actualizar estadísticas
       const nuevasEstadisticas = await obtenerEstadisticasGaleria();
       setEstadisticas(nuevasEstadisticas);
-      
     } catch (error) {
       alert('Error eliminando carpeta');
     }
   };
-  
+
   const handleSubirArchivo = async () => {
     try {
       if (!archivoSubiendo) {
         alert('Selecciona un archivo');
         return;
       }
-      
+
       if (!carpetaSeleccionada) {
         alert('Selecciona una carpeta primero');
         return;
       }
-      
+
       // Validar tamaño del archivo (100MB máximo)
       const maxSize = 100 * 1024 * 1024; // 100MB
       if (archivoSubiendo.size > maxSize) {
         alert('El archivo es demasiado grande. El tamaño máximo es 100MB.');
         return;
       }
-      
+
       setSubiendoArchivo(true);
-      
+
       const formData = new FormData();
       formData.append('id_carpeta', carpetaSeleccionada.toString());
       formData.append('archivo', archivoSubiendo);
       if (descripcionArchivo) formData.append('descripcion', descripcionArchivo);
       if (etiquetasArchivo) formData.append('etiquetas', etiquetasArchivo);
       formData.append('es_publico', esPublicoArchivo.toString());
-      
+
       const nuevoArchivo = await subirArchivoGaleria(formData);
       setArchivos([nuevoArchivo, ...archivos]);
-      
+
       // Actualizar estadísticas
       const nuevasEstadisticas = await obtenerEstadisticasGaleria();
       setEstadisticas(nuevasEstadisticas);
-      
+
       // Actualizar carpeta en la lista
       const carpetasActualizadas = await obtenerCarpetasGaleria();
       setCarpetas(carpetasActualizadas);
-      
+
       setMostrarModalSubir(false);
       resetFormArchivo();
     } catch (error: any) {
@@ -527,7 +579,7 @@ const GaleriaDeArte: React.FC = () => {
       setSubiendoArchivo(false);
     }
   };
-  
+
   const resetFormArchivo = () => {
     setArchivoSubiendo(null);
     setDescripcionArchivo('');
@@ -537,23 +589,25 @@ const GaleriaDeArte: React.FC = () => {
       fileInputRef.current.value = '';
     }
   };
-  
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // Validar tipo de archivo
       const allowedTypes = ['image/', 'video/', 'audio/', 'application/pdf', 'text/'];
-      const isValidType = allowedTypes.some(type => file.type.startsWith(type));
-      
+      const isValidType = allowedTypes.some((type) => file.type.startsWith(type));
+
       if (!isValidType) {
-        alert('Tipo de archivo no permitido. Solo se aceptan imágenes, videos, audio, PDF y documentos de texto.');
+        alert(
+          'Tipo de archivo no permitido. Solo se aceptan imágenes, videos, audio, PDF y documentos de texto.'
+        );
         return;
       }
-      
+
       setArchivoSubiendo(file);
     }
   };
-  
+
   const verDetalleArchivo = async (idArchivo: number) => {
     try {
       const archivo = await obtenerArchivoDetalle(idArchivo);
@@ -564,7 +618,7 @@ const GaleriaDeArte: React.FC = () => {
       alert('Error al cargar los detalles del archivo');
     }
   };
-  
+
   const descargarArchivo = (url: string, nombre: string) => {
     const link = document.createElement('a');
     link.href = url;
@@ -574,60 +628,65 @@ const GaleriaDeArte: React.FC = () => {
     link.click();
     document.body.removeChild(link);
   };
-  
+
   const solicitarEliminarArchivo = (idArchivo: number, nombreArchivo: string) => {
     setConfirmacionArchivo({
       isOpen: true,
       idArchivo,
       titulo: 'Eliminar Archivo',
-      mensaje: `¿Estás seguro de eliminar el archivo "${nombreArchivo}"? Esta acción no se puede deshacer.`
+      mensaje: `¿Estás seguro de eliminar el archivo "${nombreArchivo}"? Esta acción no se puede deshacer.`,
     });
   };
-  
+
   const eliminarArchivoConfirmado = async () => {
     if (!confirmacionArchivo.idArchivo) return;
-    
+
     try {
       await eliminarArchivoGaleria(confirmacionArchivo.idArchivo);
-      setArchivos(archivos.filter(a => a.id_archivo !== confirmacionArchivo.idArchivo));
-      
+      setArchivos(archivos.filter((a) => a.id_archivo !== confirmacionArchivo.idArchivo));
+
       // Actualizar estadísticas
       const nuevasEstadisticas = await obtenerEstadisticasGaleria();
       setEstadisticas(nuevasEstadisticas);
-      
+
       // Actualizar carpetas
       const carpetasActualizadas = await obtenerCarpetasGaleria();
       setCarpetas(carpetasActualizadas);
-      
+
       if (archivoSeleccionado?.id_archivo === confirmacionArchivo.idArchivo) {
         setMostrarModalDetalle(false);
       }
-      
+
       setConfirmacionArchivo({
         isOpen: false,
         idArchivo: null,
         titulo: '',
-        mensaje: ''
+        mensaje: '',
       });
     } catch (error) {
       alert('Error eliminando archivo');
     }
   };
-  
+
   const handlePublicarDesdeGaleria = async () => {
     if (!archivoSeleccionado) return;
-    
+
     try {
-      const mensaje = (document.querySelector('#mensaje-publicacion') as HTMLTextAreaElement)?.value || 
-                     `Compartiendo ${archivoSeleccionado.nombre_original} desde mi galería`;
-      const etiquetasInput = (document.querySelector('#etiquetas-publicacion') as HTMLInputElement)?.value || '';
-      
+      const mensaje =
+        (document.querySelector('#mensaje-publicacion') as HTMLTextAreaElement)?.value ||
+        `Compartiendo ${archivoSeleccionado.nombre_original} desde mi galería`;
+      const etiquetasInput =
+        (document.querySelector('#etiquetas-publicacion') as HTMLInputElement)?.value || '';
+
       const data = {
         id_archivo: archivoSeleccionado.id_archivo,
         contenido: mensaje,
-        etiquetas: etiquetasInput.split(',').map(t => t.trim()).filter(t => t)
+        etiquetas: etiquetasInput
+          .split(',')
+          .map((t) => t.trim())
+          .filter((t) => t),
       };
-      
+
       await publicarDesdeGaleria(data);
       alert('¡Publicado exitosamente!');
       setMostrarModalPublicar(false);
@@ -636,7 +695,7 @@ const GaleriaDeArte: React.FC = () => {
       alert(error.response?.data?.detail || 'Error publicando');
     }
   };
-  
+
   if (cargando) {
     return (
       <div className="galeria-cargando">
@@ -645,17 +704,17 @@ const GaleriaDeArte: React.FC = () => {
       </div>
     );
   }
-  
+
   return (
-    <div 
-      className={`galeria-container ${isScrolling ? 'scrolling' : ''}`} 
-      ref={mainContainerRef} 
+    <div
+      className={`galeria-container ${isScrolling ? 'scrolling' : ''}`}
+      ref={mainContainerRef}
       onScroll={handleGlobalScroll}
     >
       {/* Efectos de partículas */}
       <div className="particulas">
         {Array.from({ length: 20 }).map((_, i) => (
-          <div 
+          <div
             key={i}
             className="particula"
             style={{
@@ -668,10 +727,10 @@ const GaleriaDeArte: React.FC = () => {
           />
         ))}
       </div>
-      
+
       {/* Botón flotante para scroll to top */}
       {showScrollToTop && (
-        <button 
+        <button
           className="btn-scroll-top"
           onClick={scrollToTopGlobal}
           title="Volver arriba"
@@ -680,11 +739,11 @@ const GaleriaDeArte: React.FC = () => {
           <ArrowUp size={20} />
         </button>
       )}
-      
+
       {/* Header principal */}
       <div className="galeria-header">
         <div className="header-left">
-          <button 
+          <button
             className="btn-back-home"
             onClick={() => navigate('/principal')}
             title="Regresar a la página principal"
@@ -692,7 +751,7 @@ const GaleriaDeArte: React.FC = () => {
             <ArrowLeft size={18} />
             <span>Página Principal</span>
           </button>
-          
+
           <div className="galeria-titulo-container">
             <div className="titulo-icono">
               <Palette size={28} />
@@ -701,31 +760,32 @@ const GaleriaDeArte: React.FC = () => {
             <div>
               <h1>
                 <span className="titulo-gradiente">Galería de Arte</span>
-                
               </h1>
-              <p className="subtitulo">Tu espacio para organizar tus obras en carpetas separadas </p>
+              <p className="subtitulo">
+                Tu espacio para organizar tus obras en carpetas separadas{' '}
+              </p>
             </div>
           </div>
         </div>
-        
+
         <div className="galeria-acciones">
-          <button 
+          <button
             className="btn-galeria btn-magic"
             onClick={() => setHoverEffects(!hoverEffects)}
-            title={hoverEffects ? "Desactivar efectos" : "Activar efectos mágicos"}
+            title={hoverEffects ? 'Desactivar efectos' : 'Activar efectos mágicos'}
           >
             <Sparkles size={16} />
-            {hoverEffects ? "Efectos ON" : "Efectos OFF"}
+            {hoverEffects ? 'Efectos ON' : 'Efectos OFF'}
           </button>
-          <button 
-            className="btn-galeria btn-secondary" 
+          <button
+            className="btn-galeria btn-secondary"
             onClick={() => setMostrarModalCarpeta(true)}
           >
             <FolderPlus size={16} />
             Nueva Carpeta
           </button>
-          <button 
-            className="btn-galeria btn-primary" 
+          <button
+            className="btn-galeria btn-primary"
             onClick={() => {
               if (carpetas.length === 0) {
                 alert('Primero crea una carpeta para organizar tus archivos');
@@ -740,7 +800,7 @@ const GaleriaDeArte: React.FC = () => {
           </button>
         </div>
       </div>
-      
+
       {/* Layout de 2 columnas */}
       <div className="galeria-main-content">
         {/* Columna izquierda: Contenido principal */}
@@ -748,42 +808,45 @@ const GaleriaDeArte: React.FC = () => {
           {/* Sidebar de carpetas */}
           <div className="galeria-sidebar">
             <div className="sidebar-header">
-              <h3><Folder size={16} /> Carpetas</h3>
+              <h3>
+                <Folder size={16} /> Carpetas
+              </h3>
               <span>{carpetas.length}</span>
             </div>
-            
-            <div 
-              ref={carpetasListaRef}
-              className="carpetas-lista"
-            >
+
+            <div ref={carpetasListaRef} className="carpetas-lista">
               {carpetas.map((carpeta, index) => (
                 <div
                   key={carpeta.id_carpeta}
                   className={`carpeta-item ${carpetaSeleccionada === carpeta.id_carpeta ? 'activa' : ''}`}
                   onClick={() => cargarArchivosCarpeta(carpeta.id_carpeta)}
-                  style={{ 
-                    borderLeftColor: carpeta.color,
-                    '--index': index
-                  } as React.CSSProperties}
+                  style={
+                    {
+                      borderLeftColor: carpeta.color,
+                      '--index': index,
+                    } as React.CSSProperties
+                  }
                 >
                   <div className="carpeta-info">
                     <Folder size={18} style={{ color: carpeta.color }} />
                     <div>
                       <h4>{carpeta.nombre}</h4>
-                      <p>{carpeta.total_archivos} archivos • {formatTamano(carpeta.tamano_total)}</p>
+                      <p>
+                        {carpeta.total_archivos} archivos • {formatTamano(carpeta.tamano_total)}
+                      </p>
                     </div>
                   </div>
-                  
+
                   <div className="carpeta-acciones">
                     <button
                       className="btn-icon"
-                      title={carpeta.es_publica ? "Carpeta pública" : "Carpeta privada"}
-                      aria-label={carpeta.es_publica ? "Carpeta pública" : "Carpeta privada"}
+                      title={carpeta.es_publica ? 'Carpeta pública' : 'Carpeta privada'}
+                      aria-label={carpeta.es_publica ? 'Carpeta pública' : 'Carpeta privada'}
                       onClick={(e) => e.stopPropagation()}
                     >
                       {carpeta.es_publica ? <Globe size={14} /> : <Lock size={14} />}
                     </button>
-                    
+
                     <button
                       className="btn-icon"
                       onClick={(e) => {
@@ -794,7 +857,7 @@ const GaleriaDeArte: React.FC = () => {
                     >
                       <Edit size={14} />
                     </button>
-                    
+
                     <button
                       className="btn-icon btn-danger"
                       onClick={(e) => {
@@ -808,12 +871,12 @@ const GaleriaDeArte: React.FC = () => {
                   </div>
                 </div>
               ))}
-              
+
               {carpetas.length === 0 && (
                 <div className="sin-carpetas">
                   <Folder size={48} />
                   <p>No hay carpetas creadas</p>
-                  <button 
+                  <button
                     className="btn-galeria btn-outline"
                     onClick={() => setMostrarModalCarpeta(true)}
                   >
@@ -824,7 +887,7 @@ const GaleriaDeArte: React.FC = () => {
               )}
             </div>
           </div>
-          
+
           {/* Área de archivos */}
           <div className="galeria-main">
             <div className="archivos-header">
@@ -839,8 +902,8 @@ const GaleriaDeArte: React.FC = () => {
                     onKeyPress={(e) => e.key === 'Enter' && cargarArchivosFiltrados()}
                   />
                   {busqueda && (
-                    <button 
-                      className="btn-icon" 
+                    <button
+                      className="btn-icon"
                       onClick={() => {
                         setBusqueda('');
                         cargarArchivosFiltrados();
@@ -850,8 +913,8 @@ const GaleriaDeArte: React.FC = () => {
                     </button>
                   )}
                 </div>
-                
-                <select 
+
+                <select
                   className="select-filtro"
                   value={tipoFiltro}
                   onChange={(e) => setTipoFiltro(e.target.value)}
@@ -862,16 +925,16 @@ const GaleriaDeArte: React.FC = () => {
                   <option value="audio">Audio</option>
                   <option value="documento">Documentos</option>
                 </select>
-                
+
                 <div className="vista-botones">
-                  <button 
+                  <button
                     className={`btn-icon ${vista === 'grid' ? 'active' : ''}`}
                     onClick={() => setVista('grid')}
                     title="Vista cuadrícula"
                   >
                     <Grid size={16} />
                   </button>
-                  <button 
+                  <button
                     className={`btn-icon ${vista === 'list' ? 'active' : ''}`}
                     onClick={() => setVista('list')}
                     title="Vista lista"
@@ -880,20 +943,20 @@ const GaleriaDeArte: React.FC = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className="info-carpeta">
-                {carpetaSeleccionada 
-                  ? carpetas.find(c => c.id_carpeta === carpetaSeleccionada)?.nombre
+                {carpetaSeleccionada
+                  ? carpetas.find((c) => c.id_carpeta === carpetaSeleccionada)?.nombre
                   : 'Selecciona una carpeta'}
                 {carpetaSeleccionada && (
                   <span className="contador-archivos">
                     {archivos.length} archivo{archivos.length !== 1 ? 's' : ''}
                   </span>
                 )}
-                
+
                 {/* Controles de scroll LOCAL (solo para archivos) */}
                 <div className="scroll-controls">
-                  <button 
+                  <button
                     className="btn-icon"
                     onClick={scrollToTopLocal}
                     title="Ir al inicio de archivos"
@@ -901,8 +964,8 @@ const GaleriaDeArte: React.FC = () => {
                   >
                     <ArrowUp size={14} />
                   </button>
-                  
-                  <button 
+
+                  <button
                     className="btn-icon"
                     onClick={scrollToBottomLocal}
                     title="Ir al final de archivos"
@@ -913,39 +976,39 @@ const GaleriaDeArte: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Grid de archivos */}
             {archivos.length > 0 ? (
-              <div 
+              <div
                 ref={archivosContainerRef}
                 className={`archivos-container ${vista} ${isAtBottom ? 'at-end' : ''}`}
               >
                 {archivos.map((archivo, index) => (
-                  <div 
-                    key={archivo.id_archivo} 
+                  <div
+                    key={archivo.id_archivo}
                     className={`archivo-card ${hoverEffects ? 'hover-effects neon-effect' : ''}`}
                     style={{ '--index': index } as React.CSSProperties}
                   >
-                    <div 
-                      className="archivo-preview" 
+                    <div
+                      className="archivo-preview"
                       onClick={() => verDetalleArchivo(archivo.id_archivo)}
                     >
                       <PreviewArchivo archivo={archivo} />
-                      
+
                       {archivo.es_publico && (
                         <div className="badge-publico" title="Archivo público">
                           <Globe size={10} />
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="archivo-info">
                       <h4 title={archivo.nombre_original}>
-                        {archivo.nombre_original.length > 30 
-                          ? archivo.nombre_original.substring(0, 30) + '...' 
+                        {archivo.nombre_original.length > 30
+                          ? archivo.nombre_original.substring(0, 30) + '...'
                           : archivo.nombre_original}
                       </h4>
-                      
+
                       <div className="archivo-meta">
                         <span className={`tipo-tag ${archivo.tipo}`}>
                           {getIconoTipo(archivo.tipo)}
@@ -960,7 +1023,7 @@ const GaleriaDeArte: React.FC = () => {
                           </>
                         )}
                       </div>
-                      
+
                       {archivo.descripcion && (
                         <p className="archivo-descripcion">
                           {archivo.descripcion.length > 100
@@ -968,25 +1031,25 @@ const GaleriaDeArte: React.FC = () => {
                             : archivo.descripcion}
                         </p>
                       )}
-                      
+
                       <div className="archivo-acciones">
-                        <button 
+                        <button
                           className="btn-icon"
                           onClick={() => verDetalleArchivo(archivo.id_archivo)}
                           title="Ver detalles"
                         >
                           <Eye size={14} />
                         </button>
-                        
-                        <button 
+
+                        <button
                           className="btn-icon"
                           onClick={() => descargarArchivo(archivo.ruta, archivo.nombre_original)}
                           title="Descargar"
                         >
                           <Download size={14} />
                         </button>
-                        
-                        <button 
+
+                        <button
                           className="btn-icon"
                           onClick={() => {
                             setArchivoSeleccionado(archivo);
@@ -996,10 +1059,12 @@ const GaleriaDeArte: React.FC = () => {
                         >
                           <Share2 size={14} />
                         </button>
-                        
-                        <button 
+
+                        <button
                           className="btn-icon btn-danger"
-                          onClick={() => solicitarEliminarArchivo(archivo.id_archivo, archivo.nombre_original)}
+                          onClick={() =>
+                            solicitarEliminarArchivo(archivo.id_archivo, archivo.nombre_original)
+                          }
                           title="Eliminar"
                         >
                           <Trash2 size={14} />
@@ -1014,7 +1079,7 @@ const GaleriaDeArte: React.FC = () => {
                 <FileImage size={48} />
                 <h3>No hay archivos en esta carpeta</h3>
                 <p>Sube tu primera obra o selecciona otra carpeta</p>
-                <button 
+                <button
                   className="btn-galeria btn-primary"
                   onClick={() => setMostrarModalSubir(true)}
                 >
@@ -1025,14 +1090,14 @@ const GaleriaDeArte: React.FC = () => {
             )}
           </div>
         </div>
-        
+
         {/* Columna derecha: Estadísticas */}
         <div className="galeria-estadisticas">
           <h3 className="titulo-estadisticas">
             <BarChart3 size={20} />
             Estadísticas
           </h3>
-          
+
           {estadisticas && (
             <>
               <div className="estadistica-card">
@@ -1044,7 +1109,7 @@ const GaleriaDeArte: React.FC = () => {
                   <div className="contador-label">Carpetas</div>
                 </div>
               </div>
-              
+
               <div className="estadistica-card">
                 <div className="icon-stats">
                   <FileImage size={20} />
@@ -1054,7 +1119,7 @@ const GaleriaDeArte: React.FC = () => {
                   <div className="contador-label">Archivos</div>
                 </div>
               </div>
-              
+
               <div className="estadistica-card">
                 <div className="icon-stats">
                   <BarChart3 size={20} />
@@ -1064,7 +1129,7 @@ const GaleriaDeArte: React.FC = () => {
                   <div className="contador-label">MB Usados</div>
                 </div>
               </div>
-              
+
               <div className="estadistica-card">
                 <div className="icon-stats">
                   <Globe size={20} />
@@ -1080,60 +1145,63 @@ const GaleriaDeArte: React.FC = () => {
           )}
         </div>
       </div>
-      
+
       {/* Modal: Crear/Editar Carpeta */}
       {mostrarModalCarpeta && (
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
               <h3>{editandoCarpeta ? 'Editar Carpeta' : 'Nueva Carpeta'}</h3>
-              <button className="btn-icon" onClick={() => {
-                setMostrarModalCarpeta(false);
-                resetFormCarpeta();
-              }}>
+              <button
+                className="btn-icon"
+                onClick={() => {
+                  setMostrarModalCarpeta(false);
+                  resetFormCarpeta();
+                }}
+              >
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="modal-body">
               <div className="form-group">
                 <label>Nombre de la carpeta *</label>
                 <input
                   type="text"
                   value={formCarpeta.nombre}
-                  onChange={(e) => setFormCarpeta({...formCarpeta, nombre: e.target.value})}
+                  onChange={(e) => setFormCarpeta({ ...formCarpeta, nombre: e.target.value })}
                   placeholder="Ej: Mis Pinturas, Música Original, etc."
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Descripción (opcional)</label>
                 <textarea
                   value={formCarpeta.descripcion}
-                  onChange={(e) => setFormCarpeta({...formCarpeta, descripcion: e.target.value})}
+                  onChange={(e) => setFormCarpeta({ ...formCarpeta, descripcion: e.target.value })}
                   placeholder="Describe el contenido de esta carpeta..."
                   rows={3}
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Color de la carpeta</label>
                 <div className="color-picker">
                   <input
                     type="color"
                     value={formCarpeta.color}
-                    onChange={(e) => setFormCarpeta({...formCarpeta, color: e.target.value})}
+                    onChange={(e) => setFormCarpeta({ ...formCarpeta, color: e.target.value })}
                   />
                   <span>{formCarpeta.color}</span>
                 </div>
               </div>
-              
+
               <div className="form-group checkbox-group">
                 <input
                   type="checkbox"
                   id="es_publica"
                   checked={formCarpeta.es_publica}
-                  onChange={(e) => setFormCarpeta({...formCarpeta, es_publica: e.target.checked})}
+                  onChange={(e) => setFormCarpeta({ ...formCarpeta, es_publica: e.target.checked })}
                 />
                 <label htmlFor="es_publica">
                   <Globe size={16} />
@@ -1144,9 +1212,9 @@ const GaleriaDeArte: React.FC = () => {
                 </label>
               </div>
             </div>
-            
+
             <div className="modal-footer">
-              <button 
+              <button
                 className="btn-galeria btn-outline"
                 onClick={() => {
                   setMostrarModalCarpeta(false);
@@ -1155,7 +1223,7 @@ const GaleriaDeArte: React.FC = () => {
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 className="btn-galeria btn-primary"
                 onClick={handleCrearCarpeta}
                 disabled={!formCarpeta.nombre.trim()}
@@ -1166,31 +1234,36 @@ const GaleriaDeArte: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Modal: Subir Archivo */}
       {mostrarModalSubir && (
         <div className="modal-overlay">
           <div className="modal modal-lg">
             <div className="modal-header">
-              <h3><Upload size={20} /> Subir Archivo a la Galería</h3>
-              <button className="btn-icon" onClick={() => {
-                setMostrarModalSubir(false);
-                resetFormArchivo();
-              }}>
+              <h3>
+                <Upload size={20} /> Subir Archivo a la Galería
+              </h3>
+              <button
+                className="btn-icon"
+                onClick={() => {
+                  setMostrarModalSubir(false);
+                  resetFormArchivo();
+                }}
+              >
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="modal-body">
               <div className="form-group">
                 <label>Seleccionar carpeta *</label>
-                <select 
+                <select
                   className="select-filtro"
                   value={carpetaSeleccionada || ''}
                   onChange={(e) => setCarpetaSeleccionada(Number(e.target.value))}
                 >
                   <option value="">Selecciona una carpeta</option>
-                  {carpetas.map(carpeta => (
+                  {carpetas.map((carpeta) => (
                     <option key={carpeta.id_carpeta} value={carpeta.id_carpeta}>
                       {carpeta.nombre}
                     </option>
@@ -1202,10 +1275,10 @@ const GaleriaDeArte: React.FC = () => {
                   </small>
                 )}
               </div>
-              
+
               <div className="form-group">
                 <label>Seleccionar archivo *</label>
-                <div 
+                <div
                   className={`file-upload-area ${archivoSubiendo ? 'has-file' : ''}`}
                   onClick={() => document.getElementById('file-input')?.click()}
                 >
@@ -1214,9 +1287,12 @@ const GaleriaDeArte: React.FC = () => {
                       <File size={32} />
                       <div>
                         <strong>{archivoSubiendo.name}</strong>
-                        <p>{formatTamano(archivoSubiendo.size)} • {archivoSubiendo.type || 'Tipo desconocido'}</p>
+                        <p>
+                          {formatTamano(archivoSubiendo.size)} •{' '}
+                          {archivoSubiendo.type || 'Tipo desconocido'}
+                        </p>
                       </div>
-                      <button 
+                      <button
                         className="btn-icon"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -1230,7 +1306,9 @@ const GaleriaDeArte: React.FC = () => {
                     <>
                       <Upload size={48} />
                       <p>Arrastra y suelta o haz clic para seleccionar</p>
-                      <small>Tipos soportados: Imágenes, Videos, Audio, Documentos (max 100MB)</small>
+                      <small>
+                        Tipos soportados: Imágenes, Videos, Audio, Documentos (max 100MB)
+                      </small>
                     </>
                   )}
                   <input
@@ -1242,7 +1320,7 @@ const GaleriaDeArte: React.FC = () => {
                   />
                 </div>
               </div>
-              
+
               <div className="form-group">
                 <label>Descripción (opcional)</label>
                 <textarea
@@ -1252,7 +1330,7 @@ const GaleriaDeArte: React.FC = () => {
                   rows={3}
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Etiquetas (opcional)</label>
                 <input
@@ -1263,7 +1341,7 @@ const GaleriaDeArte: React.FC = () => {
                 />
                 <small>Separa las etiquetas con comas</small>
               </div>
-              
+
               <div className="form-group checkbox-group">
                 <input
                   type="checkbox"
@@ -1275,14 +1353,16 @@ const GaleriaDeArte: React.FC = () => {
                   <Globe size={16} />
                   <div>
                     <span>Hacer archivo público</span>
-                    <small>Este archivo será visible para otros usuarios en tu galería pública</small>
+                    <small>
+                      Este archivo será visible para otros usuarios en tu galería pública
+                    </small>
                   </div>
                 </label>
               </div>
             </div>
-            
+
             <div className="modal-footer">
-              <button 
+              <button
                 className="btn-galeria btn-outline"
                 onClick={() => {
                   setMostrarModalSubir(false);
@@ -1292,7 +1372,7 @@ const GaleriaDeArte: React.FC = () => {
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 className="btn-galeria btn-primary"
                 onClick={handleSubirArchivo}
                 disabled={!archivoSubiendo || !carpetaSeleccionada || subiendoArchivo}
@@ -1313,24 +1393,26 @@ const GaleriaDeArte: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Modal: Detalles del Archivo */}
       {mostrarModalDetalle && archivoSeleccionado && (
         <div className="modal-overlay">
           <div className="modal modal-lg">
             <div className="modal-header">
-              <h3><File size={20} /> Detalles del Archivo</h3>
+              <h3>
+                <File size={20} /> Detalles del Archivo
+              </h3>
               <button className="btn-icon" onClick={() => setMostrarModalDetalle(false)}>
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="modal-body">
               <div className="archivo-detalle">
                 <div className="detalle-preview">
                   {archivoSeleccionado.tipo === 'imagen' ? (
-                    <img 
-                      src={archivoSeleccionado.ruta} 
+                    <img
+                      src={archivoSeleccionado.ruta}
                       alt={archivoSeleccionado.nombre_original}
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
@@ -1345,7 +1427,10 @@ const GaleriaDeArte: React.FC = () => {
                   ) : archivoSeleccionado.tipo === 'video' ? (
                     <div className="video-detalle">
                       <video controls>
-                        <source src={archivoSeleccionado.ruta} type={`video/${archivoSeleccionado.extension}`} />
+                        <source
+                          src={archivoSeleccionado.ruta}
+                          type={`video/${archivoSeleccionado.extension}`}
+                        />
                         Tu navegador no soporta el elemento de video.
                       </video>
                     </div>
@@ -1353,7 +1438,10 @@ const GaleriaDeArte: React.FC = () => {
                     <div className="audio-detalle">
                       <Music size={64} />
                       <audio controls>
-                        <source src={archivoSeleccionado.ruta} type={`audio/${archivoSeleccionado.extension}`} />
+                        <source
+                          src={archivoSeleccionado.ruta}
+                          type={`audio/${archivoSeleccionado.extension}`}
+                        />
                         Tu navegador no soporta el elemento de audio.
                       </audio>
                     </div>
@@ -1361,9 +1449,9 @@ const GaleriaDeArte: React.FC = () => {
                     <div className="documento-detalle">
                       <FileText size={64} />
                       <p>Documento: {archivoSeleccionado.nombre_original}</p>
-                      <a 
-                        href={archivoSeleccionado.ruta} 
-                        target="_blank" 
+                      <a
+                        href={archivoSeleccionado.ruta}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="btn-galeria btn-outline"
                       >
@@ -1373,34 +1461,38 @@ const GaleriaDeArte: React.FC = () => {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="detalle-info">
                   <div className="info-row">
                     <span className="label">Nombre:</span>
                     <span className="value">{archivoSeleccionado.nombre_original}</span>
                   </div>
-                  
+
                   <div className="info-row">
                     <span className="label">Tipo:</span>
-                    <span className="value" style={{ color: getColorTipo(archivoSeleccionado.tipo) }}>
+                    <span
+                      className="value"
+                      style={{ color: getColorTipo(archivoSeleccionado.tipo) }}
+                    >
                       {getIconoTipo(archivoSeleccionado.tipo)}
-                      {archivoSeleccionado.tipo.charAt(0).toUpperCase() + archivoSeleccionado.tipo.slice(1)} 
+                      {archivoSeleccionado.tipo.charAt(0).toUpperCase() +
+                        archivoSeleccionado.tipo.slice(1)}
                       ({archivoSeleccionado.extension?.toUpperCase() || 'N/A'})
                     </span>
                   </div>
-                  
+
                   <div className="info-row">
                     <span className="label">Tamaño:</span>
                     <span className="value">{formatTamano(archivoSeleccionado.tamano)}</span>
                   </div>
-                  
+
                   {archivoSeleccionado.resolucion && (
                     <div className="info-row">
                       <span className="label">Resolución:</span>
                       <span className="value">{archivoSeleccionado.resolucion}</span>
                     </div>
                   )}
-                  
+
                   {archivoSeleccionado.duracion && (
                     <div className="info-row">
                       <span className="label">Duración:</span>
@@ -1410,17 +1502,17 @@ const GaleriaDeArte: React.FC = () => {
                       </span>
                     </div>
                   )}
-                  
+
                   <div className="info-row">
                     <span className="label">Carpeta:</span>
                     <span className="value">{archivoSeleccionado.carpeta_nombre}</span>
                   </div>
-                  
+
                   <div className="info-row">
                     <span className="label">Subido:</span>
                     <span className="value">{formatFecha(archivoSeleccionado.fecha_subida)}</span>
                   </div>
-                  
+
                   <div className="info-row">
                     <span className="label">Visibilidad:</span>
                     <span className="value">
@@ -1437,20 +1529,22 @@ const GaleriaDeArte: React.FC = () => {
                       )}
                     </span>
                   </div>
-                  
+
                   {archivoSeleccionado.descripcion && (
                     <div className="info-row">
                       <span className="label">Descripción:</span>
                       <p className="value descripcion">{archivoSeleccionado.descripcion}</p>
                     </div>
                   )}
-                  
+
                   {archivoSeleccionado.etiquetas && archivoSeleccionado.etiquetas.length > 0 && (
                     <div className="info-row">
                       <span className="label">Etiquetas:</span>
                       <div className="etiquetas">
                         {archivoSeleccionado.etiquetas.map((etiqueta, index) => (
-                          <span key={index} className="etiqueta">{etiqueta}</span>
+                          <span key={index} className="etiqueta">
+                            {etiqueta}
+                          </span>
                         ))}
                       </div>
                     </div>
@@ -1458,28 +1552,33 @@ const GaleriaDeArte: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="modal-footer">
-              <button 
+              <button
                 className="btn-galeria btn-outline"
                 onClick={() => {
                   setMostrarModalDetalle(false);
-                  solicitarEliminarArchivo(archivoSeleccionado.id_archivo, archivoSeleccionado.nombre_original);
+                  solicitarEliminarArchivo(
+                    archivoSeleccionado.id_archivo,
+                    archivoSeleccionado.nombre_original
+                  );
                 }}
               >
                 <Trash2 size={18} />
                 Eliminar
               </button>
-              
-              <button 
+
+              <button
                 className="btn-galeria btn-outline"
-                onClick={() => descargarArchivo(archivoSeleccionado.ruta, archivoSeleccionado.nombre_original)}
+                onClick={() =>
+                  descargarArchivo(archivoSeleccionado.ruta, archivoSeleccionado.nombre_original)
+                }
               >
                 <Download size={18} />
                 Descargar
               </button>
-              
-              <button 
+
+              <button
                 className="btn-galeria btn-primary"
                 onClick={() => {
                   setMostrarModalDetalle(false);
@@ -1493,24 +1592,28 @@ const GaleriaDeArte: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Modal: Publicar desde Galería */}
       {mostrarModalPublicar && archivoSeleccionado && (
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
-              <h3><Share2 size={20} /> Publicar desde Galería</h3>
+              <h3>
+                <Share2 size={20} /> Publicar desde Galería
+              </h3>
               <button className="btn-icon" onClick={() => setMostrarModalPublicar(false)}>
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="modal-body">
               <div className="publicar-preview">
                 <PreviewArchivo archivo={archivoSeleccionado} />
-                <p><strong>{archivoSeleccionado.nombre_original}</strong></p>
+                <p>
+                  <strong>{archivoSeleccionado.nombre_original}</strong>
+                </p>
               </div>
-              
+
               <div className="form-group">
                 <label>Mensaje (opcional)</label>
                 <textarea
@@ -1520,7 +1623,7 @@ const GaleriaDeArte: React.FC = () => {
                   defaultValue={`Compartiendo ${archivoSeleccionado.nombre_original} desde mi galería`}
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Etiquetas (opcional)</label>
                 <input
@@ -1530,24 +1633,24 @@ const GaleriaDeArte: React.FC = () => {
                   defaultValue={archivoSeleccionado.etiquetas?.join(', ')}
                 />
               </div>
-              
+
               <div className="alert alert-info">
                 <Info size={18} />
-                <p>Esta publicación aparecerá en la página principal visible para todos tus seguidores.</p>
+                <p>
+                  Esta publicación aparecerá en la página principal visible para todos tus
+                  seguidores.
+                </p>
               </div>
             </div>
-            
+
             <div className="modal-footer">
-              <button 
+              <button
                 className="btn-galeria btn-outline"
                 onClick={() => setMostrarModalPublicar(false)}
               >
                 Cancelar
               </button>
-              <button 
-                className="btn-galeria btn-primary"
-                onClick={handlePublicarDesdeGaleria}
-              >
+              <button className="btn-galeria btn-primary" onClick={handlePublicarDesdeGaleria}>
                 <Share2 size={18} />
                 Publicar ahora
               </button>
@@ -1555,35 +1658,39 @@ const GaleriaDeArte: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Diálogos de confirmación */}
       <ConfirmDialog
         isOpen={confirmacionCarpeta.isOpen}
         title={confirmacionCarpeta.titulo}
         message={confirmacionCarpeta.mensaje}
         onConfirm={eliminarCarpetaConfirmada}
-        onCancel={() => setConfirmacionCarpeta({
-          isOpen: false,
-          idCarpeta: null,
-          titulo: '',
-          mensaje: ''
-        })}
+        onCancel={() =>
+          setConfirmacionCarpeta({
+            isOpen: false,
+            idCarpeta: null,
+            titulo: '',
+            mensaje: '',
+          })
+        }
         confirmText="Eliminar"
         cancelText="Cancelar"
         tipo="peligro"
       />
-      
+
       <ConfirmDialog
         isOpen={confirmacionArchivo.isOpen}
         title={confirmacionArchivo.titulo}
         message={confirmacionArchivo.mensaje}
         onConfirm={eliminarArchivoConfirmado}
-        onCancel={() => setConfirmacionArchivo({
-          isOpen: false,
-          idArchivo: null,
-          titulo: '',
-          mensaje: ''
-        })}
+        onCancel={() =>
+          setConfirmacionArchivo({
+            isOpen: false,
+            idArchivo: null,
+            titulo: '',
+            mensaje: '',
+          })
+        }
         confirmText="Eliminar"
         cancelText="Cancelar"
         tipo="peligro"

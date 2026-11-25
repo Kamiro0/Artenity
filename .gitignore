@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+backend/.env
+backend/venv/
+backend/myenv/
+frontend/node_modules/
+node_modules/
+frontend/build/
+dist/
+static/

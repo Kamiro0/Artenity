@@ -1,18 +1,14 @@
 //configuraciones.tsx
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   actualizarUsuario,
   cambiarContrasena,
   eliminarCuenta,
   reportarProblema,
   obtenerCategoriasPublicas,
-} from "../services/api";
-import {
-  validateEmail,
-  validatePassword,
-  formatPhoneNumber
-} from "../utils/validation";
+} from '../services/api';
+import { validateEmail, validatePassword, formatPhoneNumber } from '../utils/validation';
 import {
   Settings,
   User,
@@ -37,9 +33,9 @@ import {
   X,
   Info,
   ChevronRight,
-  AlertTriangle
-} from "lucide-react";
-import "../styles/configuraciones.css";
+  AlertTriangle,
+} from 'lucide-react';
+import '../styles/configuraciones.css';
 
 interface Usuario {
   id_usuario: number;
@@ -61,24 +57,24 @@ interface Categoria {
 
 const Configuraciones: React.FC = () => {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState<string>("tu-cuenta");
+  const [activeSection, setActiveSection] = useState<string>('tu-cuenta');
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
-  
+
   // Estados para validación
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
-  
+
   const [idiomas] = useState([
-    { codigo: "es", nombre: "Español", nativo: "Español" },
-    { codigo: "en", nombre: "Inglés", nativo: "English" },
-    { codigo: "fr", nombre: "Francés", nativo: "Français" },
-    { codigo: "de", nombre: "Alemán", nativo: "Deutsch" },
-    { codigo: "pt", nombre: "Portugués", nativo: "Português" },
+    { codigo: 'es', nombre: 'Español', nativo: 'Español' },
+    { codigo: 'en', nombre: 'Inglés', nativo: 'English' },
+    { codigo: 'fr', nombre: 'Francés', nativo: 'Français' },
+    { codigo: 'de', nombre: 'Alemán', nativo: 'Deutsch' },
+    { codigo: 'pt', nombre: 'Portugués', nativo: 'Português' },
   ]);
-  
+
   const [modoOscuro, setModoOscuro] = useState<boolean>(true);
   const [tamanoFuente, setTamanoFuente] = useState<number>(16);
   const [notificaciones, setNotificaciones] = useState({
@@ -91,26 +87,26 @@ const Configuraciones: React.FC = () => {
 
   // Formularios
   const [formData, setFormData] = useState({
-    nombre: "",
-    apellido: "",
-    correo_electronico: "",
-    fecha_nacimiento: "",
-    genero: "",
-    tipo_arte_preferido: "",
-    telefono: "",
-    nombre_usuario: "",
+    nombre: '',
+    apellido: '',
+    correo_electronico: '',
+    fecha_nacimiento: '',
+    genero: '',
+    tipo_arte_preferido: '',
+    telefono: '',
+    nombre_usuario: '',
   });
 
   const [passwordData, setPasswordData] = useState({
-    passwordActual: "",
-    newPassword: "",
-    confirmPassword: "",
+    passwordActual: '',
+    newPassword: '',
+    confirmPassword: '',
   });
 
   const [reporteData, setReporteData] = useState({
-    tipoProblema: "tecnico",
-    descripcion: "",
-    emailContacto: "",
+    tipoProblema: 'tecnico',
+    descripcion: '',
+    emailContacto: '',
   });
 
   const [showPassword, setShowPassword] = useState({
@@ -120,61 +116,64 @@ const Configuraciones: React.FC = () => {
   });
 
   // Estados para mensajes
-  const [message, setMessage] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: 'success' | 'error' | 'info';
+    text: string;
+  } | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<string>("");
+  const [deleteConfirm, setDeleteConfirm] = useState<string>('');
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
   // Cargar datos iniciales
-useEffect(() => {
-  cargarDatosUsuario();
-  cargarCategorias();
-  
-  // Cargar preferencias del localStorage
-  const modoOscuroGuardado = localStorage.getItem("modoOscuro");
-  const tamanoFuenteGuardado = localStorage.getItem("tamanoFuente");
-  const notificacionesGuardadas = localStorage.getItem("notificaciones");
-  
-  // Si no hay valor guardado, usar true (modo oscuro por defecto)
-  setModoOscuro(modoOscuroGuardado !== null ? modoOscuroGuardado === "true" : true);
-  
-  if (tamanoFuenteGuardado) {
-    setTamanoFuente(parseInt(tamanoFuenteGuardado));
-  }
-  if (notificacionesGuardadas) {
-    setNotificaciones(JSON.parse(notificacionesGuardadas));
-  }
-  
-  // Aplicar modo oscuro por defecto
-  document.documentElement.classList.add("dark-mode");
-}, []);
+  useEffect(() => {
+    cargarDatosUsuario();
+    cargarCategorias();
+
+    // Cargar preferencias del localStorage
+    const modoOscuroGuardado = localStorage.getItem('modoOscuro');
+    const tamanoFuenteGuardado = localStorage.getItem('tamanoFuente');
+    const notificacionesGuardadas = localStorage.getItem('notificaciones');
+
+    // Si no hay valor guardado, usar true (modo oscuro por defecto)
+    setModoOscuro(modoOscuroGuardado !== null ? modoOscuroGuardado === 'true' : true);
+
+    if (tamanoFuenteGuardado) {
+      setTamanoFuente(parseInt(tamanoFuenteGuardado));
+    }
+    if (notificacionesGuardadas) {
+      setNotificaciones(JSON.parse(notificacionesGuardadas));
+    }
+
+    // Aplicar modo oscuro por defecto
+    document.documentElement.classList.add('dark-mode');
+  }, []);
 
   const cargarDatosUsuario = () => {
     try {
-      const usuarioStorage = localStorage.getItem("usuario");
+      const usuarioStorage = localStorage.getItem('usuario');
       if (usuarioStorage) {
         const usuarioData: Usuario = JSON.parse(usuarioStorage);
         setUsuario(usuarioData);
         setFormData({
-          nombre: usuarioData.nombre || "",
-          apellido: usuarioData.apellido || "",
-          correo_electronico: usuarioData.correo_electronico || "",
-          fecha_nacimiento: usuarioData.fecha_nacimiento?.split("T")[0] || "",
-          genero: usuarioData.genero || "",
-          tipo_arte_preferido: usuarioData.tipo_arte_preferido || "",
-          telefono: usuarioData.telefono || "",
-          nombre_usuario: usuarioData.nombre_usuario || "",
+          nombre: usuarioData.nombre || '',
+          apellido: usuarioData.apellido || '',
+          correo_electronico: usuarioData.correo_electronico || '',
+          fecha_nacimiento: usuarioData.fecha_nacimiento?.split('T')[0] || '',
+          genero: usuarioData.genero || '',
+          tipo_arte_preferido: usuarioData.tipo_arte_preferido || '',
+          telefono: usuarioData.telefono || '',
+          nombre_usuario: usuarioData.nombre_usuario || '',
         });
-        
+
         // También cargar email de contacto para reportes
-        setReporteData(prev => ({
+        setReporteData((prev) => ({
           ...prev,
-          emailContacto: usuarioData.correo_electronico || ""
+          emailContacto: usuarioData.correo_electronico || '',
         }));
       }
     } catch (error) {
-      console.error("Error cargando datos del usuario:", error);
-      setMessage({ type: "error", text: "Error cargando datos del usuario" });
+      console.error('Error cargando datos del usuario:', error);
+      setMessage({ type: 'error', text: 'Error cargando datos del usuario' });
     } finally {
       setLoading(false);
     }
@@ -185,73 +184,77 @@ useEffect(() => {
       const categoriasData = await obtenerCategoriasPublicas();
       setCategorias(categoriasData);
     } catch (error) {
-      console.error("Error cargando categorías:", error);
-      setMessage({ type: "error", text: "Error cargando categorías" });
+      console.error('Error cargando categorías:', error);
+      setMessage({ type: 'error', text: 'Error cargando categorías' });
     }
   };
 
   // Manejar cambios en formularios con validación
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    
+
     // Limpiar error de validación para este campo
-    setValidationErrors(prev => ({ ...prev, [name]: "" }));
-    
+    setValidationErrors((prev) => ({ ...prev, [name]: '' }));
+
     // Formatear teléfono si es el campo de teléfono
-    if (name === "telefono") {
+    if (name === 'telefono') {
       const formattedPhone = formatPhoneNumber(value);
-      setFormData(prev => ({ ...prev, [name]: formattedPhone }));
+      setFormData((prev) => ({ ...prev, [name]: formattedPhone }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
-    
+
     // Validar email en tiempo real
-    if (name === "correo_electronico" && value && !validateEmail(value)) {
-      setValidationErrors(prev => ({ 
-        ...prev, 
-        [name]: "Email inválido" 
+    if (name === 'correo_electronico' && value && !validateEmail(value)) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        [name]: 'Email inválido',
       }));
     }
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setPasswordData(prev => ({ ...prev, [name]: value }));
-    
+    setPasswordData((prev) => ({ ...prev, [name]: value }));
+
     // Validar nueva contraseña en tiempo real
-    if (name === "newPassword") {
+    if (name === 'newPassword') {
       const validation = validatePassword(value);
       setPasswordErrors(validation.errors);
     }
   };
 
-  const handleReporteChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleReporteChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setReporteData(prev => ({ ...prev, [name]: value }));
+    setReporteData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Validar formulario completo
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
-    
+
     if (!formData.nombre.trim()) {
-      errors.nombre = "El nombre es requerido";
+      errors.nombre = 'El nombre es requerido';
     }
-    
+
     if (!formData.apellido.trim()) {
-      errors.apellido = "El apellido es requerido";
+      errors.apellido = 'El apellido es requerido';
     }
-    
+
     if (!formData.correo_electronico.trim()) {
-      errors.correo_electronico = "El email es requerido";
+      errors.correo_electronico = 'El email es requerido';
     } else if (!validateEmail(formData.correo_electronico)) {
-      errors.correo_electronico = "Email inválido";
+      errors.correo_electronico = 'Email inválido';
     }
-    
+
     if (!formData.nombre_usuario.trim()) {
-      errors.nombre_usuario = "El nombre de usuario es requerido";
+      errors.nombre_usuario = 'El nombre de usuario es requerido';
     }
-    
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -259,30 +262,30 @@ useEffect(() => {
   // Guardar cambios en cuenta
   const guardarCambiosCuenta = async () => {
     if (!usuario) return;
-    
+
     // Validar formulario
     if (!validateForm()) {
-      setMessage({ type: "error", text: "Por favor corrige los errores en el formulario" });
+      setMessage({ type: 'error', text: 'Por favor corrige los errores en el formulario' });
       return;
     }
-    
+
     setSaving(true);
     try {
       const response = await actualizarUsuario(usuario.id_usuario, formData);
-      
+
       // Actualizar en localStorage y estado
       const usuarioActualizado = {
         ...usuario,
-        ...formData
+        ...formData,
       };
-      localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
+      localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
       setUsuario(usuarioActualizado);
-      
-      setMessage({ type: "success", text: response.mensaje || "Cambios guardados correctamente" });
+
+      setMessage({ type: 'success', text: response.mensaje || 'Cambios guardados correctamente' });
     } catch (error: any) {
-      setMessage({ 
-        type: "error", 
-        text: error.response?.data?.detail || "Error al guardar los cambios" 
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.detail || 'Error al guardar los cambios',
       });
     } finally {
       setSaving(false);
@@ -293,43 +296,43 @@ useEffect(() => {
   // Cambiar contraseña - VERSIÓN TEMPORAL SIN BACKEND
   const cambiarContrasena = async () => {
     if (!usuario) return;
-    
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setMessage({ type: "error", text: "Las contraseñas no coinciden" });
+      setMessage({ type: 'error', text: 'Las contraseñas no coinciden' });
       return;
     }
-    
+
     const validation = validatePassword(passwordData.newPassword);
     if (!validation.isValid) {
-      setMessage({ 
-        type: "error", 
-        text: "La contraseña no cumple con los requisitos mínimos" 
+      setMessage({
+        type: 'error',
+        text: 'La contraseña no cumple con los requisitos mínimos',
       });
       setPasswordErrors(validation.errors);
       return;
     }
-    
+
     if (passwordData.newPassword.length < 6) {
-      setMessage({ type: "error", text: "La contraseña debe tener al menos 6 caracteres" });
+      setMessage({ type: 'error', text: 'La contraseña debe tener al menos 6 caracteres' });
       return;
     }
-    
+
     setSaving(true);
     try {
       // TEMPORAL: Simular llamada a API hasta que tengas el backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setMessage({ type: "success", text: "Contraseña cambiada correctamente" });
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setMessage({ type: 'success', text: 'Contraseña cambiada correctamente' });
       setPasswordData({
-        passwordActual: "",
-        newPassword: "",
-        confirmPassword: "",
+        passwordActual: '',
+        newPassword: '',
+        confirmPassword: '',
       });
       setPasswordErrors([]);
     } catch (error: any) {
-      setMessage({ 
-        type: "error", 
-        text: error.response?.data?.detail || "Error al cambiar la contraseña" 
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.detail || 'Error al cambiar la contraseña',
       });
     } finally {
       setSaving(false);
@@ -340,43 +343,43 @@ useEffect(() => {
   // Eliminar cuenta - VERSIÓN TEMPORAL SIN BACKEND
   const eliminarCuenta = async () => {
     if (!usuario) return;
-    
-    if (deleteConfirm !== "ELIMINAR") {
-      setMessage({ type: "error", text: "Debes escribir 'ELIMINAR' para confirmar" });
+
+    if (deleteConfirm !== 'ELIMINAR') {
+      setMessage({ type: 'error', text: "Debes escribir 'ELIMINAR' para confirmar" });
       return;
     }
-    
+
     setSaving(true);
     try {
       // TEMPORAL: Simular llamada a API hasta que tengas el backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Limpiar localStorage y redirigir
       localStorage.clear();
-      navigate("/");
+      navigate('/');
     } catch (error: any) {
-      setMessage({ 
-        type: "error", 
-        text: error.response?.data?.detail || "Error al eliminar la cuenta" 
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.detail || 'Error al eliminar la cuenta',
       });
       setSaving(false);
       setShowDeleteModal(false);
-      setDeleteConfirm("");
+      setDeleteConfirm('');
     }
   };
 
   // Enviar reporte
   const enviarReporte = async () => {
     if (!reporteData.descripcion.trim()) {
-      setMessage({ type: "error", text: "Por favor describe el problema" });
+      setMessage({ type: 'error', text: 'Por favor describe el problema' });
       return;
     }
-    
+
     if (!validateEmail(reporteData.emailContacto)) {
-      setMessage({ type: "error", text: "Email de contacto inválido" });
+      setMessage({ type: 'error', text: 'Email de contacto inválido' });
       return;
     }
-    
+
     setSaving(true);
     try {
       // Mapear los nombres de campos del frontend al backend
@@ -385,19 +388,22 @@ useEffect(() => {
         descripcion: reporteData.descripcion,
         email_contacto: reporteData.emailContacto,
       };
-      
+
       await reportarProblema(reporteDataBackend);
-      
-      setMessage({ type: "success", text: "Reporte enviado correctamente. Te contactaremos pronto." });
+
+      setMessage({
+        type: 'success',
+        text: 'Reporte enviado correctamente. Te contactaremos pronto.',
+      });
       setReporteData({
-        tipoProblema: "tecnico",
-        descripcion: "",
-        emailContacto: usuario?.correo_electronico || "",
+        tipoProblema: 'tecnico',
+        descripcion: '',
+        emailContacto: usuario?.correo_electronico || '',
       });
     } catch (error: any) {
-      setMessage({ 
-        type: "error", 
-        text: error.response?.data?.detail || error.message || "Error al enviar el reporte" 
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.detail || error.message || 'Error al enviar el reporte',
       });
     } finally {
       setSaving(false);
@@ -409,31 +415,31 @@ useEffect(() => {
   const toggleModoOscuro = () => {
     const nuevoModo = !modoOscuro;
     setModoOscuro(nuevoModo);
-    localStorage.setItem("modoOscuro", nuevoModo.toString());
-    document.documentElement.classList.toggle("dark-mode", nuevoModo);
+    localStorage.setItem('modoOscuro', nuevoModo.toString());
+    document.documentElement.classList.toggle('dark-mode', nuevoModo);
   };
 
   const cambiarTamanoFuente = (tamano: number) => {
     setTamanoFuente(tamano);
-    localStorage.setItem("tamanoFuente", tamano.toString());
+    localStorage.setItem('tamanoFuente', tamano.toString());
     document.documentElement.style.fontSize = `${tamano}px`;
   };
 
   const toggleNotificacion = (tipo: keyof typeof notificaciones) => {
     const nuevasNotificaciones = {
       ...notificaciones,
-      [tipo]: !notificaciones[tipo]
+      [tipo]: !notificaciones[tipo],
     };
     setNotificaciones(nuevasNotificaciones);
-    localStorage.setItem("notificaciones", JSON.stringify(nuevasNotificaciones));
+    localStorage.setItem('notificaciones', JSON.stringify(nuevasNotificaciones));
   };
 
   // Componente de campo con validación
   const renderField = (
     name: keyof typeof formData,
     label: string,
-    type: string = "text",
-    placeholder: string = ""
+    type = 'text',
+    placeholder = ''
   ) => (
     <div className="form-field">
       <label className="form-label">
@@ -460,7 +466,7 @@ useEffect(() => {
   // Renderizar sección activa
   const renderSection = () => {
     switch (activeSection) {
-      case "tu-cuenta":
+      case 'tu-cuenta':
         return (
           <div className="settings-section animate-fadeIn">
             <div className="section-header">
@@ -470,24 +476,24 @@ useEffect(() => {
                 </div>
                 Tu Cuenta
               </h2>
-              <div className="last-update">
-                Última actualización: Hoy
-              </div>
+              <div className="last-update">Última actualización: Hoy</div>
             </div>
-            
+
             <div className="info-card blue-gradient">
               <h3 className="card-title">
                 <User size={14} />
                 Información Personal
               </h3>
               <div className="form-grid">
-                {renderField("nombre", "Nombre", "text", "Tu nombre")}
-                {renderField("apellido", "Apellido", "text", "Tu apellido")}
-                
+                {renderField('nombre', 'Nombre', 'text', 'Tu nombre')}
+                {renderField('apellido', 'Apellido', 'text', 'Tu apellido')}
+
                 <div className="form-field">
                   <label className="form-label">
                     Correo Electrónico
-                    {validationErrors.correo_electronico && <span className="required-indicator">*</span>}
+                    {validationErrors.correo_electronico && (
+                      <span className="required-indicator">*</span>
+                    )}
                   </label>
                   <div className="input-with-icon">
                     <input
@@ -507,11 +513,9 @@ useEffect(() => {
                     </p>
                   )}
                 </div>
-                
+
                 <div className="form-field">
-                  <label className="form-label">
-                    Teléfono
-                  </label>
+                  <label className="form-label">Teléfono</label>
                   <div className="input-with-icon">
                     <input
                       type="tel"
@@ -524,14 +528,12 @@ useEffect(() => {
                     <Phone className="input-icon" size={14} />
                   </div>
                 </div>
-                
-                {renderField("nombre_usuario", "Nombre de Usuario", "text", "@usuario")}
-                {renderField("fecha_nacimiento", "Fecha de Nacimiento", "date")}
-                
+
+                {renderField('nombre_usuario', 'Nombre de Usuario', 'text', '@usuario')}
+                {renderField('fecha_nacimiento', 'Fecha de Nacimiento', 'date')}
+
                 <div className="form-field">
-                  <label className="form-label">
-                    Género
-                  </label>
+                  <label className="form-label">Género</label>
                   <select
                     name="genero"
                     value={formData.genero}
@@ -545,11 +547,9 @@ useEffect(() => {
                     <option value="prefiero-no-decir">Prefiero no decir</option>
                   </select>
                 </div>
-                
+
                 <div className="form-field">
-                  <label className="form-label">
-                    Tipo de Arte Preferido
-                  </label>
+                  <label className="form-label">Tipo de Arte Preferido</label>
                   <select
                     name="tipo_arte_preferido"
                     value={formData.tipo_arte_preferido}
@@ -557,7 +557,7 @@ useEffect(() => {
                     className="form-select"
                   >
                     <option value="">Seleccionar...</option>
-                    {categorias.map(cat => (
+                    {categorias.map((cat) => (
                       <option key={cat.id_categoria} value={cat.nombre}>
                         {cat.nombre}
                       </option>
@@ -565,13 +565,9 @@ useEffect(() => {
                   </select>
                 </div>
               </div>
-              
+
               <div className="form-actions">
-                <button
-                  onClick={guardarCambiosCuenta}
-                  disabled={saving}
-                  className="btn-primary"
-                >
+                <button onClick={guardarCambiosCuenta} disabled={saving} className="btn-primary">
                   {saving ? (
                     <>
                       <div className="spinner"></div>
@@ -589,7 +585,7 @@ useEffect(() => {
           </div>
         );
 
-      case "pantalla-idiomas":
+      case 'pantalla-idiomas':
         return (
           <div className="settings-section animate-fadeIn">
             <h2 className="section-title">
@@ -598,15 +594,16 @@ useEffect(() => {
               </div>
               Pantalla e Idiomas
             </h2>
-            
+
             <div className="settings-list">
               <div className="setting-card">
                 <div className="setting-content">
                   <div className="setting-icon">
-                    {modoOscuro ? 
-                      <Moon className="moon-icon" size={16} /> : 
+                    {modoOscuro ? (
+                      <Moon className="moon-icon" size={16} />
+                    ) : (
                       <Sun className="sun-icon" size={16} />
-                    }
+                    )}
                   </div>
                   <div className="setting-info">
                     <h3 className="setting-title">Modo Oscuro</h3>
@@ -620,7 +617,7 @@ useEffect(() => {
                   <span className="toggle-slider"></span>
                 </button>
               </div>
-              
+
               <div className="setting-card">
                 <h3 className="setting-title">Tamaño de Fuente</h3>
                 <div className="size-options">
@@ -635,7 +632,7 @@ useEffect(() => {
                   ))}
                 </div>
                 <div className="size-slider">
-                  <div 
+                  <div
                     className="size-slider-fill"
                     style={{ width: `${((tamanoFuente - 12) / 6) * 100}%` }}
                   />
@@ -644,17 +641,17 @@ useEffect(() => {
                   Tamaño actual: <span className="current-size">{tamanoFuente}px</span>
                 </p>
               </div>
-              
+
               <div className="setting-card">
                 <h3 className="setting-title">Idioma</h3>
                 <div className="language-grid">
-                  {idiomas.map(idioma => (
+                  {idiomas.map((idioma) => (
                     <button
                       key={idioma.codigo}
                       onClick={() => {
-                        setMessage({ 
-                          type: "info", 
-                          text: `Idioma cambiado a ${idioma.nombre}` 
+                        setMessage({
+                          type: 'info',
+                          text: `Idioma cambiado a ${idioma.nombre}`,
                         });
                         setTimeout(() => setMessage(null), 2000);
                       }}
@@ -680,7 +677,7 @@ useEffect(() => {
           </div>
         );
 
-      case "privacidad-seguridad":
+      case 'privacidad-seguridad':
         return (
           <div className="settings-section animate-fadeIn">
             <h2 className="section-title">
@@ -689,7 +686,7 @@ useEffect(() => {
               </div>
               Privacidad y Seguridad
             </h2>
-            
+
             <div className="security-settings">
               <div className="security-card green-gradient">
                 <h3 className="card-title">
@@ -698,50 +695,45 @@ useEffect(() => {
                   </div>
                   Cambiar Contraseña
                 </h3>
-                
+
                 <div className="password-fields">
                   {[
-                    { 
-                      label: "Contraseña Actual", 
-                      name: "passwordActual", 
+                    {
+                      label: 'Contraseña Actual',
+                      name: 'passwordActual',
                       show: showPassword.actual,
-                      toggle: () => setShowPassword(prev => ({ ...prev, actual: !prev.actual }))
+                      toggle: () => setShowPassword((prev) => ({ ...prev, actual: !prev.actual })),
                     },
-                    { 
-                      label: "Nueva Contraseña", 
-                      name: "newPassword", 
+                    {
+                      label: 'Nueva Contraseña',
+                      name: 'newPassword',
                       show: showPassword.nueva,
-                      toggle: () => setShowPassword(prev => ({ ...prev, nueva: !prev.nueva }))
+                      toggle: () => setShowPassword((prev) => ({ ...prev, nueva: !prev.nueva })),
                     },
-                    { 
-                      label: "Confirmar Nueva Contraseña", 
-                      name: "confirmPassword", 
+                    {
+                      label: 'Confirmar Nueva Contraseña',
+                      name: 'confirmPassword',
                       show: showPassword.confirmar,
-                      toggle: () => setShowPassword(prev => ({ ...prev, confirmar: !prev.confirmar }))
-                    }
+                      toggle: () =>
+                        setShowPassword((prev) => ({ ...prev, confirmar: !prev.confirmar })),
+                    },
                   ].map((field) => (
                     <div key={field.name} className="password-field">
-                      <label className="form-label">
-                        {field.label}
-                      </label>
+                      <label className="form-label">{field.label}</label>
                       <div className="password-input-wrapper">
                         <input
-                          type={field.show ? "text" : "password"}
+                          type={field.show ? 'text' : 'password'}
                           name={field.name}
                           value={passwordData[field.name as keyof typeof passwordData]}
                           onChange={handlePasswordChange}
                           className="password-input"
                           placeholder="••••••••"
                         />
-                        <button
-                          type="button"
-                          onClick={field.toggle}
-                          className="password-toggle"
-                        >
+                        <button type="button" onClick={field.toggle} className="password-toggle">
                           {field.show ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
-                      {field.name === "newPassword" && passwordErrors.length > 0 && (
+                      {field.name === 'newPassword' && passwordErrors.length > 0 && (
                         <div className="password-errors">
                           <ul>
                             {passwordErrors.map((error, index) => (
@@ -756,7 +748,7 @@ useEffect(() => {
                     </div>
                   ))}
                 </div>
-                
+
                 <button
                   onClick={cambiarContrasena}
                   disabled={saving}
@@ -775,23 +767,19 @@ useEffect(() => {
                   )}
                 </button>
               </div>
-              
+
               <div className="danger-card">
                 <div className="danger-content">
                   <div className="danger-icon">
                     <Trash2 className="icon" size={16} />
                   </div>
                   <div className="danger-info">
-                    <h3 className="danger-title">
-                      Eliminar Cuenta
-                    </h3>
+                    <h3 className="danger-title">Eliminar Cuenta</h3>
                     <p className="danger-description">
-                      Esta acción es <strong>permanente</strong> y no se puede deshacer. Todos tus datos, publicaciones y conexiones se eliminarán permanentemente.
+                      Esta acción es <strong>permanente</strong> y no se puede deshacer. Todos tus
+                      datos, publicaciones y conexiones se eliminarán permanentemente.
                     </p>
-                    <button
-                      onClick={() => setShowDeleteModal(true)}
-                      className="btn-danger"
-                    >
+                    <button onClick={() => setShowDeleteModal(true)} className="btn-danger">
                       <Trash2 size={14} />
                       Eliminar Mi Cuenta
                     </button>
@@ -802,7 +790,7 @@ useEffect(() => {
           </div>
         );
 
-      case "centro-ayuda":
+      case 'centro-ayuda':
         return (
           <div className="settings-section animate-fadeIn">
             <h2 className="section-title">
@@ -811,20 +799,35 @@ useEffect(() => {
               </div>
               Centro de Ayuda
             </h2>
-            
+
             <div className="help-settings">
               <div className="help-card orange-gradient">
                 <h3 className="card-title">Preguntas Frecuentes</h3>
                 <div className="faq-list">
                   {[
-                    { q: "¿Cómo cambio mi foto de perfil?", a: "Ve a tu perfil, haz clic en el ícono de editar y selecciona una nueva imagen." },
-                    { q: "¿Cómo reporto contenido inapropiado?", a: "En cada publicación, haz clic en los tres puntos y selecciona 'Reportar'." },
-                    { q: "¿Cómo bloqueo a un usuario?", a: "Ve al perfil del usuario, haz clic en los tres puntos y selecciona 'Bloquear'." },
-                    { q: "¿Cómo recupero mi contraseña?", a: "En la página de login, haz clic en 'Olvidé mi contraseña' y sigue las instrucciones." },
-                    { q: "¿Cómo elimino mi cuenta?", a: "Ve a Configuración → Privacidad y Seguridad → Eliminar Cuenta." },
+                    {
+                      q: '¿Cómo cambio mi foto de perfil?',
+                      a: 'Ve a tu perfil, haz clic en el ícono de editar y selecciona una nueva imagen.',
+                    },
+                    {
+                      q: '¿Cómo reporto contenido inapropiado?',
+                      a: "En cada publicación, haz clic en los tres puntos y selecciona 'Reportar'.",
+                    },
+                    {
+                      q: '¿Cómo bloqueo a un usuario?',
+                      a: "Ve al perfil del usuario, haz clic en los tres puntos y selecciona 'Bloquear'.",
+                    },
+                    {
+                      q: '¿Cómo recupero mi contraseña?',
+                      a: "En la página de login, haz clic en 'Olvidé mi contraseña' y sigue las instrucciones.",
+                    },
+                    {
+                      q: '¿Cómo elimino mi cuenta?',
+                      a: 'Ve a Configuración → Privacidad y Seguridad → Eliminar Cuenta.',
+                    },
                   ].map((item, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className={`faq-item ${activeFaq === index ? 'active' : ''}`}
                       onClick={() => setActiveFaq(activeFaq === index ? null : index)}
                     >
@@ -839,7 +842,7 @@ useEffect(() => {
                   ))}
                 </div>
               </div>
-              
+
               <div className="help-card">
                 <h3 className="card-title">
                   <div className="card-icon blue">
@@ -847,12 +850,10 @@ useEffect(() => {
                   </div>
                   Reportar un Problema
                 </h3>
-                
+
                 <div className="report-form">
                   <div className="form-field">
-                    <label className="form-label">
-                      Tipo de Problema
-                    </label>
+                    <label className="form-label">Tipo de Problema</label>
                     <select
                       name="tipoProblema"
                       value={reporteData.tipoProblema}
@@ -866,11 +867,9 @@ useEffect(() => {
                       <option value="otro">Otro</option>
                     </select>
                   </div>
-                  
+
                   <div className="form-field">
-                    <label className="form-label">
-                      Descripción del Problema
-                    </label>
+                    <label className="form-label">Descripción del Problema</label>
                     <textarea
                       name="descripcion"
                       value={reporteData.descripcion}
@@ -880,11 +879,9 @@ useEffect(() => {
                       placeholder="Describe detalladamente el problema que estás experimentando..."
                     />
                   </div>
-                  
+
                   <div className="form-field">
-                    <label className="form-label">
-                      Email de Contacto
-                    </label>
+                    <label className="form-label">Email de Contacto</label>
                     <input
                       type="email"
                       name="emailContacto"
@@ -895,7 +892,7 @@ useEffect(() => {
                     />
                   </div>
                 </div>
-                
+
                 <button
                   onClick={enviarReporte}
                   disabled={saving}
@@ -914,7 +911,7 @@ useEffect(() => {
                   )}
                 </button>
               </div>
-              
+
               <div className="help-card gray-gradient">
                 <h3 className="card-title">Contacto de Soporte</h3>
                 <div className="support-contacts">
@@ -937,15 +934,13 @@ useEffect(() => {
                     </div>
                   </div>
                 </div>
-                <p className="support-hours">
-                  Horario de atención: Lunes a Viernes, 9:00 - 18:00
-                </p>
+                <p className="support-hours">Horario de atención: Lunes a Viernes, 9:00 - 18:00</p>
               </div>
             </div>
           </div>
         );
 
-      case "notificaciones":
+      case 'notificaciones':
         return (
           <div className="settings-section animate-fadeIn">
             <h2 className="section-title">
@@ -954,15 +949,40 @@ useEffect(() => {
               </div>
               Notificaciones
             </h2>
-            
+
             <div className="notifications-card">
               <div className="notifications-list">
                 {[
-                  { key: 'meGusta', label: 'Me gusta', desc: 'Cuando alguien da me gusta a tus publicaciones', icon: '❤️' },
-                  { key: 'comentarios', label: 'Comentarios', desc: 'Cuando alguien comenta tus publicaciones', icon: '💬' },
-                  { key: 'seguidores', label: 'Nuevos seguidores', desc: 'Cuando alguien comienza a seguirte', icon: '👥' },
-                  { key: 'mensajes', label: 'Mensajes', desc: 'Cuando recibes nuevos mensajes', icon: '📩' },
-                  { key: 'anuncios', label: 'Anuncios', desc: 'Actualizaciones y novedades de Artiverse', icon: '📢' },
+                  {
+                    key: 'meGusta',
+                    label: 'Me gusta',
+                    desc: 'Cuando alguien da me gusta a tus publicaciones',
+                    icon: '❤️',
+                  },
+                  {
+                    key: 'comentarios',
+                    label: 'Comentarios',
+                    desc: 'Cuando alguien comenta tus publicaciones',
+                    icon: '💬',
+                  },
+                  {
+                    key: 'seguidores',
+                    label: 'Nuevos seguidores',
+                    desc: 'Cuando alguien comienza a seguirte',
+                    icon: '👥',
+                  },
+                  {
+                    key: 'mensajes',
+                    label: 'Mensajes',
+                    desc: 'Cuando recibes nuevos mensajes',
+                    icon: '📩',
+                  },
+                  {
+                    key: 'anuncios',
+                    label: 'Anuncios',
+                    desc: 'Actualizaciones y novedades de Artiverse',
+                    icon: '📢',
+                  },
                 ].map(({ key, label, desc, icon }) => (
                   <div key={key} className="notification-item">
                     <div className="notification-content">
@@ -981,15 +1001,15 @@ useEffect(() => {
                   </div>
                 ))}
               </div>
-              
+
               <div className="notification-settings">
                 <div className="notification-settings-info">
                   <h4 className="settings-title">Configuración de Notificaciones</h4>
-                  <p className="settings-description">Personaliza cómo recibes las notificaciones</p>
+                  <p className="settings-description">
+                    Personaliza cómo recibes las notificaciones
+                  </p>
                 </div>
-                <button className="btn-secondary">
-                  Configurar
-                </button>
+                <button className="btn-secondary">Configurar</button>
               </div>
             </div>
           </div>
@@ -1003,7 +1023,7 @@ useEffect(() => {
   // Modal de confirmación para eliminar cuenta
   const renderDeleteModal = () => {
     if (!showDeleteModal) return null;
-    
+
     return (
       <div className="modal-overlay">
         <div className="modal-content animate-slideUp">
@@ -1016,13 +1036,13 @@ useEffect(() => {
               <p className="modal-subtitle">Esta acción no se puede deshacer</p>
             </div>
           </div>
-          
+
           <p className="modal-message">
-            Para confirmar que quieres eliminar tu cuenta permanentemente, escribe 
-            <strong>"ELIMINAR"</strong> 
+            Para confirmar que quieres eliminar tu cuenta permanentemente, escribe
+            <strong>&quot;ELIMINAR&quot;</strong>
             en el campo de abajo.
           </p>
-          
+
           <div className="modal-inputs">
             <div className="modal-input-wrapper">
               <input
@@ -1032,24 +1052,20 @@ useEffect(() => {
                 className="modal-input"
                 placeholder='Escribe "ELIMINAR" aquí'
               />
-              {deleteConfirm === "ELIMINAR" && (
-                <Check className="modal-check" size={14} />
-              )}
+              {deleteConfirm === 'ELIMINAR' && <Check className="modal-check" size={14} />}
             </div>
-            
+
             <div className="modal-warning">
               <AlertTriangle size={16} />
-              <p>
-                Todos tus datos, publicaciones y conexiones se eliminarán permanentemente.
-              </p>
+              <p>Todos tus datos, publicaciones y conexiones se eliminarán permanentemente.</p>
             </div>
           </div>
-          
+
           <div className="modal-actions">
             <button
               onClick={() => {
                 setShowDeleteModal(false);
-                setDeleteConfirm("");
+                setDeleteConfirm('');
               }}
               className="btn-cancel"
             >
@@ -1057,8 +1073,8 @@ useEffect(() => {
             </button>
             <button
               onClick={eliminarCuenta}
-              disabled={saving || deleteConfirm !== "ELIMINAR"}
-              className={`btn-delete ${deleteConfirm !== "ELIMINAR" ? 'disabled' : ''}`}
+              disabled={saving || deleteConfirm !== 'ELIMINAR'}
+              className={`btn-delete ${deleteConfirm !== 'ELIMINAR' ? 'disabled' : ''}`}
             >
               {saving ? (
                 <>
@@ -1085,9 +1101,7 @@ useEffect(() => {
           <div className="spinner-circle"></div>
           <Settings className="spinner-icon" size={18} />
         </div>
-        <p className="loading-text">
-          Cargando configuración...
-        </p>
+        <p className="loading-text">Cargando configuración...</p>
       </div>
     );
   }
@@ -1098,19 +1112,15 @@ useEffect(() => {
       <div className="settings-header">
         <div className="header-content">
           <div className="header-left">
-
-           <div className="header-title">
-  <button
-    onClick={() => navigate(-1)}
-    className="back-button with-label"
-  >
-    <ArrowLeft size={16} />
-    <span className="back-label">VOLVER</span>
-  </button>
-  <h1 className="main-title">Configuración</h1>
-</div>
+            <div className="header-title">
+              <button onClick={() => navigate(-1)} className="back-button with-label">
+                <ArrowLeft size={16} />
+                <span className="back-label">VOLVER</span>
+              </button>
+              <h1 className="main-title">Configuración</h1>
+            </div>
           </div>
-          
+
           {message && (
             <div className={`message-alert ${message.type}`}>
               {message.type === 'success' && <Check size={16} />}
@@ -1128,11 +1138,16 @@ useEffect(() => {
           <div className="settings-sidebar">
             <div className="sidebar-menu">
               {[
-                { id: "tu-cuenta", label: "Tu Cuenta", icon: User, color: "blue" },
-             
-                { id: "notificaciones", label: "Notificaciones", icon: Bell, color: "pink" },
-                { id: "privacidad-seguridad", label: "Privacidad y Seguridad", icon: Shield, color: "green" },
-                { id: "centro-ayuda", label: "Centro de Ayuda", icon: HelpCircle, color: "orange" },
+                { id: 'tu-cuenta', label: 'Tu Cuenta', icon: User, color: 'blue' },
+
+                { id: 'notificaciones', label: 'Notificaciones', icon: Bell, color: 'pink' },
+                {
+                  id: 'privacidad-seguridad',
+                  label: 'Privacidad y Seguridad',
+                  icon: Shield,
+                  color: 'green',
+                },
+                { id: 'centro-ayuda', label: 'Centro de Ayuda', icon: HelpCircle, color: 'orange' },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -1145,16 +1160,19 @@ useEffect(() => {
                     </div>
                     <span className="sidebar-label">{item.label}</span>
                   </div>
-                  <ChevronRight size={14} className={`sidebar-chevron ${activeSection === item.id ? 'active' : ''}`} />
+                  <ChevronRight
+                    size={14}
+                    className={`sidebar-chevron ${activeSection === item.id ? 'active' : ''}`}
+                  />
                 </button>
               ))}
-              
+
               <div className="sidebar-divider"></div>
               <button
                 onClick={() => {
-                  localStorage.removeItem("token");
-                  localStorage.removeItem("usuario");
-                  navigate("/login");
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('usuario');
+                  navigate('/login');
                 }}
                 className="sidebar-item logout"
               >
@@ -1171,9 +1189,7 @@ useEffect(() => {
 
           {/* Contenido principal */}
           <div className="settings-main">
-            <div className="settings-panel">
-              {renderSection()}
-            </div>
+            <div className="settings-panel">{renderSection()}</div>
           </div>
         </div>
       </div>

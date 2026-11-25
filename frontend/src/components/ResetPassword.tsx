@@ -1,36 +1,36 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
 export default function ResetPassword() {
   const { token } = useParams<{ token: string }>();
-  const [nuevaContrasena, setNuevaContrasena] = useState("");
-  const [mensaje, setMensaje] = useState("");
-  const [error, setError] = useState("");
+  const [nuevaContrasena, setNuevaContrasena] = useState('');
+  const [mensaje, setMensaje] = useState('');
+  const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setCargando(true);
-    setMensaje("");
-    setError("");
+    setMensaje('');
+    setError('');
 
     try {
-      const response = await fetch("http://localhost:8000/restablecer-contrasena", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('http://localhost:8000/restablecer-contrasena', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, nueva_contrasena: nuevaContrasena }),
       });
 
       const data = await response.json();
       if (response.ok) {
         setMensaje(data.mensaje);
-        setTimeout(() => navigate("/login"), 2500);
+        setTimeout(() => navigate('/login'), 2500);
       } else {
-        setError(data.detail || "Error al restablecer la contraseña.");
+        setError(data.detail || 'Error al restablecer la contraseña.');
       }
     } catch {
-      setError("No se pudo conectar con el servidor.");
+      setError('No se pudo conectar con el servidor.');
     } finally {
       setCargando(false);
     }
@@ -60,7 +60,7 @@ export default function ResetPassword() {
             disabled={cargando}
             className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
           >
-            {cargando ? "Procesando..." : "Restablecer contraseña"}
+            {cargando ? 'Procesando...' : 'Restablecer contraseña'}
           </button>
         </form>
 

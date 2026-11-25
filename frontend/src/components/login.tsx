@@ -1,24 +1,23 @@
-import React, { useState } from "react";
-import "../styles/login.css";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import '../styles/login.css';
+import { Link, useNavigate } from 'react-router-dom';
 
-import brushImg from "../assets/img/loginmusic.png";
-import logoImg from "../assets/img/logo.png";
-import googleImg from "../assets/img/google.png";
-import facebookImg from "../assets/img/facebook.png";
-import discordImg from "../assets/img/discord.png";
-import instagramImg from "../assets/img/instagram.png";
+import brushImg from '../assets/img/loginmusic.png';
+import logoImg from '../assets/img/logo.png';
+import googleImg from '../assets/img/google.png';
+import facebookImg from '../assets/img/facebook.png';
+import discordImg from '../assets/img/discord.png';
+import instagramImg from '../assets/img/instagram.png';
 
-import { loginWithGoogle, loginWithFacebook } from "../services/firebase";
-import { loginUsuario } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { loginWithGoogle, loginWithFacebook } from '../services/firebase';
+import { loginUsuario } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const Login: React.FC = () => {
-  const [correo_electronico, setCorreo] = useState("");
-  const [contrasena, setContrasena] = useState("");
+  const [correo_electronico, setCorreo] = useState('');
+  const [contrasena, setContrasena] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,57 +27,56 @@ const Login: React.FC = () => {
 
       if (res && res.token) {
         login(res.token, res.usuario);
-        navigate("/principal");
+        navigate('/principal');
       } else {
-        alert("❌ No se recibió token válido. Verifica el backend.");
+        alert('❌ No se recibió token válido. Verifica el backend.');
       }
     } catch {
-      alert("❌ Credenciales incorrectas o error de conexión");
+      alert('❌ Credenciales incorrectas o error de conexión');
     }
   };
 
   // -----------------------------------------
   //  LOGIN GOOGLE
   // -----------------------------------------
- const googleLogin = async () => {
-  try {
-    const result = await loginWithGoogle();
-    const email = result.user.email;
+  const googleLogin = async () => {
+    try {
+      const result = await loginWithGoogle();
+      const email = result.user.email;
 
-    if (!email) {
-      alert("❌ No se pudo obtener el correo del usuario.");
-      return;
+      if (!email) {
+        alert('❌ No se pudo obtener el correo del usuario.');
+        return;
+      }
+
+      const res = await loginUsuario(email, 'firebase_oauth');
+      login(res.token, res.usuario);
+      navigate('/principal');
+    } catch {
+      alert('❌ Error iniciando sesión con Google');
     }
-
-    const res = await loginUsuario(email, "firebase_oauth");
-    login(res.token, res.usuario);
-    navigate("/principal");
-  } catch {
-    alert("❌ Error iniciando sesión con Google");
-  }
-};
+  };
 
   // -----------------------------------------
   //  LOGIN FACEBOOK
   // -----------------------------------------
-const facebookLogin = async () => {
-  try {
-    const result = await loginWithFacebook();
-    const email = result.user.email;
+  const facebookLogin = async () => {
+    try {
+      const result = await loginWithFacebook();
+      const email = result.user.email;
 
-    if (!email) {
-      alert("❌ Facebook no devolvió un email válido.");
-      return;
+      if (!email) {
+        alert('❌ Facebook no devolvió un email válido.');
+        return;
+      }
+
+      const res = await loginUsuario(email, 'firebase_oauth');
+      login(res.token, res.usuario);
+      navigate('/principal');
+    } catch {
+      alert('❌ Error iniciando sesión con Facebook');
     }
-
-    const res = await loginUsuario(email, "firebase_oauth");
-    login(res.token, res.usuario);
-    navigate("/principal");
-  } catch {
-    alert("❌ Error iniciando sesión con Facebook");
-  }
-};
-
+  };
 
   return (
     <div>
@@ -113,15 +111,12 @@ const facebookLogin = async () => {
             Iniciar Sesión!!
           </button>
         </form>
-        
+
         <div className="header-box">
           <h1>ARTENITY</h1>
-          <button 
-                        className="logo-btn"
-                        onClick={() => navigate("/")}
-                      >
-                        <img src={logoImg} alt="Logo Artenity" className="logo" />
-                      </button>
+          <button className="logo-btn" onClick={() => navigate('/')}>
+            <img src={logoImg} alt="Logo Artenity" className="logo" />
+          </button>
         </div>
 
         {/* SOCIAL LOGIN */}
@@ -130,12 +125,12 @@ const facebookLogin = async () => {
           <img src={facebookImg} onClick={facebookLogin} alt="Facebook" />
           <img
             src={discordImg}
-            onClick={() => (window.location.href = "/oauth/discord")}
+            onClick={() => (window.location.href = '/oauth/discord')}
             alt="Discord"
           />
           <img
             src={instagramImg}
-            onClick={() => (window.location.href = "/oauth/instagram")}
+            onClick={() => (window.location.href = '/oauth/instagram')}
             alt="Instagram"
           />
         </div>

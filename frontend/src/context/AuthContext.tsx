@@ -1,11 +1,11 @@
 // frontend/context/AuthContext.tsx
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import {
   getPerfil,
   obtenerUsuariosBloqueados,
   obtenerNoMeInteresa,
   solicitarRecuperacion,
-} from "../services/api";
+} from '../services/api';
 
 // -------------------- Tipos --------------------
 export interface Usuario {
@@ -29,7 +29,7 @@ interface AuthContextType {
   logout: () => void;
   actualizarFotoPerfil: (nuevaFoto: string) => void;
   forzarActualizacionPerfil: () => void;
-  recargarPerfilCompleto: () => Promise<void>; 
+  recargarPerfilCompleto: () => Promise<void>;
   usuariosBloqueados: number[];
   publicacionesNoMeInteresa: number[];
   cargarBloqueados: () => Promise<void>;
@@ -53,8 +53,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // -------------------- Función para obtener URL con timestamp --------------------
   const getImageUrlWithTimestamp = (imageUrl: string | undefined | null): string | null => {
-    if (!imageUrl || imageUrl.trim() === "") return null;
-    
+    if (!imageUrl || imageUrl.trim() === '') return null;
+
     const separator = imageUrl.includes('?') ? '&' : '?';
     return `${imageUrl}${separator}t=${new Date().getTime()}`;
   };
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const idsBloqueados = bloqueados.map((b: any) => b.usuario.id_usuario);
       setUsuariosBloqueados(idsBloqueados);
     } catch (error) {
-      console.error("Error cargando usuarios bloqueados:", error);
+      console.error('Error cargando usuarios bloqueados:', error);
     }
   };
 
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const idsNoMeInteresa = noMeInteresa.map((item: any) => item.publicacion.id_publicacion);
       setPublicacionesNoMeInteresa(idsNoMeInteresa);
     } catch (error) {
-      console.error("Error cargando no me interesa:", error);
+      console.error('Error cargando no me interesa:', error);
     }
   };
 
@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (usuario) {
       const usuarioActualizado = { ...usuario, ...nuevosDatos };
       setUsuario(usuarioActualizado);
-      localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
+      localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
       return usuarioActualizado;
     }
     return usuario;
@@ -115,27 +115,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (usuario?.id_usuario && token) {
       try {
         const perfilData = await getPerfil(usuario.id_usuario);
-        
+
         // Procesar la foto de perfil con timestamp
         const fotoConTimestamp = getImageUrlWithTimestamp(perfilData.foto_perfil);
-        
+
         const usuarioActualizado = {
           ...usuario,
           foto_perfil: fotoConTimestamp,
           perfil: {
             ...usuario.perfil,
             ...perfilData,
-            foto_perfil: fotoConTimestamp
-          }
+            foto_perfil: fotoConTimestamp,
+          },
         };
-        
+
         setUsuario(usuarioActualizado);
-        localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
-        
-        console.log("✅ Perfil recargado completamente:", usuarioActualizado);
-        
+        localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
+
+        console.log('✅ Perfil recargado completamente:', usuarioActualizado);
       } catch (error) {
-        console.error("❌ Error recargando perfil:", error);
+        console.error('❌ Error recargando perfil:', error);
         throw error;
       }
     }
@@ -143,14 +142,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // -------------------- Cargar datos guardados --------------------
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUsuario = localStorage.getItem("usuario");
+    const storedToken = localStorage.getItem('token');
+    const storedUsuario = localStorage.getItem('usuario');
 
     if (storedToken) setToken(storedToken);
 
     if (storedUsuario) {
       const parsedUser = JSON.parse(storedUsuario);
-      
+
       // Procesar foto de perfil con timestamp al cargar
       if (parsedUser?.foto_perfil) {
         parsedUser.foto_perfil = getImageUrlWithTimestamp(parsedUser.foto_perfil);
@@ -158,32 +157,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (parsedUser?.perfil?.foto_perfil) {
         parsedUser.perfil.foto_perfil = getImageUrlWithTimestamp(parsedUser.perfil.foto_perfil);
       }
-      
+
       setUsuario(parsedUser);
 
       if (parsedUser?.id_usuario && storedToken) {
         getPerfil(parsedUser.id_usuario)
           .then((perfilData) => {
             // Procesar la nueva foto con timestamp
-            const nuevaFoto = getImageUrlWithTimestamp(perfilData.foto_perfil || parsedUser.foto_perfil);
-            
-            const usuarioActualizado = { 
-              ...parsedUser, 
+            const nuevaFoto = getImageUrlWithTimestamp(
+              perfilData.foto_perfil || parsedUser.foto_perfil
+            );
+
+            const usuarioActualizado = {
+              ...parsedUser,
               foto_perfil: nuevaFoto,
               perfil: {
                 ...parsedUser.perfil,
                 ...perfilData,
-                foto_perfil: nuevaFoto
-              }
+                foto_perfil: nuevaFoto,
+              },
             };
-            
+
             setUsuario(usuarioActualizado);
-            localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
-            
+            localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
+
             cargarBloqueados();
             cargarNoMeInteresa();
           })
-          .catch((err) => console.error("Error al cargar perfil:", err))
+          .catch((err) => console.error('Error al cargar perfil:', err))
           .finally(() => setLoading(false));
       } else {
         setLoading(false);
@@ -196,42 +197,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // -------------------- Login --------------------
   const login = (newToken: string, newUsuario: Usuario) => {
     setToken(newToken);
-    
+
     // Procesar foto de perfil con timestamp
     const usuarioConTimestamp = {
       ...newUsuario,
       foto_perfil: getImageUrlWithTimestamp(newUsuario.foto_perfil),
       perfil: {
         ...newUsuario.perfil,
-        foto_perfil: getImageUrlWithTimestamp(newUsuario.perfil?.foto_perfil)
-      }
+        foto_perfil: getImageUrlWithTimestamp(newUsuario.perfil?.foto_perfil),
+      },
     };
-    
+
     setUsuario(usuarioConTimestamp);
-    localStorage.setItem("token", newToken);
-    localStorage.setItem("usuario", JSON.stringify(usuarioConTimestamp));
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('usuario', JSON.stringify(usuarioConTimestamp));
 
     // Recargar perfil completo después del login
     getPerfil(newUsuario.id_usuario)
       .then((perfilData) => {
-        const nuevaFoto = getImageUrlWithTimestamp(perfilData.foto_perfil || newUsuario.foto_perfil);
-        const usuarioActualizado = { 
-          ...usuarioConTimestamp, 
+        const nuevaFoto = getImageUrlWithTimestamp(
+          perfilData.foto_perfil || newUsuario.foto_perfil
+        );
+        const usuarioActualizado = {
+          ...usuarioConTimestamp,
           foto_perfil: nuevaFoto,
           perfil: {
             ...usuarioConTimestamp.perfil,
             ...perfilData,
-            foto_perfil: nuevaFoto
-          }
+            foto_perfil: nuevaFoto,
+          },
         };
-        
+
         setUsuario(usuarioActualizado);
-        localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
-        
+        localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
+
         cargarBloqueados();
         cargarNoMeInteresa();
       })
-      .catch((err) => console.error("Error al actualizar perfil tras login:", err));
+      .catch((err) => console.error('Error al actualizar perfil tras login:', err));
   };
 
   // -------------------- Logout --------------------
@@ -240,39 +243,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUsuario(null);
     setUsuariosBloqueados([]);
     setPublicacionesNoMeInteresa([]);
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
   };
 
   // -------------------- Actualizar foto de perfil --------------------
   const actualizarFotoPerfil = (nuevaFoto: string) => {
     if (usuario) {
       const fotoConTimestamp = getImageUrlWithTimestamp(nuevaFoto);
-      
-      const usuarioActualizado = { 
-        ...usuario, 
+
+      const usuarioActualizado = {
+        ...usuario,
         foto_perfil: fotoConTimestamp,
         perfil: {
           ...usuario.perfil,
-          foto_perfil: fotoConTimestamp
-        }
+          foto_perfil: fotoConTimestamp,
+        },
       };
-      
+
       setUsuario(usuarioActualizado);
-      localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
-      
-      console.log("✅ Foto de perfil actualizada en AuthContext:", fotoConTimestamp);
-      
+      localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
+
+      console.log('✅ Foto de perfil actualizada en AuthContext:', fotoConTimestamp);
+
       // Disparar evento global para notificar a todos los componentes
-      window.dispatchEvent(new CustomEvent('fotoPerfilActualizada', {
-        detail: { 
-          nuevaFoto: fotoConTimestamp,
-          idUsuario: usuario.id_usuario 
-        }
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('fotoPerfilActualizada', {
+          detail: {
+            nuevaFoto: fotoConTimestamp,
+            idUsuario: usuario.id_usuario,
+          },
+        })
+      );
+
       // También forzar actualización del estado
-      setActualizacion(prev => prev + 1);
+      setActualizacion((prev) => prev + 1);
     }
   };
 
@@ -282,24 +287,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       getPerfil(usuario.id_usuario)
         .then((perfilData) => {
           const nuevaFoto = getImageUrlWithTimestamp(perfilData.foto_perfil || usuario.foto_perfil);
-          
-          const usuarioActualizado = { 
-            ...usuario, 
+
+          const usuarioActualizado = {
+            ...usuario,
             foto_perfil: nuevaFoto,
             perfil: {
               ...usuario.perfil,
               ...perfilData,
-              foto_perfil: nuevaFoto
-            }
+              foto_perfil: nuevaFoto,
+            },
           };
-          
+
           setUsuario(usuarioActualizado);
-          localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
+          localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
           setActualizacion((prev) => prev + 1);
-          
-          console.log("✅ Perfil forzadamente actualizado:", usuarioActualizado);
+
+          console.log('✅ Perfil forzadamente actualizado:', usuarioActualizado);
         })
-        .catch((err) => console.error("Error al forzar actualización:", err));
+        .catch((err) => console.error('Error al forzar actualización:', err));
     }
   };
 
@@ -338,14 +343,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 // -------------------- Hook personalizado --------------------
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth debe usarse dentro de AuthProvider");
+  if (!ctx) throw new Error('useAuth debe usarse dentro de AuthProvider');
   return ctx;
 };
 
 // -------------------- Componente OlvidasteContrasena --------------------
 export default function OlvidasteContrasena() {
-  const [correo, setCorreo] = useState("");
-  const [mensaje, setMensaje] = useState("");
+  const [correo, setCorreo] = useState('');
+  const [mensaje, setMensaje] = useState('');
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -353,7 +358,7 @@ export default function OlvidasteContrasena() {
       const res = await solicitarRecuperacion(correo);
       setMensaje(res.mensaje);
     } catch (err: any) {
-      setMensaje(err.detail || "Error al enviar correo");
+      setMensaje(err.detail || 'Error al enviar correo');
     }
   };
 

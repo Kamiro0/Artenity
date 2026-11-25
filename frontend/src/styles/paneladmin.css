@@ -332,7 +332,9 @@
   outline: none;
   border-color: #6c63ff;
   background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 0 0 3px rgba(108, 99, 255, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .busqueda-container button {
@@ -695,5 +697,3 @@ tbody tr:last-child td {
     transform: translateY(0);
   }
 }
-
-

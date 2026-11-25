@@ -1,16 +1,16 @@
 // frontend/services/api.ts
-import axios from "axios";
-import { Usuario } from "../context/AuthContext";
+import axios from 'axios';
+import { Usuario } from '../context/AuthContext';
 
 // ================== CONFIGURACIÓN ==================
-const API_URL = "http://localhost:8000";
+const API_URL = 'http://localhost:8000';
 
 const api = axios.create({
-    baseURL: API_URL,
-    headers: { 
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-    },
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
 });
 
 // Interceptor para manejar errores 401
@@ -18,31 +18,30 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.error("Error 401: No autorizado. Redirigiendo al login...");
-      localStorage.removeItem("token");
-      localStorage.removeItem("usuario");
-      window.location.href = "/login";
+      console.error('Error 401: No autorizado. Redirigiendo al login...');
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
 );
 
-
 // ======== UTILIDADES ========
 function getToken(): string {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
   // Si no hay token, no lances error, devuelve string vacío
-  return token || "";
+  return token || '';
 }
 
 function getUsuarioId(): number | null {
   try {
-    const usuario = localStorage.getItem("usuario");
+    const usuario = localStorage.getItem('usuario');
     if (!usuario) return null;
     const parsed = JSON.parse(usuario);
     return parsed.id_usuario || null;
   } catch (error) {
-    console.error("Error obteniendo ID de usuario:", error);
+    console.error('Error obteniendo ID de usuario:', error);
     return null;
   }
 }
@@ -50,26 +49,26 @@ function getUsuarioId(): number | null {
 function getAuthHeaders() {
   const token = getToken();
   const usuarioId = getUsuarioId();
-  
+
   if (!token) {
-    console.warn("Token no disponible. Usuario probablemente no autenticado.");
+    console.warn('Token no disponible. Usuario probablemente no autenticado.');
     // No redirigir aquí, dejar que el interceptor maneje el 401
   }
-  
+
   return {
-    "token": token || "",
-    "id_usuario": usuarioId ? usuarioId.toString() : "",
+    token: token || '',
+    id_usuario: usuarioId ? usuarioId.toString() : '',
   };
 }
 
 // ================== USUARIOS ==================
 export async function getUsuarios(): Promise<Usuario[]> {
-  const res = await api.get("/usuarios", { headers: getAuthHeaders() });
+  const res = await api.get('/usuarios', { headers: getAuthHeaders() });
   return res.data;
 }
 
 export async function addUsuario(usuario: any): Promise<Usuario> {
-  const res = await api.post("/usuarios", usuario);
+  const res = await api.post('/usuarios', usuario);
   return res.data;
 }
 
@@ -86,26 +85,26 @@ export async function registerUsuario(usuario: any): Promise<Usuario> {
 
 export async function loginUsuario(correo_electronico: string, contrasena: string) {
   try {
-    const res = await api.post("/login", { correo_electronico, contrasena });
-    
+    const res = await api.post('/login', { correo_electronico, contrasena });
+
     if (res.data && res.data.token && res.data.usuario) {
       const { token, usuario } = res.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("usuario", JSON.stringify(usuario));
+      localStorage.setItem('token', token);
+      localStorage.setItem('usuario', JSON.stringify(usuario));
       return { token, usuario };
     } else {
-      throw new Error("Respuesta del servidor inválida");
+      throw new Error('Respuesta del servidor inválida');
     }
   } catch (error: any) {
     if (error.response) {
       // El servidor respondió con un código de error
-      throw new Error(error.response.data.detail || "Error en el inicio de sesión");
+      throw new Error(error.response.data.detail || 'Error en el inicio de sesión');
     } else if (error.request) {
       // La solicitud fue hecha pero no se recibió respuesta
-      throw new Error("No se pudo conectar con el servidor");
+      throw new Error('No se pudo conectar con el servidor');
     } else {
       // Algo pasó al configurar la solicitud
-      throw new Error("Error al configurar la solicitud");
+      throw new Error('Error al configurar la solicitud');
     }
   }
 }
@@ -122,7 +121,7 @@ export async function actualizarPerfil(id_usuario: number, data: FormData) {
   const res = await api.put(`/perfiles/${id_usuario}`, data, {
     headers: {
       ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
   return res.data;
@@ -130,17 +129,17 @@ export async function actualizarPerfil(id_usuario: number, data: FormData) {
 
 // ================== PUBLICACIONES ==================
 export async function crearPublicacion(data: FormData) {
-  const res = await api.post("/publicaciones", data, {
+  const res = await api.post('/publicaciones', data, {
     headers: {
       ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
   return res.data;
 }
 
 export async function getPublicaciones() {
-  const res = await api.get("/publicaciones", { headers: getAuthHeaders() });
+  const res = await api.get('/publicaciones', { headers: getAuthHeaders() });
   return res.data;
 }
 
@@ -174,7 +173,7 @@ export async function dejarDeSeguirUsuario(id_seguido: number) {
 }
 
 export async function obtenerSeguidores() {
-  const res = await api.get("/seguidores", { headers: getAuthHeaders() });
+  const res = await api.get('/seguidores', { headers: getAuthHeaders() });
   return res.data;
 }
 
@@ -186,7 +185,7 @@ export async function obtenerSeguidoresUsuario(id_usuario: number) {
 }
 
 export async function obtenerSiguiendo() {
-  const res = await api.get("/siguiendo", { headers: getAuthHeaders() });
+  const res = await api.get('/siguiendo', { headers: getAuthHeaders() });
   return res.data;
 }
 
@@ -215,24 +214,24 @@ export async function enviarSolicitudAmistad(id_receptor: number) {
 
 export async function responderSolicitudAmistad(id_solicitud: number, estado: string) {
   const formData = new FormData();
-  formData.append("estado", estado);
+  formData.append('estado', estado);
 
   const res = await api.put(`/amistad/${id_solicitud}`, formData, {
     headers: {
       ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
   return res.data;
 }
 
 export async function obtenerSolicitudesPendientes() {
-  const res = await api.get("/solicitudes-amistad", { headers: getAuthHeaders() });
+  const res = await api.get('/solicitudes-amistad', { headers: getAuthHeaders() });
   return res.data;
 }
 
 export async function obtenerAmigos(id_usuario?: number) {
-  const url = id_usuario ? `/amigos?id_usuario=${id_usuario}` : "/amigos";
+  const url = id_usuario ? `/amigos?id_usuario=${id_usuario}` : '/amigos';
   const res = await api.get(url, { headers: getAuthHeaders() });
   return res.data;
 }
@@ -244,32 +243,30 @@ export async function eliminarAmigo(id_amigo: number) {
 
 // ================== NOTIFICACIONES ==================
 export async function getNotificaciones() {
-  const res = await api.get("/notificaciones", { headers: getAuthHeaders() });
+  const res = await api.get('/notificaciones', { headers: getAuthHeaders() });
   return res.data;
 }
 
 export async function marcarNotificacionesLeidas() {
-  const res = await api.put("/notificaciones/leidas", {}, { headers: getAuthHeaders() });
+  const res = await api.put('/notificaciones/leidas', {}, { headers: getAuthHeaders() });
   return res.data;
 }
 
 // ================== REPORTES ==================
 export async function reportarUsuario(id_reportado: number, motivo: string, evidencia?: File) {
   const formData = new FormData();
-  formData.append("motivo", motivo);
-  if (evidencia) formData.append("evidencia", evidencia);
+  formData.append('motivo', motivo);
+  if (evidencia) formData.append('evidencia', evidencia);
 
   const res = await api.post(`/reportar/${id_reportado}`, formData, {
     headers: {
       ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
 
   return res.data;
 }
-
-
 
 // ================== ESTADÍSTICAS ==================
 export async function obtenerEstadisticasPerfil(id_usuario: number) {
@@ -288,12 +285,12 @@ export const obtenerEstadisticasMeGustas = async (idusuario: number) => {
 
 // ================== RECUPERACIÓN DE CONTRASEÑA ==================
 export async function solicitarRecuperacion(correo: string) {
-  const res = await api.post("/olvidaste-contrasena", { correo });
+  const res = await api.post('/olvidaste-contrasena', { correo });
   return res.data;
 }
 
 export async function restablecerContrasena(token: string, nueva_contrasena: string) {
-  const res = await api.post("/restablecer-contrasena", { token, nueva_contrasena });
+  const res = await api.post('/restablecer-contrasena', { token, nueva_contrasena });
   return res.data;
 }
 
@@ -313,7 +310,7 @@ export async function desbloquearUsuario(id_usuario_bloqueado: number) {
 }
 
 export async function obtenerUsuariosBloqueados() {
-  const res = await api.get("/usuarios-bloqueados", { headers: getAuthHeaders() });
+  const res = await api.get('/usuarios-bloqueados', { headers: getAuthHeaders() });
   return res.data;
 }
 
@@ -326,7 +323,7 @@ export async function noMeInteresa(id_publicacion: number) {
 }
 
 export async function obtenerNoMeInteresa() {
-  const res = await api.get("/no-me-interesa", { headers: getAuthHeaders() });
+  const res = await api.get('/no-me-interesa', { headers: getAuthHeaders() });
   return res.data;
 }
 
@@ -366,7 +363,7 @@ export interface ComentarioData {
 }
 
 export async function crearComentario(comentarioData: ComentarioData) {
-  const res = await api.post("/comentarios", comentarioData, { headers: getAuthHeaders() });
+  const res = await api.post('/comentarios', comentarioData, { headers: getAuthHeaders() });
   return res.data;
 }
 
@@ -414,7 +411,7 @@ export async function obtenerEstadisticasPublicacion(idPublicacion: number) {
 
 // ======== GUARDADOS ========
 export async function obtenerPublicacionesGuardadas() {
-  const res = await api.get("/guardados", { headers: getAuthHeaders() });
+  const res = await api.get('/guardados', { headers: getAuthHeaders() });
   return res.data;
 }
 
@@ -422,8 +419,6 @@ export async function obtenerPublicacionesGuardadas() {
 export const getSolicitudesAmistad = obtenerSolicitudesPendientes;
 export const getAmigos = obtenerAmigos;
 export const getCategorias = obtenerCategorias;
-
-
 
 // ================== COMPARTIR PUBLICACIONES ==================
 
@@ -435,23 +430,23 @@ export interface CompartirData {
 }
 
 export const compartirPublicacion = async (
-  idPublicacion: number, 
-  mensaje: string = "", 
-  tipo: string = "perfil", 
+  idPublicacion: number,
+  mensaje = '',
+  tipo = 'perfil',
   amigos_ids: number[] = []
 ): Promise<any> => {
   const formData = new FormData();
-  formData.append("mensaje", mensaje);
-  formData.append("tipo", tipo);
-  
-  if (tipo === "amigos" && amigos_ids.length > 0) {
-    formData.append("amigos_ids", amigos_ids.join(","));
+  formData.append('mensaje', mensaje);
+  formData.append('tipo', tipo);
+
+  if (tipo === 'amigos' && amigos_ids.length > 0) {
+    formData.append('amigos_ids', amigos_ids.join(','));
   }
 
   const res = await api.post(`/compartir/${idPublicacion}`, formData, {
     headers: {
       ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
   return res.data;
@@ -459,19 +454,19 @@ export const compartirPublicacion = async (
 
 // Obtener publicaciones compartidas
 export const obtenerPublicacionesCompartidas = async (): Promise<any[]> => {
-  const res = await api.get("/compartidos", { headers: getAuthHeaders() });
+  const res = await api.get('/compartidos', { headers: getAuthHeaders() });
   return res.data;
 };
 
 // Obtener compartidos de amigos
 export const obtenerCompartidosAmigos = async (): Promise<any[]> => {
-  const res = await api.get("/compartidos/amigos", { headers: getAuthHeaders() });
+  const res = await api.get('/compartidos/amigos', { headers: getAuthHeaders() });
   return res.data;
 };
 
 // Obtener mis compartidos
 export const obtenerMisCompartidos = async (): Promise<any[]> => {
-  const res = await api.get("/compartidos/mis-compartidos", { headers: getAuthHeaders() });
+  const res = await api.get('/compartidos/mis-compartidos', { headers: getAuthHeaders() });
   return res.data;
 };
 
@@ -481,25 +476,22 @@ export const obtenerCompartidoPorId = async (idCompartido: number): Promise<any>
   return res.data;
 };
 
-
 // ================== BÚSQUEDA ==================
 export async function buscarUsuarios(query: string): Promise<any[]> {
   if (!query || query.length < 2) {
-    throw new Error("La búsqueda debe tener al menos 2 caracteres");
+    throw new Error('La búsqueda debe tener al menos 2 caracteres');
   }
-  
+
   const res = await api.get(`/buscar?query=${encodeURIComponent(query)}`, {
     headers: getAuthHeaders(),
   });
   return res.data;
 }
 
-
 // Eliminar compartido
 export const eliminarCompartido = async (idCompartido: number): Promise<void> => {
   await api.delete(`/compartidos/${idCompartido}`, { headers: getAuthHeaders() });
 };
-
 
 // ================== CHAT Y MENSAJES ==================
 
@@ -516,7 +508,7 @@ export interface Chat {
 
 export interface Message {
   id: number;
-  sender: "yo" | "otro";
+  sender: 'yo' | 'otro';
   sender_id: number;
   sender_username: string;
   text: string;
@@ -533,7 +525,7 @@ export interface ConfiguracionChat {
 
 // Obtener chats del usuario
 export async function obtenerChats(): Promise<Chat[]> {
-  const res = await api.get("/chats", { headers: getAuthHeaders() });
+  const res = await api.get('/chats', { headers: getAuthHeaders() });
   return res.data;
 }
 
@@ -545,18 +537,18 @@ export async function obtenerMensajesChat(idChat: number): Promise<Message[]> {
 
 // Enviar mensaje con archivo
 export const enviarMensajeArchivo = async (
-  idChat: number, 
-  archivo: File, 
+  idChat: number,
+  archivo: File,
   tipo: string
 ): Promise<any> => {
   const formData = new FormData();
-  formData.append("archivo", archivo);
-  formData.append("tipo", tipo);
+  formData.append('archivo', archivo);
+  formData.append('tipo', tipo);
 
   const res = await api.post(`/chats/${idChat}/mensajes/archivo`, formData, {
     headers: {
       ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
   return res.data;
@@ -564,9 +556,9 @@ export const enviarMensajeArchivo = async (
 
 // Enviar mensaje (texto o con archivo)
 export const enviarMensaje = async (
-  idChat: number, 
-  contenido: string, 
-  tipo: string = "texto",
+  idChat: number,
+  contenido: string,
+  tipo = 'texto',
   archivo?: File
 ): Promise<any> => {
   if (archivo) {
@@ -574,8 +566,9 @@ export const enviarMensaje = async (
     return await enviarMensajeArchivo(idChat, archivo, tipo);
   } else {
     // Si es texto normal, usar el endpoint original
-    const res = await api.post(`/chats/${idChat}/mensajes`, 
-      { contenido, tipo }, 
+    const res = await api.post(
+      `/chats/${idChat}/mensajes`,
+      { contenido, tipo },
       { headers: getAuthHeaders() }
     );
     return res.data;
@@ -583,9 +576,9 @@ export const enviarMensaje = async (
 };
 
 export const enviarMensajeMejorado = async (
-  idChat: number, 
-  contenido: string, 
-  tipo: string = "texto",
+  idChat: number,
+  contenido: string,
+  tipo = 'texto',
   archivo?: File
 ): Promise<any> => {
   if (archivo) {
@@ -598,8 +591,14 @@ export const enviarMensajeMejorado = async (
 };
 
 // Crear o obtener chat con usuario
-export async function crearObtenerChat(idUsuarioDestino: number): Promise<{id_chat: number, existed: boolean}> {
-  const res = await api.post(`/chats/con-usuario/${idUsuarioDestino}`, {}, { headers: getAuthHeaders() });
+export async function crearObtenerChat(
+  idUsuarioDestino: number
+): Promise<{ id_chat: number; existed: boolean }> {
+  const res = await api.post(
+    `/chats/con-usuario/${idUsuarioDestino}`,
+    {},
+    { headers: getAuthHeaders() }
+  );
   return res.data;
 }
 // ================== ELIMINAR CHATS Y MENSAJES ==================
@@ -627,8 +626,6 @@ export const eliminarMensajeParaTodos = async (idMensaje: number): Promise<void>
   return response.data;
 };
 
-
-
 // Actualizar la interfaz ConfiguracionChat
 export interface ConfiguracionChat {
   fondo_chat: string;
@@ -636,19 +633,21 @@ export interface ConfiguracionChat {
   color_burbuja: string;
 }
 
-
 // Configurar chat
-export async function configurarChat(idChat: number, configuracion: ConfiguracionChat): Promise<any> {
-  const res = await api.put(`/chats/${idChat}/configuracion`, configuracion, { 
-    headers: getAuthHeaders() 
+export async function configurarChat(
+  idChat: number,
+  configuracion: ConfiguracionChat
+): Promise<any> {
+  const res = await api.put(`/chats/${idChat}/configuracion`, configuracion, {
+    headers: getAuthHeaders(),
   });
   return res.data;
 }
 
 // Obtener configuración del chat
 export const obtenerConfiguracionChat = async (idChat: number): Promise<ConfiguracionChat> => {
-  const res = await api.get(`/chats/${idChat}/configuracion`, { 
-    headers: getAuthHeaders() 
+  const res = await api.get(`/chats/${idChat}/configuracion`, {
+    headers: getAuthHeaders(),
   });
   return res.data;
 };
@@ -657,12 +656,12 @@ export const obtenerConfiguracionChat = async (idChat: number): Promise<Configur
 export const subirFondoPersonalizado = async (idChat: number, archivo: File): Promise<any> => {
   const formData = new FormData();
   formData.append('fondo', archivo);
-  
+
   const res = await api.post(`/chats/${idChat}/fondo-personalizado`, formData, {
     headers: {
       ...getAuthHeaders(),
       'Content-Type': 'multipart/form-data',
-    }
+    },
   });
   return res.data;
 };
@@ -670,7 +669,7 @@ export const subirFondoPersonalizado = async (idChat: number, archivo: File): Pr
 // Eliminar fondo personalizado
 export const eliminarFondoPersonalizado = async (idChat: number): Promise<any> => {
   const res = await api.delete(`/chats/${idChat}/fondo-personalizado`, {
-    headers: getAuthHeaders()
+    headers: getAuthHeaders(),
   });
   return res.data;
 };
@@ -679,16 +678,15 @@ export const eliminarFondoPersonalizado = async (idChat: number): Promise<any> =
 
 export async function obtenerCategorias(): Promise<any[]> {
   try {
-    const res = await api.get("/categorias", { 
-      headers: getAuthHeaders() 
+    const res = await api.get('/categorias', {
+      headers: getAuthHeaders(),
     });
     return res.data;
   } catch (error) {
-    console.error("Error obteniendo categorías:", error);
+    console.error('Error obteniendo categorías:', error);
     throw error;
   }
 }
-
 
 // ================== PUBLICACIONES POR CATEGORÍA ==================
 export async function obtenerPublicacionesPorCategoria(categoriaNombre: string): Promise<any[]> {
@@ -705,25 +703,28 @@ export async function obtenerPublicacionesPorCategoria(categoriaNombre: string):
 
 export async function obtenerPublicacionesPorCategorias(categorias: string[]): Promise<any[]> {
   try {
-    const categoriasString = categorias.join(",");
+    const categoriasString = categorias.join(',');
     const res = await api.get(`/publicaciones/categorias/${encodeURIComponent(categoriasString)}`, {
       headers: getAuthHeaders(),
     });
     return res.data;
   } catch (error) {
-    console.error(`Error obteniendo publicaciones para categorías ${categorias.join(", ")}:`, error);
+    console.error(
+      `Error obteniendo publicaciones para categorías ${categorias.join(', ')}:`,
+      error
+    );
     throw error;
   }
 }
 
 export async function obtenerCategoriasPopulares(): Promise<any[]> {
   try {
-    const res = await api.get("/categorias/populares", { 
-      headers: getAuthHeaders() 
+    const res = await api.get('/categorias/populares', {
+      headers: getAuthHeaders(),
     });
     return res.data;
   } catch (error) {
-    console.error("Error obteniendo categorías populares:", error);
+    console.error('Error obteniendo categorías populares:', error);
     return []; // Devolver array vacío en caso de error
   }
 }
@@ -734,10 +735,10 @@ export async function obtenerCategoriasPopulares(): Promise<any[]> {
 
 export async function obtenerCategoriasPublicas(): Promise<any[]> {
   try {
-    const res = await api.get("/public/categorias");
+    const res = await api.get('/public/categorias');
     return res.data;
   } catch (error) {
-    console.error("Error obteniendo categorías públicas:", error);
+    console.error('Error obteniendo categorías públicas:', error);
     return [];
   }
 }
@@ -747,7 +748,7 @@ export async function buscarPublico(query: string): Promise<any> {
     const res = await api.get(`/public/buscar?query=${encodeURIComponent(query)}`);
     return res.data;
   } catch (error) {
-    console.error("Error en búsqueda pública:", error);
+    console.error('Error en búsqueda pública:', error);
     throw error;
   }
 }
@@ -757,7 +758,7 @@ export async function obtenerPublicacionesCategoriaPublica(categoriaNombre: stri
     const res = await api.get(`/public/categoria/${encodeURIComponent(categoriaNombre)}`);
     return res.data;
   } catch (error) {
-    console.error("Error obteniendo categoría pública:", error);
+    console.error('Error obteniendo categoría pública:', error);
     throw error;
   }
 }
@@ -767,7 +768,7 @@ export async function obtenerUsuarioBasico(idUsuario: number): Promise<any> {
     const res = await api.get(`/public/usuarios/${idUsuario}/basico`);
     return res.data;
   } catch (error) {
-    console.error("Error obteniendo usuario básico:", error);
+    console.error('Error obteniendo usuario básico:', error);
     throw error;
   }
 }
@@ -775,8 +776,8 @@ export async function obtenerUsuarioBasico(idUsuario: number): Promise<any> {
 // ================== FUNCIONES INTELIGENTES QUE USAN PÚBLICAS O PRIVADAS ==================
 
 export async function buscarContenido(query: string): Promise<any> {
-  const token = localStorage.getItem("token");
-  
+  const token = localStorage.getItem('token');
+
   if (!token) {
     // Usar búsqueda pública si no hay token
     return await buscarPublico(query);
@@ -790,8 +791,8 @@ export async function buscarContenido(query: string): Promise<any> {
 }
 
 export async function obtenerContenidoCategoria(categoriaNombre: string): Promise<any> {
-  const token = localStorage.getItem("token");
-  
+  const token = localStorage.getItem('token');
+
   if (!token) {
     // Usar categoría pública si no hay token
     return await obtenerPublicacionesCategoriaPublica(categoriaNombre);
@@ -812,7 +813,7 @@ export interface SugerenciaUsuario {
   nombre: string;
   foto_perfil: string | null;
   puntuacion: number;
-  tipo: "popular" | "recomendado_amigos";
+  tipo: 'popular' | 'recomendado_amigos';
   recomendado_por?: string;
   estadisticas: {
     likes_totales: number;
@@ -829,12 +830,12 @@ export interface SugerenciasResponse {
 
 export async function obtenerSugerenciasUsuarios(): Promise<SugerenciasResponse> {
   try {
-    const res = await api.get("/sugerencias-usuarios", {
+    const res = await api.get('/sugerencias-usuarios', {
       headers: getAuthHeaders(),
     });
     return res.data;
   } catch (error) {
-    console.error("Error obteniendo sugerencias de usuarios:", error);
+    console.error('Error obteniendo sugerencias de usuarios:', error);
     throw error;
   }
 }
@@ -851,23 +852,26 @@ export interface ActualizarUsuarioData {
   nombre_usuario?: string;
 }
 
-export async function actualizarUsuario(id_usuario: number, data: ActualizarUsuarioData): Promise<any> {
+export async function actualizarUsuario(
+  id_usuario: number,
+  data: ActualizarUsuarioData
+): Promise<any> {
   const formData = new FormData();
-  
+
   // Agregar solo los campos que tienen valor
-  if (data.nombre) formData.append("nombre", data.nombre);
-  if (data.apellido) formData.append("apellido", data.apellido);
-  if (data.correo_electronico) formData.append("correo_electronico", data.correo_electronico);
-  if (data.fecha_nacimiento) formData.append("fecha_nacimiento", data.fecha_nacimiento);
-  if (data.genero) formData.append("genero", data.genero);
-  if (data.tipo_arte_preferido) formData.append("tipo_arte_preferido", data.tipo_arte_preferido);
-  if (data.telefono) formData.append("telefono", data.telefono);
-  if (data.nombre_usuario) formData.append("nombre_usuario", data.nombre_usuario);
-  
+  if (data.nombre) formData.append('nombre', data.nombre);
+  if (data.apellido) formData.append('apellido', data.apellido);
+  if (data.correo_electronico) formData.append('correo_electronico', data.correo_electronico);
+  if (data.fecha_nacimiento) formData.append('fecha_nacimiento', data.fecha_nacimiento);
+  if (data.genero) formData.append('genero', data.genero);
+  if (data.tipo_arte_preferido) formData.append('tipo_arte_preferido', data.tipo_arte_preferido);
+  if (data.telefono) formData.append('telefono', data.telefono);
+  if (data.nombre_usuario) formData.append('nombre_usuario', data.nombre_usuario);
+
   const res = await api.put(`/usuarios/${id_usuario}`, formData, {
     headers: {
       ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
   return res.data;
@@ -879,8 +883,6 @@ export interface CambiarContrasenaData {
   confirmarContrasena: string;
 }
 
-
-
 // ================== REPORTAR PROBLEMAS ==================
 
 export interface ReporteProblemaData {
@@ -890,32 +892,35 @@ export interface ReporteProblemaData {
 }
 
 export async function reportarProblema(data: ReporteProblemaData): Promise<any> {
-  const res = await api.post("/reportar-problema", data, {
+  const res = await api.post('/reportar-problema', data, {
     headers: getAuthHeaders(),
   });
   return res.data;
 }
 // En services/api.ts, actualiza estas funciones para manejar mejor los errores:
 
-export async function cambiarContrasena(id_usuario: number, data: CambiarContrasenaData): Promise<any> {
+export async function cambiarContrasena(
+  id_usuario: number,
+  data: CambiarContrasenaData
+): Promise<any> {
   try {
     const formData = new FormData();
-    formData.append("password_actual", data.passwordActual);
-    formData.append("nueva_contrasena", data.nuevaContrasena);
-    formData.append("confirmar_contrasena", data.confirmarContrasena);
-    
+    formData.append('password_actual', data.passwordActual);
+    formData.append('nueva_contrasena', data.nuevaContrasena);
+    formData.append('confirmar_contrasena', data.confirmarContrasena);
+
     const res = await api.put(`/usuarios/${id_usuario}/cambiar-contrasena`, formData, {
       headers: {
         ...getAuthHeaders(),
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
     return res.data;
   } catch (error: any) {
-    console.error("Error cambiando contraseña:", error);
+    console.error('Error cambiando contraseña:', error);
     // Retorna un objeto con mensaje para que el frontend pueda manejarlo
     return {
-      mensaje: error.response?.data?.detail || "Error al cambiar contraseña"
+      mensaje: error.response?.data?.detail || 'Error al cambiar contraseña',
     };
   }
 }
@@ -923,22 +928,21 @@ export async function cambiarContrasena(id_usuario: number, data: CambiarContras
 export async function eliminarCuenta(id_usuario: number, confirmacion: string): Promise<any> {
   try {
     const formData = new FormData();
-    formData.append("confirmacion", confirmacion);
-    
+    formData.append('confirmacion', confirmacion);
+
     const res = await api.delete(`/usuarios/${id_usuario}/eliminar-cuenta`, {
       headers: {
         ...getAuthHeaders(),
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
       data: formData,
     });
     return res.data;
   } catch (error: any) {
-    console.error("Error eliminando cuenta:", error);
+    console.error('Error eliminando cuenta:', error);
     throw error; // Propaga el error para que el frontend lo maneje
   }
 }
-
 
 // ================== GALERÍA DE ARTE ==================
 
@@ -1006,25 +1010,40 @@ export interface PublicarDesdeGaleriaData {
 
 // Obtener estadísticas de la galería
 export const obtenerEstadisticasGaleria = async (): Promise<EstadisticasGaleria> => {
-  const res = await api.get("/galeria/estadisticas", { headers: getAuthHeaders() });
+  const res = await api.get('/galeria/estadisticas', { headers: getAuthHeaders() });
   return res.data;
 };
 
 // Obtener carpetas
 export const obtenerCarpetasGaleria = async (): Promise<CarpetaGaleria[]> => {
-  const res = await api.get("/galeria/carpetas", { headers: getAuthHeaders() });
+  const res = await api.get('/galeria/carpetas', { headers: getAuthHeaders() });
   return res.data;
 };
 
 // Crear carpeta
-export const crearCarpetaGaleria = async (carpeta: Omit<CarpetaGaleria, 'id_carpeta' | 'id_usuario' | 'fecha_creacion' | 'fecha_actualizacion' | 'total_archivos' | 'tamano_total'>): Promise<CarpetaGaleria> => {
-  const res = await api.post("/galeria/carpetas", carpeta, { headers: getAuthHeaders() });
+export const crearCarpetaGaleria = async (
+  carpeta: Omit<
+    CarpetaGaleria,
+    | 'id_carpeta'
+    | 'id_usuario'
+    | 'fecha_creacion'
+    | 'fecha_actualizacion'
+    | 'total_archivos'
+    | 'tamano_total'
+  >
+): Promise<CarpetaGaleria> => {
+  const res = await api.post('/galeria/carpetas', carpeta, { headers: getAuthHeaders() });
   return res.data;
 };
 
 // Actualizar carpeta
-export const actualizarCarpetaGaleria = async (idCarpeta: number, carpeta: Partial<CarpetaGaleria>): Promise<CarpetaGaleria> => {
-  const res = await api.put(`/galeria/carpetas/${idCarpeta}`, carpeta, { headers: getAuthHeaders() });
+export const actualizarCarpetaGaleria = async (
+  idCarpeta: number,
+  carpeta: Partial<CarpetaGaleria>
+): Promise<CarpetaGaleria> => {
+  const res = await api.put(`/galeria/carpetas/${idCarpeta}`, carpeta, {
+    headers: getAuthHeaders(),
+  });
   return res.data;
 };
 
@@ -1035,10 +1054,10 @@ export const eliminarCarpetaGaleria = async (idCarpeta: number): Promise<void> =
 
 // Subir archivo a la galería
 export const subirArchivoGaleria = async (data: FormData): Promise<ArchivoGaleria> => {
-  const res = await api.post("/galeria/archivos/subir", data, {
+  const res = await api.post('/galeria/archivos/subir', data, {
     headers: {
       ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
   return res.data;
@@ -1051,13 +1070,13 @@ export const obtenerArchivosGaleria = async (filtros?: {
   busqueda?: string;
 }): Promise<ArchivoGaleria[]> => {
   const params = new URLSearchParams();
-  if (filtros?.id_carpeta) params.append("id_carpeta", filtros.id_carpeta.toString());
-  if (filtros?.tipo) params.append("tipo", filtros.tipo);
-  if (filtros?.busqueda) params.append("busqueda", filtros.busqueda);
-  
+  if (filtros?.id_carpeta) params.append('id_carpeta', filtros.id_carpeta.toString());
+  if (filtros?.tipo) params.append('tipo', filtros.tipo);
+  if (filtros?.busqueda) params.append('busqueda', filtros.busqueda);
+
   const query = params.toString();
-  const url = query ? `/galeria/archivos?${query}` : "/galeria/archivos";
-  
+  const url = query ? `/galeria/archivos?${query}` : '/galeria/archivos';
+
   const res = await api.get(url, { headers: getAuthHeaders() });
   return res.data;
 };
@@ -1069,11 +1088,14 @@ export const obtenerArchivoDetalle = async (idArchivo: number): Promise<ArchivoG
 };
 
 // Actualizar archivo
-export const actualizarArchivoGaleria = async (idArchivo: number, data: FormData): Promise<ArchivoGaleria> => {
+export const actualizarArchivoGaleria = async (
+  idArchivo: number,
+  data: FormData
+): Promise<ArchivoGaleria> => {
   const res = await api.put(`/galeria/archivos/${idArchivo}`, data, {
     headers: {
       ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
   return res.data;
@@ -1086,7 +1108,7 @@ export const eliminarArchivoGaleria = async (idArchivo: number): Promise<void> =
 
 // Publicar desde la galería
 export const publicarDesdeGaleria = async (data: PublicarDesdeGaleriaData): Promise<any> => {
-  const res = await api.post("/galeria/publicar", data, { headers: getAuthHeaders() });
+  const res = await api.post('/galeria/publicar', data, { headers: getAuthHeaders() });
   return res.data;
 };
 
@@ -1165,21 +1187,21 @@ export interface ReporteProblemaAdmin {
 
 // Obtener estadísticas del panel de administrador
 export const obtenerEstadisticasAdmin = async (): Promise<EstadisticasAdmin> => {
-  const res = await api.get("/admin/estadisticas", { headers: getAuthHeaders() });
+  const res = await api.get('/admin/estadisticas', { headers: getAuthHeaders() });
   return res.data;
 };
 
 // Obtener usuarios para administración
 export const obtenerUsuariosAdmin = async (
-  skip: number = 0,
-  limit: number = 50,
+  skip = 0,
+  limit = 50,
   busqueda?: string
 ): Promise<{ usuarios: UsuarioAdmin[]; total: number; skip: number; limit: number }> => {
   const params = new URLSearchParams();
-  params.append("skip", skip.toString());
-  params.append("limit", limit.toString());
-  if (busqueda) params.append("busqueda", busqueda);
-  
+  params.append('skip', skip.toString());
+  params.append('limit', limit.toString());
+  if (busqueda) params.append('busqueda', busqueda);
+
   const res = await api.get(`/admin/usuarios?${params.toString()}`, { headers: getAuthHeaders() });
   return res.data;
 };
@@ -1187,12 +1209,12 @@ export const obtenerUsuariosAdmin = async (
 // Cambiar rol de administrador de un usuario
 export const cambiarRolUsuario = async (usuario_id: number, es_admin: boolean): Promise<any> => {
   const formData = new FormData();
-  formData.append("es_admin", es_admin.toString());
-  
+  formData.append('es_admin', es_admin.toString());
+
   const res = await api.put(`/admin/usuarios/${usuario_id}/rol`, formData, {
     headers: {
       ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
   return res.data;
@@ -1206,60 +1228,66 @@ export const eliminarUsuarioAdmin = async (usuario_id: number): Promise<any> => 
 
 // Obtener publicaciones para administración
 export const obtenerPublicacionesAdmin = async (
-  skip: number = 0,
-  limit: number = 50
+  skip = 0,
+  limit = 50
 ): Promise<{ publicaciones: PublicacionAdmin[]; total: number; skip: number; limit: number }> => {
   const params = new URLSearchParams();
-  params.append("skip", skip.toString());
-  params.append("limit", limit.toString());
-  
-  const res = await api.get(`/admin/publicaciones?${params.toString()}`, { headers: getAuthHeaders() });
+  params.append('skip', skip.toString());
+  params.append('limit', limit.toString());
+
+  const res = await api.get(`/admin/publicaciones?${params.toString()}`, {
+    headers: getAuthHeaders(),
+  });
   return res.data;
 };
 
 // Eliminar publicación (solo administradores)
 export const eliminarPublicacionAdmin = async (id_publicacion: number): Promise<any> => {
-  const res = await api.delete(`/admin/publicaciones/${id_publicacion}`, { headers: getAuthHeaders() });
+  const res = await api.delete(`/admin/publicaciones/${id_publicacion}`, {
+    headers: getAuthHeaders(),
+  });
   return res.data;
 };
 
 // Obtener reportes de usuarios
 export const obtenerReportesAdmin = async (
-  skip: number = 0,
-  limit: number = 50
+  skip = 0,
+  limit = 50
 ): Promise<{ reportes: ReporteAdmin[]; total: number; skip: number; limit: number }> => {
   const params = new URLSearchParams();
-  params.append("skip", skip.toString());
-  params.append("limit", limit.toString());
-  
+  params.append('skip', skip.toString());
+  params.append('limit', limit.toString());
+
   const res = await api.get(`/admin/reportes?${params.toString()}`, { headers: getAuthHeaders() });
   return res.data;
 };
 
 // Obtener reportes de problemas
 export const obtenerReportesProblemasAdmin = async (
-  skip: number = 0,
-  limit: number = 50,
+  skip = 0,
+  limit = 50,
   estado?: string
 ): Promise<{ reportes: ReporteProblemaAdmin[]; total: number; skip: number; limit: number }> => {
   const params = new URLSearchParams();
-  params.append("skip", skip.toString());
-  params.append("limit", limit.toString());
-  if (estado) params.append("estado", estado);
-  
-  const res = await api.get(`/admin/reportes-problemas?${params.toString()}`, { headers: getAuthHeaders() });
+  params.append('skip', skip.toString());
+  params.append('limit', limit.toString());
+  if (estado) params.append('estado', estado);
+
+  const res = await api.get(`/admin/reportes-problemas?${params.toString()}`, {
+    headers: getAuthHeaders(),
+  });
   return res.data;
 };
 
 // Actualizar estado de reporte de problema
 export const actualizarEstadoReporte = async (id_reporte: number, estado: string): Promise<any> => {
   const formData = new FormData();
-  formData.append("estado", estado);
-  
+  formData.append('estado', estado);
+
   const res = await api.put(`/admin/reportes-problemas/${id_reporte}/estado`, formData, {
     headers: {
       ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
   return res.data;
@@ -1278,21 +1306,21 @@ export interface Anuncio {
 
 // Obtener anuncio (público)
 export const obtenerAnuncio = async (): Promise<Anuncio> => {
-  const res = await api.get("/anuncio");
+  const res = await api.get('/anuncio');
   return res.data;
 };
 
 // Actualizar anuncio (solo administradores)
 export const actualizarAnuncio = async (titulo: string, contenido: string): Promise<Anuncio> => {
   const formData = new FormData();
-  formData.append("titulo", titulo);
-  formData.append("contenido", contenido);
-  formData.append("activo", "true");
-  
-  const res = await api.put("/anuncio", formData, {
+  formData.append('titulo', titulo);
+  formData.append('contenido', contenido);
+  formData.append('activo', 'true');
+
+  const res = await api.put('/anuncio', formData, {
     headers: {
       ...getAuthHeaders(),
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
   return res.data;

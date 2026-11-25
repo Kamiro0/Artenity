@@ -30,16 +30,20 @@ app = FastAPI()
 # ------------------ CORS ------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8000"],
+    allow_origins=[
+        settings.FRONTEND_URL,
+        settings.BACKEND_URL,
+        "http://localhost:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # ------------------ CONFIGURACIÓN JWT ------------------
-SECRET_KEY = "tu-secreto-aqui"  # Cambia esto por una clave segura
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.JWT_ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -388,7 +392,7 @@ async def actualizar_perfil(
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        perfil.foto_perfil = f"http://localhost:8000/static/perfiles/{filename}"
+        perfil.foto_perfil = f"{settings.BACKEND_URL}/static/perfiles/{filename}"
 
     db.commit()
     db.refresh(perfil)
@@ -446,7 +450,7 @@ async def crear_publicacion(
                         content = await file.read()
                         f.write(content)
                     
-                    url_medio = f"http://localhost:8000/{folder}/{unique_filename}"
+                    url_medio = f"{settings.BACKEND_URL}/{folder}/{unique_filename}"
                     medios_urls.append(url_medio)
         
         # Parsear etiquetas si existen (nuevo)
@@ -1131,7 +1135,7 @@ async def reportar_usuario(
         path = os.path.join("static/reportes", filename)
         with open(path, "wb") as f:
             f.write(await evidencia.read())
-        evidencia_url = f"http://localhost:8000/static/reportes/{filename}"
+        evidencia_url = f"{settings.BACKEND_URL}/static/reportes/{filename}"
 
     # Crear reporte
     nuevo_reporte = models.ReporteUsuario(
@@ -1231,7 +1235,7 @@ async def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get
         db.commit()
 
         # URL del frontend
-        frontend_url = f"http://localhost:3000/reset-password/{token}"
+        frontend_url = f"{settings.FRONTEND_URL}/reset-password/{token}"
 
         # Enviar correo con manejo de errores
         mensaje = MessageSchema(
@@ -4221,7 +4225,7 @@ async def subir_archivo_galeria(
         db.refresh(nuevo_archivo)
         
         # Preparar respuesta con URL absoluta para el frontend
-        base_url = "http://localhost:8000"
+        base_url = settings.BACKEND_URL
         response = schemas.ArchivoResponse.from_orm(nuevo_archivo)
         response.carpeta_nombre = carpeta.nombre
         

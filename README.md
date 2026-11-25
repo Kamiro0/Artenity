@@ -1,519 +1,395 @@
-# Artenity — Plataforma social para artistas
+# Artenity
 
-Artenity es una aplicación web para crear, compartir y descubrir obras de arte, gestionar perfiles de artista, seguir a otros usuarios y reportar contenido. Este README explica paso a paso cómo preparar el entorno, configurar variables, instalar dependencias y ejecutar tanto el backend (FastAPI/Python) como el frontend (React/TypeScript).
+Artenity es una red social para artistas. Permite crear publicaciones con imágenes o videos, gestionar perfiles, seguir usuarios, buscar contenido, enviar mensajes, recibir advertencias y reportar contenido.
 
-**Formato:** Instrucciones pensadas para desarrollo local en Windows (PowerShell). También incluyo comandos equivalentes para macOS/Linux donde aplica.
+## Tecnologías
 
---
+- Backend: Python, FastAPI, SQLAlchemy y Uvicorn
+- Base de datos: MariaDB/MySQL
+- Frontend: React 18, TypeScript y Axios
+- Pruebas: pytest
+- Servidor web local recomendado: XAMPP
 
-**Contenido rápido**
-- Requisitos previos
-- Clonar el repositorio
-- Backend: setup, env, base de datos, ejecutar, tests
-- Frontend: setup, ejecutar, build
-- Conexión frontend ↔ backend
-- Migraciones y DB
-- Comandos útiles y troubleshooting
-- Contribuir y contacto
+## Puertos locales
 
---
+| Servicio | Dirección |
+|---|---|
+| Frontend React | http://localhost:3000 |
+| Backend FastAPI | http://localhost:8000 |
+| Documentación Swagger | http://localhost:8000/docs |
+| Documentación ReDoc | http://localhost:8000/redoc |
+| phpMyAdmin | http://localhost/phpmyadmin |
 
-**Importante:** No subas archivos con credenciales (.env). Usa valores seguros en producción.
+## Requisitos
 
---
-
-## Requisitos previos
+Instala primero:
 
 - Git
-- Node.js (v16+ o preferible v18+) y `npm` o `yarn`
-- Python 3.10+
-- MariaDB/MySQL (cliente y servidor) o una base de datos compatible
-- Opcional: `virtualenv` / acceso a crear entornos virtuales
+- Python estable compatible con las dependencias actuales
+- Node.js 18 o superior
+- XAMPP con Apache y MariaDB/MySQL
 
-Si trabajas en Windows, abre PowerShell como usuario normal (no hace falta admin salvo para instalar software). Los comandos mostrados aquí usan PowerShell cuando son específicos de Windows.
-
---
-
-## 1) Clonar el repo
-
-Abre una terminal y clona el repositorio:
-
-```powershell
-git clone <repo-url> Artenity
-cd Artenity
-```
-
-Reemplaza `<repo-url>` por la URL del repositorio remoto.
-
---
-
-## 2) Backend — instalación y ejecución (desarrollo)
-
-Ruta: `backend/`
-
-- Crear y activar entorno virtual (PowerShell):
-
-```powershell
-python -m venv backend\venv
-backend\venv\Scripts\Activate.ps1
-```
-
-En CMD (si prefieres):
-
-```cmd
-backend\venv\Scripts\activate
-```
-
-En macOS/Linux:
+Este proyecto usa Windows con Git Bash en los ejemplos. Ejecuta siempre los comandos desde la raíz del repositorio:
 
 ```bash
-python3 -m venv backend/venv
-source backend/venv/bin/activate
+cd /c/Users/camil/Artenity
 ```
 
-- Instalar dependencias:
+> Importante: el entorno actual tiene Python 3.15.2. Python 3.15 es nuevo y varias librerías fijadas en `backend/requirements.txt` aún pueden carecer de ruedas compatibles. Usa Python 3.13 o 3.14, que tienen mejor compatibilidad con el ecosistema actual del proyecto.
+
+## 1. Instalar Python actualizado
+
+Comprueba las versiones disponibles:
+
+```bash
+python --version
+py -0p
+```
+
+Instala Python 3.14 desde la web oficial o con winget:
 
 ```powershell
-pip install --upgrade pip
-pip install -r backend/requirements.txt
+winget install --id Python.Python.3.14 -e
 ```
 
-- Variables de entorno mínimas
+Cierra todas las terminales después de instalarlo y abre una terminal Git Bash nueva.
 
-Crear `backend/.env` (o usar otra forma de inyectar variables). Ejemplo mínimo:
+Para comprobar el intérprete:
+
+```bash
+py -3.14 --version
+```
+
+## 2. Configurar el backend
+
+### 2.1 Crear el entorno virtual
+
+Desde la raíz del proyecto:
+
+```bash
+rm -rf backend/venv
+py install 3.14
+py -3.14 -m venv backend/venv
+source backend/venv/Scripts/activate
+```
+
+Al activarlo, el prompt debe mostrar `(venv)`.
+
+Verifica que está usando el Python del entorno:
+
+```bash
+which python
+python --version
+python -m pip --version
+```
+
+La ruta mostrada por `which python` debe contener `backend/venv/Scripts/python.exe`.
+
+### 2.2 Actualizar pip y instalar dependencias
+
+```bash
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -r backend/requirements.txt
+```
+
+No uses `pip` sin `python -m pip`; esto garantiza que la instalación se haga dentro del entorno virtual.
+
+Si una versión no tiene rueda compatible, registra el error completo antes de cambiar de versión. No instales paquetes al azar ni uses `--ignore-requires-python`.
+
+### 2.3 Configurar variables de entorno
+
+Crea `backend/.env` a partir del ejemplo:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Contenido inicial para desarrollo local:
 
 ```env
-DATABASE_URL=mysql+pymysql://user:password@localhost:3306/artenity
-SECRET_KEY=changeme_to_a_strong_secret
-DEBUG=True
-MEDIA_ROOT=./static
+DATABASE_URL=mysql+pymysql://root:@localhost:3306/artenity
+SECRET_KEY=cambia-esta-clave-por-una-secreta-de-al-menos-32-caracteres
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+FRONTEND_URL=http://localhost:3000
+BACKEND_URL=http://localhost:8000
+
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM=
+MAIL_FROM_NAME=Artiverse
+MAIL_PORT=587
+MAIL_SERVER=smtp.gmail.com
+MAIL_STARTTLS=true
+MAIL_SSL_TLS=false
+USE_CREDENTIALS=true
+VALIDATE_CERTS=true
 ```
 
-En PowerShell puedes exportar temporalmente:
+Si MariaDB tiene una contraseña para `root`, reemplázala:
 
-```powershell
-$env:DATABASE_URL = 'mysql+pymysql://user:password@localhost:3306/artenity'
-$env:SECRET_KEY = 'mi_secreto_local'
+```env
+DATABASE_URL=mysql+pymysql://root:TU_PASSWORD@localhost:3306/artenity
 ```
 
-- Crear la base de datos e importar dump (si tienes `backend/artenity.sql`):
+No subas `backend/.env` a Git.
 
-```powershell
-# Ejecutar con cliente mysql
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS artenity CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-mysql -u root -p artenity < backend/artenity.sql
+## 3. Configurar MariaDB/MySQL
+
+### 3.1 Iniciar MariaDB
+
+Abre XAMPP Control Panel:
+
+1. Inicia **Apache**.
+2. Inicia **MySQL**.
+3. Verifica que MySQL tenga el estado verde.
+
+### 3.2 Crear la base de datos
+
+Desde Git Bash puedes usar el cliente incluido en XAMPP:
+
+```bash
+"C:/xampp/mysql/bin/mysql.exe" -u root -e "CREATE DATABASE IF NOT EXISTS artenity CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 ```
 
-Si prefieres usar una herramienta gráfica (MySQL Workbench) puedes crear la base y ejecutar el SQL dump desde allí.
+Si tu usuario tiene contraseña:
 
-- Ejecutar la API (desarrollo):
-
-```powershell
-# desde la raíz del repo
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+```bash
+"C:/xampp/mysql/bin/mysql.exe" -u root -p -e "CREATE DATABASE IF NOT EXISTS artenity CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 ```
 
-La API quedará disponible en `http://localhost:8000`. La documentación automática (si está configurada) suele estar en `/docs` o `/redoc`.
+### 3.3 Importar el dump
 
---
+El repositorio incluye `backend/artenity.sql`.
 
-### Migraciones (opcional)
-
-Si el proyecto utiliza Alembic, desde el directorio `backend`:
-
-```powershell
-# generar migración
-alembic revision --autogenerate -m "mensaje"
-# aplicar migraciones
-alembic upgrade head
+```bash
+"C:/xampp/mysql/bin/mysql.exe" -u root artenity < backend/artenity.sql
 ```
 
-Si no hay Alembic, puedes crear un script que llame a `SQLModel.metadata.create_all(engine)` o equivalente.
+Con contraseña:
 
---
-
-### Tests backend
-
-Desde la raíz o `backend/`:
-
-```powershell
-pytest -q
-# Para obtener coverage (opcional)
-coverage run -m pytest && coverage html
+```bash
+"C:/xampp/mysql/bin/mysql.exe" -u root -p artenity < backend/artenity.sql
 ```
 
---
+También puedes crear/importar la base desde http://localhost/phpmyadmin.
 
-## 3) Frontend — instalación y ejecución (desarrollo)
+### 3.4 Verificar la conexión
 
-Ruta: `frontend/`
+```bash
+"C:/xampp/mysql/bin/mysql.exe" -u root -e "USE artenity; SHOW TABLES;"
+```
 
-- Instalar dependencias (desde la carpeta `frontend`):
+Debe mostrar las tablas del proyecto.
 
-```powershell
+## 4. Ejecutar el backend
+
+Activa el entorno y ejecuta Uvicorn desde la raíz del proyecto:
+
+```bash
+source backend/venv/Scripts/activate
+python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Verifica:
+
+- API: http://127.0.0.1:8000
+- Swagger: http://127.0.0.1:8000/docs
+- Archivos estáticos: http://127.0.0.1:8000/static/
+
+Mantén esta terminal abierta. Una recarga automática reinicia el servidor cuando cambia el código Python.
+
+## 5. Configurar y ejecutar el frontend
+
+Abre otra terminal Git Bash en la raíz del proyecto.
+
+Instala Node.js actualizado y las dependencias:
+
+```bash
 cd frontend
 npm install
-# o con yarn
-# yarn install
-```
-
-- Variables del frontend
-
-Si el frontend necesita conocer la URL de la API, revisa `frontend/src/services/api.ts`. Puedes usar un archivo `.env` en `frontend/` o establecer variables de entorno antes de arrancar.
-
-Ejemplo (React con Vite/CRA): crear `.env.local` en `frontend/` con:
-
-```env
-VITE_API_URL=http://localhost:8000
-```
-
-Nota: la forma concreta depende de cómo el proyecto consuma variables (buscar `process.env` o `import.meta.env`).
-
-- Ejecutar el servidor de desarrollo:
-
-```powershell
 npm start
-# o si usa Vite
-# npm run dev
 ```
 
-Frontend disponible en `http://localhost:3000` (o el puerto que indique la consola).
+El frontend debe abrirse en http://localhost:3000.
 
-- Generar build para producción:
+Si necesitas volver a la raíz:
 
-```powershell
-npm run build
-# Los archivos generados suelen quedar en `frontend/build` o `dist/`
-```
-
---
-
-## 4) Conectar Frontend y Backend
-
-- Asegúrate de que la variable de API en frontend apunte a `http://localhost:8000` (o donde ejecutes el backend).
-- En `frontend/src/services/api.ts` hay un cliente que apunta a la API; ajusta la URL base si es necesario.
-- Si el navegador bloquea peticiones por CORS, habilita CORS en FastAPI (`fastapi.middleware.cors.CORSMiddleware`) permitiendo origenes locales (`http://localhost:3000`).
-
-Ejemplo rápido en `backend/main.py`:
-
-```py
-from fastapi.middleware.cors import CORSMiddleware
-app.add_middleware(
-  CORSMiddleware,
-  allow_origins=["http://localhost:3000"],
-  allow_credentials=True,
-  allow_methods=["*"],
-  allow_headers=["*"],
-)
-```
-
---
-
-## 5) Troubleshooting común
-
-- Error de conexión a la base de datos: revisa `DATABASE_URL` (credenciales, host, puerto). Prueba conectarte con `mysql` o cliente gráfico.
-- Dependencias faltantes: asegúrate de activar el virtualenv antes de `pip install` y usa la versión de Python correcta.
-- Error CORS: activa `CORSMiddleware` en backend o usa el mismo host/puerto para frontend y backend durante desarrollo.
-- Rutas 404 en frontend: comprueba que el build/servidor está sirviendo correctamente y que `homepage`/base path está bien configurado.
-- Variables de entorno en React no se reflejan: reinicia el servidor de desarrollo después de cambiar `.env`.
-
---
-
-## 6) Comandos útiles (resumen)
-
-- Activar entorno (Windows PowerShell): `backend\\venv\\Scripts\\Activate.ps1`
-- Instalar backend: `pip install -r backend/requirements.txt`
-- Ejecutar backend: `uvicorn backend.main:app --reload --port 8000`
-- Instalar frontend: `cd frontend && npm install`
-- Ejecutar frontend: `npm start`
-- Tests backend: `pytest -q`
-
---
-
-## 7) Desarrollo y aportes
-
-- Flujo recomendado: fork → branch `feature/<nombre>` → PR.
-- Añadir tests para cambios funcionales y seguir las normas de linters (Black, isort, flake8 para backend; ESLint/Prettier para frontend).
-- Documenta los endpoints que añadas en `backend/main.py` y actualiza este README si cambian variables importantes.
-
---
-
-## 8) Contacto y licencia
-
-- Añade aquí la dirección de contacto del mantenedor del proyecto.
-- Sugerencia: usar licencia MIT (agregar `LICENSE` al repo).
-
---
-
-Si quieres, puedo:
-- Añadir una sección específica con los endpoints más usados (si me das los detalles de `backend/main.py`).
-- Añadir instrucciones para desplegar con Docker / Heroku / VPS.
-
-¿Deseas que también cree un `.env.example` para backend y un `.env.example` para frontend con las variables comunes ya preconfiguradas?
-
----
-
-## Contenido rápido
-- Título y propósito
-- Tecnologías y stack
-- Requisitos
-- Estructura del repositorio
-- Configuración (env, DB, dependencias)
-- Comandos (instalación, ejecución, tests, migraciones)
-- Endpoints / archivos clave
-- Contribución, licencias y contacto
-
----
-
-## 1. Título y propósito
-Artenity — Plataforma social para artistas  
-Propósito: ofrecer una red social especializada en arte para publicar obras, gestionar perfiles, seguir artistas, recibir notificaciones y reportar contenido inapropiado.
-
----
-
-## 2. Tecnologías (stack)
-- Lenguaje backend: Python 3.10+
-- Framework backend: FastAPI (ASGI: Uvicorn)
-- ORM / modelos: SQLAlchemy / SQLModel
-- Base de datos: MariaDB / MySQL (compatible con PyMySQL)
-- Frontend: React (TypeScript)
-- Tests: pytest (backend)
-- Otras: Alembic (migraciones opcional), npm/yarn (frontend)
-
-Archivos relevantes:
-- Backend: `backend/main.py`, `backend/models.py`, `backend/schemas.py`, `backend/database.py`
-- Frontend: `frontend/src/...` (`PerfilUsuario.tsx`, `services/api.ts`, etc.)
-
----
-
-## 3. Requisitos previos (software)
-- Python 3.10+
-- pip
-- Node.js 18+ y npm
-- MariaDB / MySQL (cliente `mysql` y servidor)
-- Git (recomendado)
-- Windows: PowerShell o CMD (ejemplos incluidos)
-
----
-
-## 4. Estructura del repositorio (resumen)
-- /backend
-  - main.py, models.py, schemas.py, database.py, requirements.txt, artenity.sql, tests/
-- /frontend
-  - package.json, src/, public/
-- /README.md (este archivo)
-- /LICENSE (sugerido)
-- /static (si aplica: imágenes, uploads)
-
-(Estructura completa disponible en el repo)
-
----
-
-## 5. Configuración paso a paso (Windows)
-
-1) Clonar:
 ```bash
-git clone <repo-url> Artenity2.0
-cd Artenity2.0
-```
-
-
-2) Backend: crear entorno virtual e instalar dependencias
-```bash
-python -m venv backend\venv
-# PowerShell
-backend\venv\Scripts\Activate.ps1
-# CMD
-backend\venv\Scripts\activate
-pip install -r backend/requirements.txt
-```
-
-3) Variables de entorno (usar `backend/.env`, no subir `.env`):
-Crear `backend/.env` o `backend/.env.example` con:
-```env
-DATABASE_URL=mysql+pymysql://user:password@localhost:3306/artenity
-SECRET_KEY=change_this_to_a_strong_secret
-ALLOWED_HOSTS=localhost,127.0.0.1
-MEDIA_ROOT=./static
-DEBUG=True
-```
-Temporal en PowerShell:
-```powershell
-$env:DATABASE_URL="mysql+pymysql://user:password@localhost:3306/artenity"
-$env:SECRET_KEY="mi_secreto"
-```
-
-4) Base de datos: crear DB e importar dump (opcional)
-```bash
-# crear base (usando cliente mysql)
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS artenity CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-mysql -u root -p artenity < backend/artenity.sql
-```
-
-5) Frontend: instalar dependencias
-```bash
-cd frontend
-npm install
 cd ..
 ```
 
----
+El frontend actual usa `http://localhost:8000` directamente en su configuración. No necesita un archivo `.env` para el arranque local básico.
 
-## 6. Ejecutar en modo desarrollo
+Para producción, debes reemplazar las URLs locales por la URL real del servidor en `frontend/src/services/api.ts` y en los componentes que usan `fetch`.
 
-1) Backend (con venv activado, raíz del repo):
+## 6. Inicio diario
+
+Abre dos terminales desde la raíz.
+
+Terminal 1 — backend:
+
 ```bash
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+cd /c/Users/camil/Artenity
+source backend/venv/Scripts/activate
+python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 ```
-API en: http://localhost:8000  
-Documentación automática (si FastAPI expone): http://localhost:8000/docs y /redoc
 
-2) Frontend (otra terminal):
+Terminal 2 — frontend:
+
 ```bash
-cd frontend
+cd /c/Users/camil/Artenity/frontend
 npm start
 ```
-Frontend en: http://localhost:3000
 
----
+XAMPP debe tener MySQL iniciado antes de arrancar el backend.
 
-## 7. Migraciones / Crear esquema (opcional)
-- Si usa Alembic:
+## 7. Pruebas
+
+Backend:
+
 ```bash
-# generar y aplicar migración
-alembic revision --autogenerate -m "mensaje"
-alembic upgrade head
+source backend/venv/Scripts/activate
+python -m pytest backend/tests -q
 ```
-- Si no hay Alembic y usa SQLModel/SQLAlchemy:
-- Crear un script como `backend/scripts/create_db.py` que importe modelos y haga `SQLModel.metadata.create_all(engine)`.
 
----
+Frontend:
 
-## 8. Tests
-Ejecutar tests backend:
 ```bash
-# desde la raíz o backend/
-pytest -q
-# con coverage
-coverage run -m pytest && coverage html
-```
-Tests detectados en `backend/tests/`.
-
----
-
-## 9. Endpoints y archivos clave
-- Rutas FastAPI definidas en `backend/main.py`. Revisar ese archivo para endpoints exactos.
-- Funciones/acciones comunes:
-  - publicar / crear publicación — revisar controlador correspondiente (`crear_publicacion` u otro nombre) en `backend/main.py`
-  - reportar usuario — revisar `reportar_usuario` en `backend/main.py`
-  - autenticación / sesiones — revisar `frontend/context/AuthContext.tsx` y `frontend/services/api.ts`
-- Frontend:
-  - `frontend/src/components/PerfilUsuario.tsx` (perfil y reporte)
-  - `frontend/src/services/api.ts` (cliente HTTP y manejo de tokens)
-
-(Revisar archivos para nombres exactos de endpoints y payloads)
-
----
-
-## 10. Buenas prácticas y seguridad
-- No subir `.env` ni credenciales reales al repositorio.
-- Usar SECRET_KEY fuerte y credenciales DB seguras.
-- Hacer backups de la base de datos antes de cambios destructivos.
-- Añadir validaciones y límites en uploads (tamaño, tipo MIME).
-- Usar HTTPS en producción y configurar CORS/ALLOWED_HOSTS correctamente.
-
----
-
-## 11. Contribuir
-- Flujo: Fork → branch feature/issue-### → commit → PR.
-- Incluir tests para cambios funcionales.
-- Usar linters/formatters: Black, isort, flake8 (Python); ESLint/Prettier (frontend).
-- Añadir `.github/ISSUE_TEMPLATE/` y `.github/PULL_REQUEST_TEMPLATE/` (se sugiere).
-
-Plantilla mínima de PR:
-- Resumen breve
-- Issue relacionado
-- Cambios realizados
-- Cómo probar localmente
-
----
-
-## 12. Licencia y contacto
-- Licencia: MIT (añadir `LICENSE` con texto).
-- Contacto: autor@example.com (reemplazar por email real).
-
----
-
-## 13. Comandos útiles de referencia
-```bash
-# activar virtualenv (Windows)
-backend\venv\Scripts\activate
-
-# instalar dependencias backend
-pip install -r backend/requirements.txt
-
-# iniciar backend
-uvicorn backend.main:app --reload --port 8000
-
-# instalar frontend y arrancar
 cd frontend
-npm install
-npm start
-
-# ejecutar tests
-pytest -q
+npm test -- --watchAll=false
+npm run build
 ```
-# 14. Editar commit
 
-git commit --amend -m "Nuevo mensaje del último commit"
-git push --force
+## 8. Actualización de dependencias
 
-## Estándares de Estilo de Código (Propuesta Formal)
+Backend:
 
-| **Regla de Estilo** | **Convención Elegida (Ej. camelCase, snake_case, etc.)** | **Justificación para la Elección (explicada con tus palabras)** |
-|----------------------|-----------------------------------------------------------|------------------------------------------------------------------|
-| **1. Nombres de Variables** | `camelCase` | Elegí esta convención porque es la más común en JavaScript y en la mayoría de los lenguajes modernos. Empieza con minúscula y cada palabra nueva va con mayúscula, lo que hace que el código se vea limpio y ordenado. Además, facilita leer nombres largos sin tener que usar guiones o símbolos. |
-| **2. Nombres de Funciones/Métodos** | `camelCase` | Las funciones y métodos también van con esta forma porque normalmente representan acciones. Por ejemplo, `calcularPromedio()` o `obtenerUsuario()`. Se entiende rápido que son tareas o procesos, y al tener el mismo estilo que las variables, el código se ve más consistente y profesional. |
-| **3. Nombres de Clases/Componentes** | `PascalCase` | Esta convención se usa para las clases y componentes (como los de React) porque ayuda a distinguirlos fácilmente del resto del código. Por ejemplo, `UsuarioPerfil` o `PublicacionObra`. Se ve más organizado y deja claro que son estructuras o plantillas importantes dentro del sistema. |
-| **4. Nivel de Indentación** | `2 espacios` | Decidí usar 2 espacios porque el código queda más compacto y fácil de leer. Si se usan muchos espacios, se ve recargado. Usar 2 espacios también es lo más común en proyectos con JavaScript y ayuda a que el trabajo en equipo sea más ordenado, sin tener líneas desalineadas. |
+```bash
+source backend/venv/Scripts/activate
+python -m pip install --upgrade pip
+python -m pip list --outdated
+python -m pip install --upgrade -r backend/requirements.txt
+```
 
-## Automatización del Estilo de Código
+Frontend:
 
-| **Elemento** | **Descripción del Plan** |
-|---------------|--------------------------|
-| **Herramienta de Formato (Linter o Formatter)** | Usaremos **Prettier** junto con **ESLint** en el proyecto, porque ayudan a mantener el código limpio y con el mismo formato automáticamente. Cada vez que se guarde un archivo, se aplicarán las reglas sin tener que hacerlo manualmente. |
-| **Archivo de Configuración** | Se crearán los archivos **`.prettierrc`** y **`.eslintrc.json`** dentro del repositorio. Estos archivos guardan las reglas del formato (como usar comillas simples, 2 espacios y camelCase). Así, todos los que trabajen en el proyecto tendrán el mismo estilo de código, sin importar el computador o editor que usen. |
-| **Plan de Implementación** | 1. Instalar **Prettier** y **ESLint** en el proyecto.<br>2. Crear los archivos de configuración con las reglas básicas.<br>3. Activar el formato automático al guardar en **VS Code**.<br>4. Subir los archivos de configuración a **GitHub**.<br>5. Hacer pruebas en grupo para comprobar que todos los códigos se vean igual. |
-| **Beneficio para el Proyecto** | Con esto, se evitan discusiones sobre cómo debe verse el código y se ahorra tiempo al revisar errores pequeños. Así el equipo puede concentrarse en la lógica y no en los espacios o las comillas. También ayuda a mantener el proyecto profesional y organizado. |
+```bash
+cd frontend
+npm outdated
+npm update
+```
 
-## 🧩 Convención de Commits (Registro y Justificación)
+Actualiza las dependencias por lotes y ejecuta las pruebas después de cada grupo importante.
 
-| **Tipo de Commit** | **Ejemplo Práctico (máx. 8 palabras)** | **Razón de la Elección (explicación con tus palabras)** |
-|----------------------|------------------------------------------|------------------------------------------------------------|
-| **feat (nueva funcionalidad)** | `feat: OLVIDASTE TU CONTRASEÑA` | Este commit agrega una nueva característica al sistema que permite recuperar la contraseña. Se usa **feat** para dejar claro que se trata de una función nueva. |
-| **feat (nueva funcionalidad)** | `feat: integrar recuperación de contraseña por correo` | Indica una mejora al sistema de recuperación. Elegí este formato porque muestra claramente qué parte del sistema se modificó y con qué propósito. |
-| **fix (corrección de error)** | `fix: input del perfil no funcionaba` | Este commit corrige un error en el formulario del perfil. El prefijo **fix** permite identificar rápido que fue una reparación y no una nueva función. |
-| **feat (nueva funcionalidad)** | `feat: seguir y seguido en perfiles` | Implementa la función de seguir y dejar de seguir a otros usuarios. **feat** lo clasifica como una nueva característica dentro del módulo de usuarios. |
-| **feat (nueva funcionalidad)** | `feat: reporte de usuarios` | Este cambio agrega un sistema de reportes. Usar **feat** ayuda a mantener la trazabilidad de cuándo se implementó esta nueva opción. |
-| **fix (corrección de error)** | `fix: default del perfil corregido` | Corrige el problema de carga del perfil. Elegí el prefijo **fix** porque muestra que fue una corrección técnica menor, no una gran mejora. |
-| **chore (mantenimiento o actualización general)** | `chore: actualización del perfil` | Representa una actualización del módulo de perfil sin cambios en la lógica principal. **chore** se usa para tareas internas del sistema. |
-| **chore (mantenimiento o actualización general)** | `chore: actualizar datos del perfil` | Es una actualización normal que no agrega nuevas funciones. El uso de **chore** aclara que fue una mejora de mantenimiento. |
-| **fix (corrección de error)** | `fix: corregido error en perfil de usuario` | Señala que se arregló un error que afectaba al perfil. Se usa **fix** para dejar registro de que se trató de una reparación puntual. |
-| **feat (nueva funcionalidad)** | `feat: integración del módulo de recuperación` | Indica la integración final del módulo de recuperación de contraseñas. Usar **feat** ayuda a seguir el orden de desarrollo de nuevas funciones. |
+## 9. Estructura principal
 
-## 🌿 Registro de Ramas y Trazabilidad de Funcionalidades
+```text
+Artenity/
+├── backend/
+│   ├── main.py
+│   ├── models.py
+│   ├── schemas.py
+│   ├── database.py
+│   ├── config.py
+│   ├── artenity.sql
+│   ├── requirements.txt
+│   └── tests/
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── services/
+│   │   └── styles/
+│   └── package.json
+├── static/
+└── README.md
+```
 
-| **Rama (Branch Name)** | **Objetivo / Funcionalidad Implementada** | **Motivo de la Creación de la Rama (Propósito)** | **Estado Final** |
-|--------------------------|--------------------------------------------|--------------------------------------------------|------------------|
-| **MAIN** | Implementar la opción de recuperar la contraseña por correo electrónico. | Permitir que los usuarios restablezcan su contraseña cuando la olviden. | ✅ Completada |
-| **ART-1** | Desarrollar el módulo del perfil de usuario. | Crear y editar la información personal del usuario. | ✅ Completada |
-| **ART-2** | Agregar la función de seguir y dejar de seguir usuarios. | Mejorar la interacción entre artistas dentro de la plataforma. | ✅ Completada |
-| **ART-3** | Corregir el error que impedía actualizar el perfil. | Resolver fallos en el formulario de perfil para garantizar la edición correcta. | ✅ Corregida |
-| **ART-4** | Implementar el sistema de reportes de usuarios. | Permitir reportar comportamientos inapropiados dentro de la red social. | ✅ Completada |
-| **ART-5** | Arreglar el problema con el perfil por defecto. | Evitar errores al crear cuentas nuevas sin imagen o datos iniciales. | ✅ Corregida |
-| **ART-6** | Añadir la creación, edición y eliminación de publicaciones. | Controlar el contenido que los usuarios comparten en su muro. | 🕓 En revisión |
-| **ART-7** | Crear sistema de notificaciones en tiempo real. | Avisar al usuario cuando alguien reacciona, comenta o sigue su perfil. | 🕓 En desarrollo |
-| **ART-8** | Mejorar la autenticación de usuarios. | Asegurar el ingreso al sistema con validaciones y cifrado. | ✅ Completada |
-| **ART-9** | Actualizar el diseño de la interfaz del perfil y del muro principal. | Mejorar la presentación visual de la plataforma. | ✅ Finalizada |
+## 10. Flujo de archivos subidos
 
+Las imágenes y videos se guardan en `static/` y FastAPI los publica bajo `/static/`.
 
+Carpetas principales:
+
+- `static/perfiles/`
+- `static/posts/`
+- `static/videos/`
+- `static/chat_files/images/`
+- `static/chat_files/videos/`
+- `static/chat_fondos/`
+- `static/reportes/`
+
+No borres estas carpetas cuando ya exista contenido cargado.
+
+## 11. Solución de problemas
+
+### `source: backend/venv/Scripts/activate: No such file`
+
+Estás fuera de la carpeta correcta o el entorno no fue creado.
+
+```bash
+cd /c/Users/camil/Artenity
+rm -rf backend/venv
+py -3.14 -m venv backend/venv
+source backend/venv/Scripts/activate
+```
+
+### PowerShell bloquea `Activate.ps1`
+
+En PowerShell:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\backend\venv\Scripts\Activate.ps1
+```
+
+En Git Bash no hace falta cambiar la política de ejecución.
+
+### `ModuleNotFoundError`
+
+Confirma que el entorno está activo:
+
+```bash
+which python
+python -m pip install -r backend/requirements.txt
+```
+
+### `Can't connect to MySQL server`
+
+Comprueba que MySQL esté iniciado en XAMPP y que:
+
+- Usuario: `root`
+- Base: `artenity`
+- Host: `localhost`
+- Puerto: `3306`
+
+Luego prueba:
+
+```bash
+"C:/xampp/mysql/bin/mysql.exe" -u root -e "SELECT 1;"
+```
+
+### `Unknown database 'artenity'`
+
+Crea e importa nuevamente la base:
+
+```bash
+"C:/xampp/mysql/bin/mysql.exe" -u root -e "CREATE DATABASE artenity CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+"C:/xampp/mysql/bin/mysql.exe" -u root artenity < backend/artenity.sql
+```
+
+### Error de CORS
+
+El backend permite por defecto los puertos locales `3000`, `5173` y `8000`. Si cambias el puerto del frontend, actualiza `allow_origins` en `backend/main.py`.
+
+### Error al instalar una dependencia
+
+Captura el paquete y el código completo del error:
+
+```bash
+python -m pip install -r backend/requirements.txt
+```
+
+Normalmente el problema es usar Python 3.15 con paquetes antiguos o específicos de una plataforma. Usa Python 3.14 y vuelve a crear el entorno.

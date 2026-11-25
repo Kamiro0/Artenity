@@ -42,7 +42,9 @@
   font-family: 'Adlery', cursive;
   text-align: center;
   margin: 0;
-  text-shadow: 0 0 8px #00e0ff, 0 0 15px #7a00ff;
+  text-shadow:
+    0 0 8px #00e0ff,
+    0 0 15px #7a00ff;
 }
 
 .header {
@@ -70,9 +72,9 @@
 .campo-triple input,
 .campo-genero,
 select,
-input[type="text"],
-input[type="password"],
-input[type="email"] {
+input[type='text'],
+input[type='password'],
+input[type='email'] {
   width: 98%;
   padding: 8px;
   border: none;
@@ -101,7 +103,7 @@ input[type="email"] {
   align-items: center;
 }
 
-.campo-genero input[type="radio"] {
+.campo-genero input[type='radio'] {
   width: 9px;
   height: 9px;
 }
@@ -118,12 +120,18 @@ input[type="email"] {
   color: #fff;
   cursor: pointer;
   background: linear-gradient(90deg, #8000ff, #00e0ff);
-  box-shadow: 0 0 15px rgba(0, 224, 255, 0.6), 0 0 25px rgba(128, 0, 255, 0.5);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow:
+    0 0 15px rgba(0, 224, 255, 0.6),
+    0 0 25px rgba(128, 0, 255, 0.5);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 .btn-registro:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(0, 224, 255, 1), 0 0 35px rgba(128, 0, 255, 0.8);
+  box-shadow:
+    0 0 20px rgba(0, 224, 255, 1),
+    0 0 35px rgba(128, 0, 255, 0.8);
 }
 
 .cuenta {
@@ -134,7 +142,9 @@ input[type="email"] {
 .cuenta a {
   color: #004aad;
   text-decoration: none;
-  transition: color 0.3s, text-shadow 0.3s;
+  transition:
+    color 0.3s,
+    text-shadow 0.3s;
 }
 
 .cuenta a:hover {
@@ -182,8 +192,12 @@ input[type="email"] {
 }
 
 @media (max-width: 480px) {
-  .corner { width: clamp(200px, 60vw, 420px); }
-  .registro-container { width: 90%; }
+  .corner {
+    width: clamp(200px, 60vw, 420px);
+  }
+  .registro-container {
+    width: 90%;
+  }
 }
 
 .registro-container label {
@@ -204,11 +218,11 @@ input[type="email"] {
   font-family: 'KitOne', sans-serif;
 }
 
-input[type="date"] {
+input[type='date'] {
   font-family: Arial, sans-serif;
   font-size: 16px;
   padding: 8px 12px;
-  border: 2px solid #000000;   /* borde morado */
+  border: 2px solid #000000; /* borde morado */
   border-radius: 8px;
   background-color: #610485;
   color: #333;
@@ -216,20 +230,20 @@ input[type="date"] {
   transition: all 0.3s ease;
 }
 
-input[type="date"]:focus {
-  border-color: #ab47bc;       /* cambia color al enfocar */
+input[type='date']:focus {
+  border-color: #ab47bc; /* cambia color al enfocar */
   box-shadow: 0 0 6px rgba(171, 71, 188, 0.6);
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
-  background-color: #ab47bc;   /* icono de calendario */
+input[type='date']::-webkit-calendar-picker-indicator {
+  background-color: #ab47bc; /* icono de calendario */
   padding: 4px;
   border-radius: 50%;
   cursor: pointer;
-  filter: invert(1);           /* invierte color del icono */
+  filter: invert(1); /* invierte color del icono */
 }
 
-input[type="date"]::-webkit-inner-spin-button,
-input[type="date"]::-webkit-clear-button {
-  display: none;                /* oculta botones de spin y clear */
+input[type='date']::-webkit-inner-spin-button,
+input[type='date']::-webkit-clear-button {
+  display: none; /* oculta botones de spin y clear */
 }

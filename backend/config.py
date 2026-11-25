@@ -4,6 +4,12 @@ from typing import Optional
 import os
 
 class Settings(BaseSettings):
+    DATABASE_URL: str = "mysql+pymysql://root:@localhost:3306/artenity"
+    SECRET_KEY: str = "change-this-secret-before-running"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    FRONTEND_URL: str = "http://localhost:3000"
+    BACKEND_URL: str = "http://localhost:8000"
     MAIL_USERNAME: Optional[str] = None
     MAIL_PASSWORD: Optional[str] = None
     MAIL_FROM: Optional[str] = None

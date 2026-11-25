@@ -1,16 +1,12 @@
 // frontend/components/busqueda.tsx (versión completa)
-import React, { useEffect, useState } from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
-import { 
-  obtenerContenidoCategoria,
-  buscarContenido,
-  obtenerUsuarioBasico 
-} from "../services/api";
-import "../styles/busqueda.css";
-import defaultProfile from "../assets/img/fotoperfildefault.jpg";
+import React, { useEffect, useState } from 'react';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { obtenerContenidoCategoria, buscarContenido, obtenerUsuarioBasico } from '../services/api';
+import '../styles/busqueda.css';
+import defaultProfile from '../assets/img/fotoperfildefault.jpg';
 
 const Busqueda: React.FC = () => {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [usuarios, setUsuarios] = useState<any[]>([]);
   const [publicaciones, setPublicaciones] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,8 +16,8 @@ const Busqueda: React.FC = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
 
-  const categoriaNombre = params.get("categoria"); 
-  const token = localStorage.getItem("token");
+  const categoriaNombre = params.get('categoria');
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,7 +27,7 @@ const Busqueda: React.FC = () => {
         if (categoriaNombre) {
           // Obtener publicaciones por categoría
           const resultado = await obtenerContenidoCategoria(categoriaNombre);
-          
+
           // La respuesta puede venir en diferentes formatos
           if (Array.isArray(resultado)) {
             setPublicaciones(resultado);
@@ -42,7 +38,7 @@ const Busqueda: React.FC = () => {
           }
         }
       } catch (error) {
-        console.error("Error cargando datos:", error);
+        console.error('Error cargando datos:', error);
       } finally {
         setLoading(false);
       }
@@ -53,7 +49,7 @@ const Busqueda: React.FC = () => {
 
   const handleBuscar = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!query.trim()) {
       setUsuarios([]);
       setPublicaciones([]);
@@ -66,7 +62,7 @@ const Busqueda: React.FC = () => {
 
     try {
       const resultado = await buscarContenido(query);
-      
+
       // Manejar diferentes formatos de respuesta
       if (resultado.usuarios !== undefined) {
         setUsuarios(resultado.usuarios || []);
@@ -74,13 +70,12 @@ const Busqueda: React.FC = () => {
         // Si la respuesta es un array, asumir que son usuarios
         setUsuarios(resultado);
       }
-      
+
       if (resultado.publicaciones !== undefined) {
         setPublicaciones(resultado.publicaciones || []);
       }
-      
     } catch (error) {
-      console.error("Error en búsqueda:", error);
+      console.error('Error en búsqueda:', error);
       setUsuarios([]);
       setPublicaciones([]);
     } finally {
@@ -90,7 +85,7 @@ const Busqueda: React.FC = () => {
 
   const procesarMediosPublicacion = (publicacion: any) => {
     let mediosArray: string[] = [];
-    
+
     if (publicacion.medios && Array.isArray(publicacion.medios)) {
       mediosArray = publicacion.medios;
     } else if (publicacion.imagen) {
@@ -115,7 +110,7 @@ const Busqueda: React.FC = () => {
     }
 
     return mediosArray
-      .map(url => {
+      .map((url) => {
         if (!url) return null;
         if (url.startsWith('http')) return url;
         return `http://localhost:8000${url.startsWith('/') ? '' : '/'}${url}`;
@@ -125,7 +120,7 @@ const Busqueda: React.FC = () => {
 
   const procesarEtiquetas = (etiquetas: any): string[] => {
     if (!etiquetas) return [];
-    
+
     try {
       if (typeof etiquetas === 'string') {
         if (etiquetas.trim().startsWith('[') && etiquetas.trim().endsWith(']')) {
@@ -135,15 +130,15 @@ const Busqueda: React.FC = () => {
       }
       return Array.isArray(etiquetas) ? etiquetas : [];
     } catch (error) {
-      console.error("Error parsing etiquetas:", error);
+      console.error('Error parsing etiquetas:', error);
       return [];
     }
   };
 
   const handleUsuarioClick = (idUsuario: number) => {
     if (!token) {
-      alert("Debes iniciar sesión para ver perfiles de usuario");
-      navigate("/login");
+      alert('Debes iniciar sesión para ver perfiles de usuario');
+      navigate('/login');
     } else {
       navigate(`/usuario/${idUsuario}`);
     }
@@ -163,20 +158,23 @@ const Busqueda: React.FC = () => {
             className="busqueda-input"
           />
           <button type="submit" className="busqueda-btn">
-            {buscando ? "Buscando..." : "Buscar"}
+            {buscando ? 'Buscando...' : 'Buscar'}
           </button>
         </form>
       </header>
 
       <main className="busqueda-resultados">
-        <button onClick={() => navigate("/categorias")} className="back-btn">
+        <button onClick={() => navigate('/categorias')} className="back-btn">
           ← Volver al inicio
         </button>
 
         {/* Mensaje si no hay token */}
         {!token && (
           <div className="aviso-sin-login">
-            <p>📢 Estás viendo contenido público. <Link to="/login">Inicia sesión</Link> para acceder a todas las funciones.</p>
+            <p>
+              📢 Estás viendo contenido público. <Link to="/login">Inicia sesión</Link> para acceder
+              a todas las funciones.
+            </p>
           </div>
         )}
 
@@ -189,13 +187,11 @@ const Busqueda: React.FC = () => {
         {/* SECCIÓN DE USUARIOS ENCONTRADOS */}
         {mostrarUsuarios && usuarios.length > 0 && (
           <section className="seccion-usuarios">
-            <h3 className="subtitulo-resultados">
-              Usuarios encontrados ({usuarios.length})
-            </h3>
+            <h3 className="subtitulo-resultados">Usuarios encontrados ({usuarios.length})</h3>
             <div className="usuarios-grid">
               {usuarios.map((usuario) => (
-                <div 
-                  key={usuario.id_usuario} 
+                <div
+                  key={usuario.id_usuario}
                   className="usuario-card"
                   onClick={() => handleUsuarioClick(usuario.id_usuario)}
                   style={{ cursor: 'pointer' }}
@@ -234,13 +230,16 @@ const Busqueda: React.FC = () => {
               {publicaciones.map((publicacion) => {
                 const medios = procesarMediosPublicacion(publicacion);
                 const etiquetas = procesarEtiquetas(publicacion.etiquetas);
-                
+
                 return (
                   <div key={publicacion.id_publicacion} className="resultado-card">
                     <div className="resultado-header">
-                      <div 
+                      <div
                         className="usuario-link"
-                        onClick={() => publicacion.usuario?.id_usuario && handleUsuarioClick(publicacion.usuario.id_usuario)}
+                        onClick={() =>
+                          publicacion.usuario?.id_usuario &&
+                          handleUsuarioClick(publicacion.usuario.id_usuario)
+                        }
                         style={{ cursor: 'pointer' }}
                       >
                         <img
@@ -250,7 +249,7 @@ const Busqueda: React.FC = () => {
                         />
                         <div className="usuario-info">
                           <strong className="usuario-nombre">
-                            {publicacion.usuario?.nombre_usuario || "Usuario"}
+                            {publicacion.usuario?.nombre_usuario || 'Usuario'}
                           </strong>
                         </div>
                       </div>
@@ -258,7 +257,7 @@ const Busqueda: React.FC = () => {
 
                     <div className="resultado-content">
                       <p className="publicacion-contenido">{publicacion.contenido}</p>
-                      
+
                       {etiquetas.length > 0 && (
                         <div className="etiquetas-container">
                           {etiquetas.map((tag: string, index: number) => (
@@ -273,7 +272,7 @@ const Busqueda: React.FC = () => {
                         <div className="publicacion-medios">
                           {medios.slice(0, 3).map((medio: string, index: number) => {
                             const esVideo = /\.(mp4|avi|mov|wmv|flv|webm)$/i.test(medio);
-                            
+
                             return (
                               <div key={index} className="medio-item">
                                 {esVideo ? (
@@ -313,20 +312,22 @@ const Busqueda: React.FC = () => {
           </section>
         ) : (
           <p className="no-resultados">
-            {categoriaNombre 
+            {categoriaNombre
               ? `No hay publicaciones en la categoría "${categoriaNombre}"`
               : query && !buscando
-              ? "No se encontraron resultados"
-              : "Realiza una búsqueda para encontrar contenido"}
+                ? 'No se encontraron resultados'
+                : 'Realiza una búsqueda para encontrar contenido'}
           </p>
         )}
 
         {/* Mensaje si no hay resultados */}
-        {mostrarUsuarios && usuarios.length === 0 && publicaciones.length === 0 && query && !buscando && (
-          <p className="no-resultados">
-            No se encontraron resultados para "{query}"
-          </p>
-        )}
+        {mostrarUsuarios &&
+          usuarios.length === 0 &&
+          publicaciones.length === 0 &&
+          query &&
+          !buscando && (
+            <p className="no-resultados">No se encontraron resultados para &quot;{query}&quot;</p>
+          )}
       </main>
     </div>
   );

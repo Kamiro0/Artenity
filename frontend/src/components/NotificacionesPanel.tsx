@@ -1,6 +1,6 @@
-// src/components/NotificacionesPanel.tsx 
-import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+// src/components/NotificacionesPanel.tsx
+import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   getNotificaciones,
   responderSolicitudAmistad,
@@ -8,10 +8,10 @@ import {
   obtenerSeguidores,
   marcarNotificacionesLeidas,
   obtenerCompartidoPorId,
-  obtenerPublicacionDeComentario
-} from "../services/api";
-import defaultProfile from "../assets/img/fotoperfildefault.jpg";
-import "../styles/notificaciones.css";
+  obtenerPublicacionDeComentario,
+} from '../services/api';
+import defaultProfile from '../assets/img/fotoperfildefault.jpg';
+import '../styles/notificaciones.css';
 
 export default function NotificacionesPanel({ usuario }: { usuario: any }) {
   const navigate = useNavigate();
@@ -22,118 +22,119 @@ export default function NotificacionesPanel({ usuario }: { usuario: any }) {
   const [cantidadNoLeidas, setCantidadNoLeidas] = useState(0);
 
   // ✅ FUNCIÓN CORREGIDA - Manejo de clic en notificaciones
-const handleNotificacionClick = async (notificacion: any) => {
-  try {
-    console.log("🔔 Notificación clickeada:", notificacion);
-    
-    // 🔥 MANEJO ESPECÍFICO PARA COMPARTIDOS
-    if (notificacion.tipo === "compartido" || notificacion.tipo === "compartido_amigo") {
-      console.log("📤 Es una notificación de compartido");
-      
-      if (!notificacion.id_referencia) {
-        console.warn("❌ La notificación no tiene id_referencia");
-        setMostrarPanel(false);
-        navigate("/compartidos");
-        return;
-      }
+  const handleNotificacionClick = async (notificacion: any) => {
+    try {
+      console.log('🔔 Notificación clickeada:', notificacion);
 
-      const idCompartido = notificacion.id_referencia;
-      
-      if (isNaN(idCompartido)) {
-        console.error("ID de compartido inválido:", idCompartido);
-        setMostrarPanel(false);
-        navigate("/compartidos");
-        return;
-      }
+      // 🔥 MANEJO ESPECÍFICO PARA COMPARTIDOS
+      if (notificacion.tipo === 'compartido' || notificacion.tipo === 'compartido_amigo') {
+        console.log('📤 Es una notificación de compartido');
 
-      console.log("🎯 Navegando a compartido específico:", idCompartido);
-      setMostrarPanel(false);
-      
-      // 🔥 NUEVO: Disparar evento para scroll automático
-      const scrollEvent = new CustomEvent('scrollToCompartido', {
-        detail: { 
-          idCompartido: idCompartido,
-          fromNotification: true
+        if (!notificacion.id_referencia) {
+          console.warn('❌ La notificación no tiene id_referencia');
+          setMostrarPanel(false);
+          navigate('/compartidos');
+          return;
         }
-      });
-      window.dispatchEvent(scrollEvent);
-      
-      // Navegar a compartidos
-      navigate(`/compartidos`, { 
-        state: { 
-          idCompartido: idCompartido,
-          fromNotification: true
+
+        const idCompartido = notificacion.id_referencia;
+
+        if (isNaN(idCompartido)) {
+          console.error('ID de compartido inválido:', idCompartido);
+          setMostrarPanel(false);
+          navigate('/compartidos');
+          return;
         }
-      });
-      return;
-    }
-      // Manejo para me gusta
-      else if (notificacion.tipo === "me_gusta" && notificacion.id_referencia) {
-        const idPublicacion = notificacion.id_referencia;
-        console.log("❤️ Navegando a publicación:", idPublicacion);
+
+        console.log('🎯 Navegando a compartido específico:', idCompartido);
         setMostrarPanel(false);
-        
-        const scrollEvent = new CustomEvent('scrollToPublicacion', {
-          detail: { idPublicacion }
+
+        // 🔥 NUEVO: Disparar evento para scroll automático
+        const scrollEvent = new CustomEvent('scrollToCompartido', {
+          detail: {
+            idCompartido: idCompartido,
+            fromNotification: true,
+          },
         });
         window.dispatchEvent(scrollEvent);
-        
-        navigate("/principal");
-        
-      } 
-      // Manejo para comentarios
-      else if ((notificacion.tipo === "comentario" || notificacion.tipo === "comentario_respuesta") && notificacion.id_referencia) {
-        const idComentario = notificacion.id_referencia;
-        console.log("💬 Obteniendo publicación del comentario:", idComentario);
+
+        // Navegar a compartidos
+        navigate(`/compartidos`, {
+          state: {
+            idCompartido: idCompartido,
+            fromNotification: true,
+          },
+        });
+        return;
+      }
+      // Manejo para me gusta
+      else if (notificacion.tipo === 'me_gusta' && notificacion.id_referencia) {
+        const idPublicacion = notificacion.id_referencia;
+        console.log('❤️ Navegando a publicación:', idPublicacion);
         setMostrarPanel(false);
-        
+
+        const scrollEvent = new CustomEvent('scrollToPublicacion', {
+          detail: { idPublicacion },
+        });
+        window.dispatchEvent(scrollEvent);
+
+        navigate('/principal');
+      }
+      // Manejo para comentarios
+      else if (
+        (notificacion.tipo === 'comentario' || notificacion.tipo === 'comentario_respuesta') &&
+        notificacion.id_referencia
+      ) {
+        const idComentario = notificacion.id_referencia;
+        console.log('💬 Obteniendo publicación del comentario:', idComentario);
+        setMostrarPanel(false);
+
         try {
           const respuesta = await obtenerPublicacionDeComentario(idComentario);
           const idPublicacion = respuesta.id_publicacion;
-          
-          console.log("📝 Navegando a publicación desde comentario:", idPublicacion);
-          
+
+          console.log('📝 Navegando a publicación desde comentario:', idPublicacion);
+
           const scrollEvent = new CustomEvent('scrollToPublicacion', {
-            detail: { idPublicacion }
+            detail: { idPublicacion },
           });
           window.dispatchEvent(scrollEvent);
-          
-          navigate("/principal");
+
+          navigate('/principal');
         } catch (error) {
-          console.error("Error obteniendo publicación del comentario:", error);
+          console.error('Error obteniendo publicación del comentario:', error);
           // Si falla, ir al principal igualmente
-          navigate("/principal");
-        }
-      } 
-      // Para otros tipos de notificaciones sin referencia específica
-      else {
-        console.log("ℹ️ Notificación sin acción específica:", notificacion.tipo);
-        setMostrarPanel(false);
-        // Para notificaciones de amistad, seguidores, etc., no hacer nada o ir al perfil
-        if (notificacion.tipo === "solicitud_amistad" || notificacion.tipo === "nuevo_seguidor") {
-          navigate("/perfil");
+          navigate('/principal');
         }
       }
-      
+      // Para otros tipos de notificaciones sin referencia específica
+      else {
+        console.log('ℹ️ Notificación sin acción específica:', notificacion.tipo);
+        setMostrarPanel(false);
+        // Para notificaciones de amistad, seguidores, etc., no hacer nada o ir al perfil
+        if (notificacion.tipo === 'solicitud_amistad' || notificacion.tipo === 'nuevo_seguidor') {
+          navigate('/perfil');
+        }
+      }
     } catch (error: any) {
-      console.error("💥 Error al manejar notificación:", error);
-      
+      console.error('💥 Error al manejar notificación:', error);
+
       // Manejo de errores más robusto
-      let mensajeError = "No se pudo cargar el contenido de la notificación.";
-      
+      let mensajeError = 'No se pudo cargar el contenido de la notificación.';
+
       if (error.response?.status === 404) {
-        mensajeError = "El contenido de esta notificación ya no está disponible.";
+        mensajeError = 'El contenido de esta notificación ya no está disponible.';
       } else if (error.response?.status === 403) {
-        mensajeError = "No tienes permiso para ver este contenido.";
+        mensajeError = 'No tienes permiso para ver este contenido.';
       } else if (error.message) {
         mensajeError = error.message;
       }
-      
+
       console.error(mensajeError);
       setMostrarPanel(false);
-      
+
       // En caso de error, navegar a una página segura
-      navigate("/principal");
+      navigate('/principal');
     }
   };
 
@@ -157,16 +158,16 @@ const handleNotificacionClick = async (notificacion: any) => {
       const noLeidas = data.filter((n: any) => !n.leida).length;
       setCantidadNoLeidas(noLeidas);
     } catch (err) {
-      console.error("Error cargando notificaciones:", err);
+      console.error('Error cargando notificaciones:', err);
     }
   };
 
   const cargarSolicitudes = async () => {
     try {
       const solicitudes = await getSolicitudesAmistad();
-      setSolicitudesPendientes(solicitudes.filter((s: any) => s.estado === "pendiente"));
+      setSolicitudesPendientes(solicitudes.filter((s: any) => s.estado === 'pendiente'));
     } catch (err) {
-      console.error("Error cargando solicitudes:", err);
+      console.error('Error cargando solicitudes:', err);
     }
   };
 
@@ -175,7 +176,7 @@ const handleNotificacionClick = async (notificacion: any) => {
       const data = await obtenerSeguidores();
       setSeguidores(data);
     } catch (err) {
-      console.error("Error cargando seguidores:", err);
+      console.error('Error cargando seguidores:', err);
     }
   };
 
@@ -184,7 +185,7 @@ const handleNotificacionClick = async (notificacion: any) => {
       await responderSolicitudAmistad(id, estado);
       await cargarSolicitudes();
     } catch (err) {
-      console.error("Error al responder solicitud:", err);
+      console.error('Error al responder solicitud:', err);
     }
   };
 
@@ -199,39 +200,38 @@ const handleNotificacionClick = async (notificacion: any) => {
         await cargarNotificaciones();
         setCantidadNoLeidas(0);
       } catch (err) {
-        console.error("Error al marcar como leídas:", err);
+        console.error('Error al marcar como leídas:', err);
       }
     }
   };
 
   // ✅ Separar notificaciones por tipo para mejor organización
 
-  const notificacionesSeguidores = notificaciones.filter(n => 
-    n.tipo === "nuevo_seguidor"
+  const notificacionesSeguidores = notificaciones.filter((n) => n.tipo === 'nuevo_seguidor');
+
+  const notificacionesCompartidos = notificaciones.filter(
+    (n) => n.tipo === 'compartido' || n.tipo === 'compartido_amigo'
   );
 
-  const notificacionesCompartidos = notificaciones.filter(n => 
-    n.tipo === "compartido" || n.tipo === "compartido_amigo"
+  const notificacionesSociales = notificaciones.filter(
+    (n) => n.tipo === 'me_gusta' || n.tipo === 'comentario' || n.tipo === 'comentario_respuesta'
   );
-  
-  const notificacionesSociales = notificaciones.filter(n => 
-    n.tipo === "me_gusta" || n.tipo === "comentario" || n.tipo === "comentario_respuesta"
+
+  const notificacionesAmistad = notificaciones.filter(
+    (n) =>
+      n.tipo === 'solicitud_amistad' ||
+      n.tipo === 'amistad_aceptada' ||
+      n.tipo === 'amistad_rechazada'
   );
-  
-  const notificacionesAmistad = notificaciones.filter(n => 
-    n.tipo === "solicitud_amistad" || n.tipo === "amistad_aceptada" || n.tipo === "amistad_rechazada"
-  );
-  
- 
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: 'relative' }}>
       {/* 🔔 Icono con contador */}
       <div className="notificacion-icon" onClick={togglePanel}>
-        <span style={{ fontSize: "1.6rem" }}>🔔</span>
+        <span style={{ fontSize: '1.6rem' }}>🔔</span>
         {cantidadNoLeidas > 0 && (
           <span className="notificacion-badge">
-            {cantidadNoLeidas > 9 ? "9+" : cantidadNoLeidas}
+            {cantidadNoLeidas > 9 ? '9+' : cantidadNoLeidas}
           </span>
         )}
       </div>
@@ -255,8 +255,12 @@ const handleNotificacionClick = async (notificacion: any) => {
                     <strong>{s.emisor?.nombre_usuario}</strong> te envió una solicitud
                   </p>
                   <div className="solicitud-acciones">
-                    <button onClick={() => handleResponder(s.id_solicitud, "aceptada")}>Aceptar</button>
-                    <button onClick={() => handleResponder(s.id_solicitud, "rechazada")}>Rechazar</button>
+                    <button onClick={() => handleResponder(s.id_solicitud, 'aceptada')}>
+                      Aceptar
+                    </button>
+                    <button onClick={() => handleResponder(s.id_solicitud, 'rechazada')}>
+                      Rechazar
+                    </button>
                   </div>
                 </div>
               ))}
@@ -270,7 +274,7 @@ const handleNotificacionClick = async (notificacion: any) => {
               {notificacionesCompartidos.map((n) => (
                 <div
                   key={n.id_notificacion}
-                  className={`notificacion ${n.leida ? "leida" : "no-leida"} compartido`}
+                  className={`notificacion ${n.leida ? 'leida' : 'no-leida'} compartido`}
                   onClick={() => handleNotificacionClick(n)}
                   style={{ cursor: 'pointer' }}
                 >
@@ -279,7 +283,7 @@ const handleNotificacionClick = async (notificacion: any) => {
                       {n.tipo === 'compartido' && '📤'}
                       {n.tipo === 'compartido_amigo' && '👥'}
                     </span>
-                    
+
                     <div className="notificacion-texto">
                       <p>{n.mensaje}</p>
                       <span className="fecha-notificacion">
@@ -287,12 +291,12 @@ const handleNotificacionClick = async (notificacion: any) => {
                           day: 'numeric',
                           month: 'short',
                           hour: '2-digit',
-                          minute: '2-digit'
+                          minute: '2-digit',
                         })}
                       </span>
-                      
+
                       {/* BOTÓN EXPLÍCITO PARA COMPARTIDOS */}
-                      <button 
+                      <button
                         className="btn-ver-compartido"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -315,7 +319,7 @@ const handleNotificacionClick = async (notificacion: any) => {
               {notificacionesSociales.map((n) => (
                 <div
                   key={n.id_notificacion}
-                  className={`notificacion ${n.leida ? "leida" : "no-leida"}`}
+                  className={`notificacion ${n.leida ? 'leida' : 'no-leida'}`}
                   onClick={() => handleNotificacionClick(n)}
                   style={{ cursor: 'pointer' }}
                 >
@@ -325,7 +329,7 @@ const handleNotificacionClick = async (notificacion: any) => {
                       {n.tipo === 'comentario' && '💬'}
                       {n.tipo === 'comentario_respuesta' && '💬'}
                     </span>
-                    
+
                     <div className="notificacion-texto">
                       <p>{n.mensaje}</p>
                       <span className="fecha-notificacion">
@@ -333,7 +337,7 @@ const handleNotificacionClick = async (notificacion: any) => {
                           day: 'numeric',
                           month: 'short',
                           hour: '2-digit',
-                          minute: '2-digit'
+                          minute: '2-digit',
                         })}
                       </span>
                     </div>
@@ -369,7 +373,7 @@ const handleNotificacionClick = async (notificacion: any) => {
               {[...notificacionesAmistad, ...notificacionesSeguidores].map((n) => (
                 <div
                   key={n.id_notificacion}
-                  className={`notificacion ${n.leida ? "leida" : "no-leida"}`}
+                  className={`notificacion ${n.leida ? 'leida' : 'no-leida'}`}
                   onClick={() => handleNotificacionClick(n)}
                   style={{ cursor: 'pointer' }}
                 >
@@ -380,7 +384,7 @@ const handleNotificacionClick = async (notificacion: any) => {
                       {n.tipo === 'amistad_rechazada' && '❌'}
                       {n.tipo === 'nuevo_seguidor' && '👤'}
                     </span>
-                    
+
                     <div className="notificacion-texto">
                       <p>{n.mensaje}</p>
                       <span className="fecha-notificacion">
@@ -388,7 +392,7 @@ const handleNotificacionClick = async (notificacion: any) => {
                           day: 'numeric',
                           month: 'short',
                           hour: '2-digit',
-                          minute: '2-digit'
+                          minute: '2-digit',
                         })}
                       </span>
                     </div>
@@ -399,9 +403,11 @@ const handleNotificacionClick = async (notificacion: any) => {
           )}
 
           {/* 📝 SIN NOTIFICACIONES */}
-          {notificaciones.length === 0 && solicitudesPendientes.length === 0 && seguidores.length === 0 && (
-            <p className="sin-notificaciones">No hay notificaciones recientes</p>
-          )}
+          {notificaciones.length === 0 &&
+            solicitudesPendientes.length === 0 &&
+            seguidores.length === 0 && (
+              <p className="sin-notificaciones">No hay notificaciones recientes</p>
+            )}
         </div>
       )}
     </div>

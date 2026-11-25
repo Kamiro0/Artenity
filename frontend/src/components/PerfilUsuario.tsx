@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { 
-  getPerfil, 
-  seguirUsuario, 
-  enviarSolicitudAmistad, 
-  dejarDeSeguirUsuario, 
-  reportarUsuario, 
-  getAmigos, 
-  obtenerEstadisticasPerfil, 
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+  getPerfil,
+  seguirUsuario,
+  enviarSolicitudAmistad,
+  dejarDeSeguirUsuario,
+  reportarUsuario,
+  getAmigos,
+  obtenerEstadisticasPerfil,
   obtenerPublicacionesUsuario,
   obtenerSeguidoresUsuario,
   obtenerSiguiendoUsuario,
@@ -17,10 +17,10 @@ import {
   quitarMeGusta,
   guardarPublicacion,
   quitarGuardado,
-} from "../services/api";
-import defaultProfile from "../assets/img/fotoperfildefault.jpg";
-import { useAuth } from "../context/AuthContext";
-import "../styles/perfil.css";
+} from '../services/api';
+import defaultProfile from '../assets/img/fotoperfildefault.jpg';
+import { useAuth } from '../context/AuthContext';
+import '../styles/perfil.css';
 
 // Interface para publicaciones con estadísticas
 interface PublicacionConEstadisticas {
@@ -54,7 +54,7 @@ export default function PerfilUsuario() {
   const [perfil, setPerfil] = useState<any>(null);
   const [cargando, setCargando] = useState(true);
   const [reporteModal, setReporteModal] = useState(false);
-  const [motivoReporte, setMotivoReporte] = useState("");
+  const [motivoReporte, setMotivoReporte] = useState('');
   const [amigos, setAmigos] = useState<any[]>([]);
   const [estadisticas, setEstadisticas] = useState({
     seguidores: 0,
@@ -63,7 +63,7 @@ export default function PerfilUsuario() {
   });
   const [estadisticasMeGustas, setEstadisticasMeGustas] = useState({
     me_gustas_recibidos: 0,
-    me_gustas_dados: 0
+    me_gustas_dados: 0,
   });
   const [publicaciones, setPublicaciones] = useState<PublicacionConEstadisticas[]>([]);
   const [seguidores, setSeguidores] = useState<any[]>([]);
@@ -73,23 +73,25 @@ export default function PerfilUsuario() {
   const [sigueUsuario, setSigueUsuario] = useState(false);
 
   // ✅ DETECCIÓN ROBUSTA DE SI ES EL PERFIL PROPIO
-  const esMiPerfil = usuarioActual && perfil && 
-                    usuarioActual.id_usuario?.toString() === perfil.id_usuario?.toString();
-  
-  const esAmigo = perfil ? amigos.some((a) => 
-    a.id_usuario?.toString() === perfil.id_usuario?.toString()
-  ) : false;
+  const esMiPerfil =
+    usuarioActual &&
+    perfil &&
+    usuarioActual.id_usuario?.toString() === perfil.id_usuario?.toString();
+
+  const esAmigo = perfil
+    ? amigos.some((a) => a.id_usuario?.toString() === perfil.id_usuario?.toString())
+    : false;
 
   // ✅ DEPURACIÓN
   useEffect(() => {
-    console.log("=== DEPURACIÓN PERFIL USUARIO ===");
-    console.log("ID parámetro:", id);
-    console.log("Usuario actual ID:", usuarioActual?.id_usuario);
-    console.log("Perfil ID:", perfil?.id_usuario);
-    console.log("¿Es mi perfil?:", esMiPerfil);
-    console.log("¿Sigue usuario?:", sigueUsuario);
-    console.log("¿Es amigo?:", esAmigo);
-    console.log("=== FIN DEPURACIÓN ===");
+    console.log('=== DEPURACIÓN PERFIL USUARIO ===');
+    console.log('ID parámetro:', id);
+    console.log('Usuario actual ID:', usuarioActual?.id_usuario);
+    console.log('Perfil ID:', perfil?.id_usuario);
+    console.log('¿Es mi perfil?:', esMiPerfil);
+    console.log('¿Sigue usuario?:', sigueUsuario);
+    console.log('¿Es amigo?:', esAmigo);
+    console.log('=== FIN DEPURACIÓN ===');
   }, [usuarioActual, perfil, esMiPerfil, sigueUsuario, esAmigo, id]);
 
   useEffect(() => {
@@ -112,8 +114,8 @@ export default function PerfilUsuario() {
       const perfilData = await getPerfil(idUsuario);
       setPerfil(perfilData);
     } catch (error) {
-      console.error("Error cargando perfil:", error);
-      alert("Error al cargar el perfil del usuario");
+      console.error('Error cargando perfil:', error);
+      alert('Error al cargar el perfil del usuario');
     } finally {
       setCargando(false);
     }
@@ -127,12 +129,12 @@ export default function PerfilUsuario() {
 
     try {
       const siguiendoData = await obtenerSiguiendoUsuario(usuarioActual.id_usuario);
-      const sigue = siguiendoData.some((s: any) =>
-        s.id_seguido?.toString() === idUsuario.toString()
+      const sigue = siguiendoData.some(
+        (s: any) => s.id_seguido?.toString() === idUsuario.toString()
       );
       setSigueUsuario(sigue);
     } catch (err) {
-      console.error("Error verificando seguimiento:", err);
+      console.error('Error verificando seguimiento:', err);
       setSigueUsuario(false);
     }
   };
@@ -142,7 +144,7 @@ export default function PerfilUsuario() {
       const amigosData = await getAmigos(idUsuario);
       setAmigos(amigosData);
     } catch (error) {
-      console.error("Error cargando amigos:", error);
+      console.error('Error cargando amigos:', error);
     }
   };
 
@@ -151,7 +153,7 @@ export default function PerfilUsuario() {
       const stats = await obtenerEstadisticasPerfil(idUsuario);
       setEstadisticas(stats);
     } catch (error) {
-      console.error("Error cargando estadísticas:", error);
+      console.error('Error cargando estadísticas:', error);
     }
   };
 
@@ -160,7 +162,7 @@ export default function PerfilUsuario() {
       const stats = await obtenerEstadisticasMeGustas(idUsuario);
       setEstadisticasMeGustas(stats);
     } catch (error) {
-      console.error("Error cargando estadísticas de me gustas:", error);
+      console.error('Error cargando estadísticas de me gustas:', error);
     }
   };
 
@@ -168,13 +170,13 @@ export default function PerfilUsuario() {
   const cargarPublicaciones = async (idUsuario: number) => {
     try {
       const posts = await obtenerPublicacionesUsuario(idUsuario);
-      
+
       // Cargar estadísticas para cada publicación y procesar medios
       const postsConEstadisticas = await Promise.all(
         posts.map(async (post: any) => {
           try {
             const stats = await obtenerEstadisticasPublicacion(post.id_publicacion);
-            
+
             // 🔥 PROCESAR MEDIOS CORRECTAMENTE
             let mediosArray: string[] = [];
             if (post.medios && Array.isArray(post.medios)) {
@@ -194,14 +196,17 @@ export default function PerfilUsuario() {
                 ...post.usuario,
                 perfil: {
                   ...post.usuario.perfil,
-                  foto_perfil: fotoPerfil
-                }
+                  foto_perfil: fotoPerfil,
+                },
               },
-              estadisticas: stats
+              estadisticas: stats,
             };
           } catch (error) {
-            console.error(`Error cargando estadísticas para publicación ${post.id_publicacion}:`, error);
-            
+            console.error(
+              `Error cargando estadísticas para publicación ${post.id_publicacion}:`,
+              error
+            );
+
             // 🔥 PROCESAR MEDIOS INCLUSO EN ERROR
             let mediosArray: string[] = [];
             if (post.medios && Array.isArray(post.medios)) {
@@ -221,24 +226,24 @@ export default function PerfilUsuario() {
                 ...post.usuario,
                 perfil: {
                   ...post.usuario.perfil,
-                  foto_perfil: fotoPerfil
-                }
+                  foto_perfil: fotoPerfil,
+                },
               },
               estadisticas: {
                 total_me_gusta: 0,
                 total_comentarios: 0,
                 total_guardados: 0,
                 me_gusta_dado: false,
-                guardado: false
-              }
+                guardado: false,
+              },
             };
           }
         })
       );
-      
+
       setPublicaciones(postsConEstadisticas);
     } catch (error) {
-      console.error("Error cargando publicaciones:", error);
+      console.error('Error cargando publicaciones:', error);
     }
   };
 
@@ -247,13 +252,11 @@ export default function PerfilUsuario() {
       const data = await obtenerSeguidoresUsuario(idUsuario);
       const seguidoresConFoto = data.map((s: any) => ({
         ...s,
-        foto_perfil: s.foto_perfil
-          ? `${s.foto_perfil}?t=${new Date().getTime()}`
-          : defaultProfile,
+        foto_perfil: s.foto_perfil ? `${s.foto_perfil}?t=${new Date().getTime()}` : defaultProfile,
       }));
       setSeguidores(seguidoresConFoto);
     } catch (error) {
-      console.error("Error cargando seguidores:", error);
+      console.error('Error cargando seguidores:', error);
     }
   };
 
@@ -262,13 +265,11 @@ export default function PerfilUsuario() {
       const data = await obtenerSiguiendoUsuario(idUsuario);
       const siguiendoConFoto = data.map((s: any) => ({
         ...s,
-        foto_perfil: s.foto_perfil
-          ? `${s.foto_perfil}?t=${new Date().getTime()}`
-          : defaultProfile,
+        foto_perfil: s.foto_perfil ? `${s.foto_perfil}?t=${new Date().getTime()}` : defaultProfile,
       }));
       setSiguiendo(siguiendoConFoto);
     } catch (error) {
-      console.error("Error cargando siguiendo:", error);
+      console.error('Error cargando siguiendo:', error);
     }
   };
 
@@ -277,12 +278,12 @@ export default function PerfilUsuario() {
     if (!id) return;
     try {
       await seguirUsuario(parseInt(id));
-      alert("¡Ahora sigues a este usuario!");
+      alert('¡Ahora sigues a este usuario!');
       setSigueUsuario(true);
       cargarEstadisticas(parseInt(id));
       cargarSeguidores(parseInt(id));
     } catch (error: any) {
-      alert(error.response?.data?.detail || "Error al seguir usuario");
+      alert(error.response?.data?.detail || 'Error al seguir usuario');
     }
   };
 
@@ -290,12 +291,12 @@ export default function PerfilUsuario() {
     if (!id) return;
     try {
       await dejarDeSeguirUsuario(parseInt(id));
-      alert("Has dejado de seguir a este usuario");
+      alert('Has dejado de seguir a este usuario');
       setSigueUsuario(false);
       cargarEstadisticas(parseInt(id));
       cargarSeguidores(parseInt(id));
     } catch (error: any) {
-      alert(error.response?.data?.detail || "Error al dejar de seguir usuario");
+      alert(error.response?.data?.detail || 'Error al dejar de seguir usuario');
     }
   };
 
@@ -303,9 +304,9 @@ export default function PerfilUsuario() {
     if (!id) return;
     try {
       await enviarSolicitudAmistad(parseInt(id));
-      alert("¡Solicitud de amistad enviada!");
+      alert('¡Solicitud de amistad enviada!');
     } catch (error: any) {
-      alert(error.response?.data?.detail || "Error al enviar solicitud");
+      alert(error.response?.data?.detail || 'Error al enviar solicitud');
     }
   };
 
@@ -317,12 +318,12 @@ export default function PerfilUsuario() {
       } else {
         await darMeGusta(publicacion.id_publicacion);
       }
-      
+
       // Recargar las publicaciones para actualizar estadísticas
       await cargarPublicaciones(parseInt(id!));
     } catch (error) {
-      console.error("Error con me gusta:", error);
-      alert("Error al procesar me gusta");
+      console.error('Error con me gusta:', error);
+      alert('Error al procesar me gusta');
     }
   };
 
@@ -334,26 +335,26 @@ export default function PerfilUsuario() {
       } else {
         await guardarPublicacion(publicacion.id_publicacion);
       }
-      
+
       // Recargar las publicaciones para actualizar estadísticas
       await cargarPublicaciones(parseInt(id!));
     } catch (error) {
-      console.error("Error con guardar:", error);
-      alert("Error al procesar guardado");
+      console.error('Error con guardar:', error);
+      alert('Error al procesar guardado');
     }
   };
 
   const handleReportar = async () => {
-    if (!id || !motivoReporte.trim()) return alert("Debes indicar el motivo del reporte");
+    if (!id || !motivoReporte.trim()) return alert('Debes indicar el motivo del reporte');
     try {
       await reportarUsuario(parseInt(id), motivoReporte, evidencia || undefined);
-      alert("Usuario reportado correctamente");
+      alert('Usuario reportado correctamente');
       setReporteModal(false);
-      setMotivoReporte("");
+      setMotivoReporte('');
       setEvidencia(null);
       setPreview(null);
     } catch (error: any) {
-      alert(error.response?.data?.detail || "Error al reportar usuario");
+      alert(error.response?.data?.detail || 'Error al reportar usuario');
     }
   };
 
@@ -361,7 +362,7 @@ export default function PerfilUsuario() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setEvidencia(file);
-    
+
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -389,20 +390,25 @@ export default function PerfilUsuario() {
     const handleProfileImageError = () => setProfileImgError(true);
     const handleVideoError = () => setVideoError(true);
 
-    const fotoPerfil = publicacion.usuario?.perfil?.foto_perfil && !profileImgError 
-      ? publicacion.usuario.perfil.foto_perfil 
-      : defaultProfile;
+    const fotoPerfil =
+      publicacion.usuario?.perfil?.foto_perfil && !profileImgError
+        ? publicacion.usuario.perfil.foto_perfil
+        : defaultProfile;
 
     // Función para determinar si es video
     const esVideo = (url: string): boolean => {
       if (!url) return false;
       const videoExtensions = ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'];
-      return videoExtensions.some(ext => url.toLowerCase().includes(ext));
+      return videoExtensions.some((ext) => url.toLowerCase().includes(ext));
     };
 
     // Función para obtener medios
     const obtenerMedios = (): string[] => {
-      if (publicacion.medios && Array.isArray(publicacion.medios) && publicacion.medios.length > 0) {
+      if (
+        publicacion.medios &&
+        Array.isArray(publicacion.medios) &&
+        publicacion.medios.length > 0
+      ) {
         return publicacion.medios;
       }
       if (publicacion.imagen) {
@@ -424,32 +430,34 @@ export default function PerfilUsuario() {
           />
           <div className="publicacion-info-usuario">
             <span className="publicacion-usuario">
-              {publicacion.usuario?.nombre_usuario || "Usuario"}
+              {publicacion.usuario?.nombre_usuario || 'Usuario'}
             </span>
             <span className="publicacion-fecha">
               {new Date(publicacion.fecha_creacion).toLocaleString()}
             </span>
           </div>
         </div>
-        
+
         <div className="publicacion-contenido">
           <p className="publicacion-texto">{publicacion.contenido}</p>
-          
+
           {/* Renderizado de medios con videos */}
           {medios.length > 0 && (
-            <div className={`publicacion-medios ${medios.length > 1 ? 'multiples-medios' : 'unico-medio'}`}>
+            <div
+              className={`publicacion-medios ${medios.length > 1 ? 'multiples-medios' : 'unico-medio'}`}
+            >
               {medios.map((medio: string, index: number) => {
                 const esVideoMedio = esVideo(medio);
-                const medioConTimestamp = medio.includes('?') 
-                  ? medio 
+                const medioConTimestamp = medio.includes('?')
+                  ? medio
                   : `${medio}?t=${new Date().getTime()}`;
-                
+
                 return (
                   <div key={index} className="medio-item">
                     {esVideoMedio ? (
                       <div className="video-container">
-                        <video 
-                          controls 
+                        <video
+                          controls
                           className="post-video"
                           preload="metadata"
                           onError={handleVideoError}
@@ -459,9 +467,7 @@ export default function PerfilUsuario() {
                           Tu navegador no soporta el elemento video.
                         </video>
                         {videoError && (
-                          <div className="video-error">
-                            ❌ Error al cargar el video
-                          </div>
+                          <div className="video-error">❌ Error al cargar el video</div>
                         )}
                       </div>
                     ) : (
@@ -478,9 +484,9 @@ export default function PerfilUsuario() {
             </div>
           )}
         </div>
-        
+
         <div className="publicacion-acciones">
-          <button 
+          <button
             className={`accion-btn ${publicacion.estadisticas?.me_gusta_dado ? 'liked' : ''}`}
             onClick={() => handleMeGusta(publicacion)}
           >
@@ -489,7 +495,7 @@ export default function PerfilUsuario() {
           <button className="accion-btn">
             💬 {publicacion.estadisticas?.total_comentarios || 0}
           </button>
-          <button 
+          <button
             className={`accion-btn ${publicacion.estadisticas?.guardado ? 'saved' : ''}`}
             onClick={() => handleGuardar(publicacion)}
           >
@@ -517,9 +523,9 @@ export default function PerfilUsuario() {
       <div className="perfil-main">
         {/* Botón de regreso */}
         <div className="perfil-navegacion">
-          <button 
+          <button
             className="btn-regresar"
-            onClick={() => navigate("/principal")}
+            onClick={() => navigate('/principal')}
             title="Volver a la página principal"
           >
             ← Volver
@@ -529,15 +535,9 @@ export default function PerfilUsuario() {
         {/* Header del Perfil */}
         <div className="perfil-header">
           <div className="perfil-avatar">
-            <img
-              src={obtenerFotoPerfil()}
-              alt="Foto de perfil"
-              className="perfil-foto"
-            />
+            <img src={obtenerFotoPerfil()} alt="Foto de perfil" className="perfil-foto" />
           </div>
-          <h1 className="perfil-nombre">
-            {perfil.usuario?.nombre_usuario || "Usuario"}
-          </h1>
+          <h1 className="perfil-nombre">{perfil.usuario?.nombre_usuario || 'Usuario'}</h1>
           <p className="perfil-correo">{perfil.usuario?.correo_electronico}</p>
 
           {/* Estadísticas */}
@@ -577,15 +577,11 @@ export default function PerfilUsuario() {
                   👣 Seguir
                 </button>
               )}
-              
-              <button 
-                onClick={handleSolicitudAmistad} 
-                className="btn-amistad" 
-                disabled={esAmigo}
-              >
-                🤝 {esAmigo ? "Ya son amigos" : "Enviar solicitud de amistad"}
+
+              <button onClick={handleSolicitudAmistad} className="btn-amistad" disabled={esAmigo}>
+                🤝 {esAmigo ? 'Ya son amigos' : 'Enviar solicitud de amistad'}
               </button>
-              
+
               <button onClick={() => setReporteModal(true)} className="btn-reportar">
                 ⚠️ Reportar usuario
               </button>
@@ -639,7 +635,7 @@ export default function PerfilUsuario() {
               Publicaciones <span className="section-count">{publicaciones.length}</span>
             </h3>
           </div>
-          
+
           {publicaciones.length > 0 ? (
             <div className="publicaciones-lista">
               {publicaciones.map((post) => (
@@ -755,12 +751,12 @@ export default function PerfilUsuario() {
 
             <div className="motivos-reporte">
               {[
-                "🚫 Contenido ofensivo o inapropiado",
-                "🎭 Suplantación de identidad",
-                "🧠 Acoso o comportamiento abusivo",
-                "🖼️ Plagio o uso no autorizado de obras",
-                "📢 Spam o publicidad no deseada",
-                "🔞 Contenido obsceno o inapropiado",
+                '🚫 Contenido ofensivo o inapropiado',
+                '🎭 Suplantación de identidad',
+                '🧠 Acoso o comportamiento abusivo',
+                '🖼️ Plagio o uso no autorizado de obras',
+                '📢 Spam o publicidad no deseada',
+                '🔞 Contenido obsceno o inapropiado',
               ].map((motivo) => (
                 <label key={motivo}>
                   <input
@@ -777,7 +773,7 @@ export default function PerfilUsuario() {
             <textarea
               className="reporte-textarea"
               placeholder="Describe brevemente lo sucedido (opcional)..."
-              value={motivoReporte.includes("🚫") ? "" : motivoReporte}
+              value={motivoReporte.includes('🚫') ? '' : motivoReporte}
               onChange={(e) => setMotivoReporte(e.target.value)}
             />
 
@@ -785,7 +781,7 @@ export default function PerfilUsuario() {
             <div className="contenedor-evidencia">
               {preview ? (
                 <div className="preview-wrapper">
-                  <img src={preview || ""} alt="Evidencia subida" className="preview-img" />
+                  <img src={preview || ''} alt="Evidencia subida" className="preview-img" />
                   <div className="botones-evidencia">
                     <label className="btn-cambiar">
                       Cambiar imagen
@@ -798,7 +794,11 @@ export default function PerfilUsuario() {
                 </div>
               ) : (
                 <label className="input-evidencia">
-                  <img src="/static/icons/upload.png" alt="Subir evidencia" className="icono-upload" />
+                  <img
+                    src="/static/icons/upload.png"
+                    alt="Subir evidencia"
+                    className="icono-upload"
+                  />
                   <span>Haz clic o arrastra una imagen aquí</span>
                   <input type="file" accept="image/*" onChange={handleFileSelect} hidden />
                 </label>
@@ -812,7 +812,7 @@ export default function PerfilUsuario() {
               <button
                 onClick={() => {
                   setReporteModal(false);
-                  setMotivoReporte("");
+                  setMotivoReporte('');
                   setPreview(null);
                   setEvidencia(null);
                 }}

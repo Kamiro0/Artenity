@@ -27,7 +27,7 @@
 }
 
 .btn-new-chat {
-  background: #6C63FF;
+  background: #6c63ff;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -56,7 +56,7 @@
 
 .chat-card.active {
   background-color: #e3f2fd;
-  border-left-color: #6C63FF;
+  border-left-color: #6c63ff;
 }
 
 .chat-avatar {
@@ -75,7 +75,7 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: #6C63FF;
+  background: #6c63ff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,7 +176,7 @@
 
 .user-status {
   font-size: 12px;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .chat-actions {
@@ -216,7 +216,7 @@
 
 .bubble-me {
   align-self: flex-end;
-  background: #6C63FF;
+  background: #6c63ff;
   color: white;
   border-bottom-right-radius: 4px;
 }
@@ -294,7 +294,7 @@
   background: white;
 }
 
-.chat-input-box input[type="text"] {
+.chat-input-box input[type='text'] {
   flex: 1;
   padding: 12px 16px;
   border: 1px solid #e0e0e0;
@@ -302,8 +302,8 @@
   outline: none;
 }
 
-.chat-input-box input[type="text"]:focus {
-  border-color: #6C63FF;
+.chat-input-box input[type='text']:focus {
+  border-color: #6c63ff;
 }
 
 .btn-attach {
@@ -315,7 +315,7 @@
 }
 
 .chat-input-box button {
-  background: #6C63FF;
+  background: #6c63ff;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -342,7 +342,7 @@
 }
 
 .btn-start-conversation {
-  background: #6C63FF;
+  background: #6c63ff;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -455,7 +455,7 @@
 }
 
 .config-group select,
-.config-group input[type="color"] {
+.config-group input[type='color'] {
   width: 100%;
   padding: 8px;
   border: 1px solid #e0e0e0;
@@ -480,7 +480,7 @@
 }
 
 .btn-save {
-  background: #6C63FF;
+  background: #6c63ff;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -515,7 +515,7 @@
 }
 
 .icons-group i:hover {
-  color: #6C63FF;
+  color: #6c63ff;
 }
 
 /* Estados de carga y vacío */
@@ -527,7 +527,7 @@
 }
 
 .btn-start-chat {
-  background: #6C63FF;
+  background: #6c63ff;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -607,11 +607,11 @@
 
 /* Previsualización de archivos */
 .file-preview {
-  border: 2px solid #6C63FF;
+  border: 2px solid #6c63ff;
   border-radius: 10px;
   margin: 10px;
   background: white;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .file-preview-header {
@@ -626,7 +626,7 @@
 
 .file-preview-header span {
   font-weight: bold;
-  color: #6C63FF;
+  color: #6c63ff;
 }
 
 .btn-cancel-preview {
@@ -680,7 +680,7 @@
 
 /* Botón de enviar cuando hay archivo */
 .btn-send-with-file {
-  background-color: #6C63FF !important;
+  background-color: #6c63ff !important;
   color: white !important;
 }
 
@@ -697,7 +697,7 @@
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 180px;
   z-index: 1000;
 }
@@ -823,16 +823,16 @@
   .btn-home {
     display: none;
   }
-  
+
   .btn-home-mobile {
     display: block;
   }
-  
+
   .chats-header {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .chats-header-top {
     width: 100%;
     justify-content: space-between;
@@ -889,9 +889,9 @@
 }
 
 .btn-upload-background:hover {
-  background: #6C63FF;
+  background: #6c63ff;
   color: white;
-  border-color: #6C63FF;
+  border-color: #6c63ff;
 }
 
 .btn-remove-background {
@@ -951,7 +951,7 @@
 }
 
 .preview-item.selected {
-  border-color: #6C63FF;
+  border-color: #6c63ff;
   box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.3);
 }
 
@@ -1008,7 +1008,7 @@
   padding: 8px 0;
 }
 
-.checkbox-label input[type="checkbox"] {
+.checkbox-label input[type='checkbox'] {
   width: 18px;
   height: 18px;
   cursor: pointer;
@@ -1020,15 +1020,15 @@
     margin: 20px;
     max-height: 90vh;
   }
-  
+
   .preview-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .color-presets {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .custom-background-options {
     flex-direction: column;
   }

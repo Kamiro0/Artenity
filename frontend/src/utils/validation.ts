@@ -4,25 +4,27 @@ export const validateEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-export const validatePassword = (password: string): {
+export const validatePassword = (
+  password: string
+): {
   isValid: boolean;
   errors: string[];
 } => {
   const errors: string[] = [];
-  
+
   if (password.length < 6) {
-    errors.push("La contraseña debe tener al menos 6 caracteres");
+    errors.push('La contraseña debe tener al menos 6 caracteres');
   }
   if (!/[A-Z]/.test(password)) {
-    errors.push("La contraseña debe contener al menos una mayúscula");
+    errors.push('La contraseña debe contener al menos una mayúscula');
   }
   if (!/[0-9]/.test(password)) {
-    errors.push("La contraseña debe contener al menos un número");
+    errors.push('La contraseña debe contener al menos un número');
   }
-  
+
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 

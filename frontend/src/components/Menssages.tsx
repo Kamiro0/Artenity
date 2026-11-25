@@ -1,11 +1,11 @@
-// frontend/components/Messages.tsx 
-import React, { useState, useEffect, useRef } from "react";
-import "../styles/Messages.css";
-import { useNavigate } from "react-router-dom";
-import { 
-  obtenerChats, 
-  obtenerMensajesChat, 
-  enviarMensaje, 
+// frontend/components/Messages.tsx
+import React, { useState, useEffect, useRef } from 'react';
+import '../styles/Messages.css';
+import { useNavigate } from 'react-router-dom';
+import {
+  obtenerChats,
+  obtenerMensajesChat,
+  enviarMensaje,
   crearObtenerChat,
   configurarChat,
   obtenerConfiguracionChat,
@@ -18,8 +18,8 @@ import {
   Chat as ChatType,
   Message as MessageType,
   ConfiguracionChat,
-  enviarMensajeArchivo
-} from "../services/api";
+  enviarMensajeArchivo,
+} from '../services/api';
 
 interface User {
   id_usuario: number;
@@ -38,22 +38,28 @@ const Messages: React.FC = () => {
   const [chats, setChats] = useState<ChatType[]>([]);
   const [selectedChat, setSelectedChat] = useState<ChatType | null>(null);
   const [messages, setMessages] = useState<MessageType[]>([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState('');
   const [amigos, setAmigos] = useState<User[]>([]);
   const [showFriendsModal, setShowFriendsModal] = useState(false);
   const [showConfigModal, setShowConfigModal] = useState(false);
-  const [showDeleteMenu, setShowDeleteMenu] = useState<{x: number, y: number, message: MessageType} | null>(null);
-  const [showChatMenu, setShowChatMenu] = useState<{x: number, y: number, chat: ChatType} | null>(null);
+  const [showDeleteMenu, setShowDeleteMenu] = useState<{
+    x: number;
+    y: number;
+    message: MessageType;
+  } | null>(null);
+  const [showChatMenu, setShowChatMenu] = useState<{ x: number; y: number; chat: ChatType } | null>(
+    null
+  );
   const [chatConfig, setChatConfig] = useState<ConfiguracionChat>({
-    fondo_chat: "default",
-    color_burbuja: "#6C63FF"
+    fondo_chat: 'default',
+    color_burbuja: '#6C63FF',
   });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadingBackground, setUploadingBackground] = useState(false);
   const [filePreview, setFilePreview] = useState<FilePreview | null>(null);
   const [backgroundPreview, setBackgroundPreview] = useState<string | null>(null);
-  
+
   const navigate = useNavigate();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -96,7 +102,7 @@ const Messages: React.FC = () => {
       const chatsData = await obtenerChats();
       setChats(chatsData);
     } catch (error) {
-      console.error("Error cargando chats:", error);
+      console.error('Error cargando chats:', error);
     } finally {
       setLoading(false);
     }
@@ -107,7 +113,7 @@ const Messages: React.FC = () => {
       const amigosData = await obtenerAmigos();
       setAmigos(amigosData);
     } catch (error) {
-      console.error("Error cargando amigos:", error);
+      console.error('Error cargando amigos:', error);
     }
   };
 
@@ -116,61 +122,67 @@ const Messages: React.FC = () => {
       const mensajesData = await obtenerMensajesChat(chatId);
       setMessages(mensajesData);
     } catch (error) {
-      console.error("Error cargando mensajes:", error);
+      console.error('Error cargando mensajes:', error);
     }
   };
 
   const cargarConfiguracionChat = async () => {
     if (!selectedChat) return;
-    
+
     try {
       const configData = await obtenerConfiguracionChat(selectedChat.id);
       setChatConfig(configData);
       setBackgroundPreview(null);
     } catch (error) {
-      console.error("Error cargando configuración:", error);
+      console.error('Error cargando configuración:', error);
       setChatConfig({
-        fondo_chat: "default",
-        color_burbuja: "#6C63FF"
+        fondo_chat: 'default',
+        color_burbuja: '#6C63FF',
       });
     }
   };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const goToHome = () => {
-    navigate("/principal");
+    navigate('/principal');
   };
 
   const handleSend = async () => {
-    if ((newMessage.trim() === "" && !filePreview) || !selectedChat) return;
+    if ((newMessage.trim() === '' && !filePreview) || !selectedChat) return;
 
     try {
       if (filePreview) {
         await handleSendFile();
       }
-      
-      if (newMessage.trim() !== "") {
+
+      if (newMessage.trim() !== '') {
         const mensajeEnviado = await enviarMensaje(selectedChat.id, newMessage);
-        
-        setMessages(prev => [...prev, {
-          ...mensajeEnviado,
-          sender_id: parseInt(localStorage.getItem("usuario") ? JSON.parse(localStorage.getItem("usuario")!).id_usuario : "0"),
-          sender_username: "yo",
-          fecha: new Date().toISOString(),
-          leido: false
-        }]);
-        
-        setNewMessage("");
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            ...mensajeEnviado,
+            sender_id: parseInt(
+              localStorage.getItem('usuario')
+                ? JSON.parse(localStorage.getItem('usuario')!).id_usuario
+                : '0'
+            ),
+            sender_username: 'yo',
+            fecha: new Date().toISOString(),
+            leido: false,
+          },
+        ]);
+
+        setNewMessage('');
       }
-      
+
       await cargarChats();
-      
     } catch (error) {
-      console.error("Error al enviar mensaje:", error);
-      alert("Error al enviar el mensaje. Intenta nuevamente.");
+      console.error('Error al enviar mensaje:', error);
+      alert('Error al enviar el mensaje. Intenta nuevamente.');
     }
   };
 
@@ -179,27 +191,37 @@ const Messages: React.FC = () => {
 
     try {
       setUploading(true);
-      const mensajeEnviado = await enviarMensajeArchivo(selectedChat.id, filePreview.file, filePreview.type);
-      
-      setMessages(prev => [...prev, {
-        ...mensajeEnviado,
-        sender: "yo",
-        sender_id: parseInt(localStorage.getItem("usuario") ? JSON.parse(localStorage.getItem("usuario")!).id_usuario : "0"),
-        sender_username: "yo",
-        fecha: new Date().toISOString(),
-        leido: false
-      }]);
-      
+      const mensajeEnviado = await enviarMensajeArchivo(
+        selectedChat.id,
+        filePreview.file,
+        filePreview.type
+      );
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...mensajeEnviado,
+          sender: 'yo',
+          sender_id: parseInt(
+            localStorage.getItem('usuario')
+              ? JSON.parse(localStorage.getItem('usuario')!).id_usuario
+              : '0'
+          ),
+          sender_username: 'yo',
+          fecha: new Date().toISOString(),
+          leido: false,
+        },
+      ]);
+
       setFilePreview(null);
-      
     } catch (error: any) {
-      console.error("Error al enviar archivo:", error);
+      console.error('Error al enviar archivo:', error);
       if (error.response?.status === 403) {
-        alert("Solo puedes enviar archivos a tus amigos");
+        alert('Solo puedes enviar archivos a tus amigos');
       } else if (error.response?.status === 400) {
-        alert(error.response.data.detail || "Error en el archivo");
+        alert(error.response.data.detail || 'Error en el archivo');
       } else {
-        alert("Error al enviar el archivo. Intenta nuevamente.");
+        alert('Error al enviar el archivo. Intenta nuevamente.');
       }
     } finally {
       setUploading(false);
@@ -212,29 +234,29 @@ const Messages: React.FC = () => {
 
     const esImagen = file.type.startsWith('image/');
     const esVideo = file.type.startsWith('video/');
-    
+
     if (!esImagen && !esVideo) {
-      alert("Solo se permiten imágenes y videos");
+      alert('Solo se permiten imágenes y videos');
       return;
     }
 
-    const tipo = esImagen ? "imagen" : "video";
+    const tipo = esImagen ? 'imagen' : 'video';
 
     if (file.size > 50 * 1024 * 1024) {
-      alert("El archivo es demasiado grande. Máximo 50MB");
+      alert('El archivo es demasiado grande. Máximo 50MB');
       return;
     }
 
     const url = URL.createObjectURL(file);
-    
+
     setFilePreview({
       file,
       type: tipo,
-      url
+      url,
     });
 
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = '';
     }
   };
 
@@ -243,39 +265,38 @@ const Messages: React.FC = () => {
     if (!file || !selectedChat) return;
 
     if (!file.type.startsWith('image/')) {
-      alert("Solo se permiten imágenes para el fondo");
+      alert('Solo se permiten imágenes para el fondo');
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      alert("La imagen de fondo es demasiado grande. Máximo 10MB");
+      alert('La imagen de fondo es demasiado grande. Máximo 10MB');
       return;
     }
 
     try {
       setUploadingBackground(true);
-      
+
       const url = URL.createObjectURL(file);
       setBackgroundPreview(url);
-      
+
       const resultado = await subirFondoPersonalizado(selectedChat.id, file);
-      
-      setChatConfig(prev => ({
+
+      setChatConfig((prev) => ({
         ...prev,
-        fondo_chat: "personalizado",
-        fondo_personalizado: resultado.fondo_url
+        fondo_chat: 'personalizado',
+        fondo_personalizado: resultado.fondo_url,
       }));
-      
-      console.log("Fondo personalizado guardado:", resultado);
-      
+
+      console.log('Fondo personalizado guardado:', resultado);
     } catch (error: any) {
-      console.error("Error subiendo fondo:", error);
-      alert(error.response?.data?.detail || "Error al subir el fondo personalizado");
+      console.error('Error subiendo fondo:', error);
+      alert(error.response?.data?.detail || 'Error al subir el fondo personalizado');
       setBackgroundPreview(null);
     } finally {
       setUploadingBackground(false);
       if (backgroundInputRef.current) {
-        backgroundInputRef.current.value = "";
+        backgroundInputRef.current.value = '';
       }
     }
   };
@@ -285,20 +306,19 @@ const Messages: React.FC = () => {
 
     try {
       await eliminarFondoPersonalizado(selectedChat.id);
-      
-      setChatConfig(prev => ({
+
+      setChatConfig((prev) => ({
         ...prev,
-        fondo_chat: "default",
-        fondo_personalizado: undefined
+        fondo_chat: 'default',
+        fondo_personalizado: undefined,
       }));
-      
+
       setBackgroundPreview(null);
-      
-      console.log("Fondo personalizado eliminado");
-      
+
+      console.log('Fondo personalizado eliminado');
     } catch (error: any) {
-      console.error("Error eliminando fondo:", error);
-      alert("Error al eliminar el fondo personalizado");
+      console.error('Error eliminando fondo:', error);
+      alert('Error al eliminar el fondo personalizado');
     }
   };
 
@@ -310,7 +330,7 @@ const Messages: React.FC = () => {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -319,22 +339,22 @@ const Messages: React.FC = () => {
   const handleMessageContextMenu = (e: React.MouseEvent, message: MessageType) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     setShowDeleteMenu({
       x: e.clientX,
       y: e.clientY,
-      message
+      message,
     });
   };
 
   const handleChatContextMenu = (e: React.MouseEvent, chat: ChatType) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     setShowChatMenu({
       x: e.clientX,
       y: e.clientY,
-      chat
+      chat,
     });
   };
 
@@ -343,14 +363,14 @@ const Messages: React.FC = () => {
 
     try {
       await eliminarMensaje(selectedChat.id, message.id);
-      setMessages(prev => prev.filter(m => m.id !== message.id));
+      setMessages((prev) => prev.filter((m) => m.id !== message.id));
       setShowDeleteMenu(null);
     } catch (error: any) {
-      console.error("Error eliminando mensaje:", error);
+      console.error('Error eliminando mensaje:', error);
       if (error.response?.status === 404) {
-        alert("El mensaje no existe o no tienes permisos para eliminarlo");
+        alert('El mensaje no existe o no tienes permisos para eliminarlo');
       } else {
-        alert("Error al eliminar el mensaje");
+        alert('Error al eliminar el mensaje');
       }
     }
   };
@@ -358,76 +378,79 @@ const Messages: React.FC = () => {
   const handleDeleteMessageForEveryone = async (message: MessageType) => {
     try {
       await eliminarMensajeParaTodos(message.id);
-      setMessages(prev => prev.filter(m => m.id !== message.id));
+      setMessages((prev) => prev.filter((m) => m.id !== message.id));
       setShowDeleteMenu(null);
       await cargarChats();
     } catch (error) {
-      console.error("Error eliminando mensaje para todos:", error);
-      alert("Error al eliminar el mensaje");
+      console.error('Error eliminando mensaje para todos:', error);
+      alert('Error al eliminar el mensaje');
     }
   };
 
   const handleDeleteChat = async (chat: ChatType) => {
-    if (!window.confirm(`¿Estás seguro de que quieres eliminar el chat con @${chat.username}? Esta acción no se puede deshacer.`)) {
+    if (
+      !window.confirm(
+        `¿Estás seguro de que quieres eliminar el chat con @${chat.username}? Esta acción no se puede deshacer.`
+      )
+    ) {
       return;
     }
 
     try {
-      console.log("Eliminando chat:", chat.id);
+      console.log('Eliminando chat:', chat.id);
       await eliminarChat(chat.id);
-      
-      setChats(prev => prev.filter(c => c.id !== chat.id));
+
+      setChats((prev) => prev.filter((c) => c.id !== chat.id));
       setShowChatMenu(null);
-      
+
       if (selectedChat?.id === chat.id) {
         setSelectedChat(null);
         setMessages([]);
       }
-      
-      console.log("Chat eliminado exitosamente");
-      
+
+      console.log('Chat eliminado exitosamente');
     } catch (error: any) {
-      console.error("Error eliminando chat:", error);
-      
+      console.error('Error eliminando chat:', error);
+
       if (error.response?.status === 404) {
-        alert("El chat no existe o ya fue eliminado");
+        alert('El chat no existe o ya fue eliminado');
       } else if (error.response?.status === 403) {
-        alert("No tienes permisos para eliminar este chat");
+        alert('No tienes permisos para eliminar este chat');
       } else {
-        alert("Error al eliminar el chat. Intenta nuevamente.");
+        alert('Error al eliminar el chat. Intenta nuevamente.');
       }
     }
   };
 
   const renderMessageContent = (msg: MessageType) => {
-    if (msg.tipo === "texto") {
+    if (msg.tipo === 'texto') {
       // 🔥 NUEVO: Procesar enlaces de compartidos
-      const texto = msg.text || "";
+      const texto = msg.text || '';
       const enlaceRegex = /\[ENLACE_COMPARTIDO:(\d+)\](.*?)\[\/ENLACE_COMPARTIDO\]/g;
       const partes: (string | React.ReactElement)[] = [];
       let ultimoIndice = 0;
       let match;
-      
+
       while ((match = enlaceRegex.exec(texto)) !== null) {
         // Agregar texto antes del enlace
         if (match.index > ultimoIndice) {
           partes.push(texto.substring(ultimoIndice, match.index));
         }
-        
+
         // Agregar el enlace como botón clicable
         const idCompartido = parseInt(match[1]);
-        const textoEnlace = match[2] || "Ver publicación compartida";
-        
+        const textoEnlace = match[2] || 'Ver publicación compartida';
+
         partes.push(
           <button
             key={`enlace-${idCompartido}-${match.index}`}
             className="enlace-compartido-btn"
             onClick={() => {
-              navigate("/compartidos", {
+              navigate('/compartidos', {
                 state: {
                   idCompartido: idCompartido,
-                  fromNotification: true
-                }
+                  fromNotification: true,
+                },
               });
             }}
             title="Ver publicación compartida"
@@ -435,42 +458,37 @@ const Messages: React.FC = () => {
             {textoEnlace}
           </button>
         );
-        
+
         ultimoIndice = match.index + match[0].length;
       }
-      
+
       // Agregar texto restante
       if (ultimoIndice < texto.length) {
         partes.push(texto.substring(ultimoIndice));
       }
-      
+
       // Si no hay enlaces, retornar texto normal
       if (partes.length === 0) {
-        return <span style={{ whiteSpace: "pre-wrap" }}>{texto}</span>;
+        return <span style={{ whiteSpace: 'pre-wrap' }}>{texto}</span>;
       }
-      
-      return <span style={{ whiteSpace: "pre-wrap" }}>{partes}</span>;
-      
-    } else if (msg.tipo === "imagen" && msg.archivo_url) {
+
+      return <span style={{ whiteSpace: 'pre-wrap' }}>{partes}</span>;
+    } else if (msg.tipo === 'imagen' && msg.archivo_url) {
       return (
         <div className="message-file">
-          <img 
-            src={`http://localhost:8000${msg.archivo_url}`} 
-            alt="Imagen enviada" 
+          <img
+            src={`http://localhost:8000${msg.archivo_url}`}
+            alt="Imagen enviada"
             className="chat-image"
             onClick={() => window.open(`http://localhost:8000${msg.archivo_url}`, '_blank')}
           />
           <div className="file-caption">{msg.text}</div>
         </div>
       );
-    } else if (msg.tipo === "video" && msg.archivo_url) {
+    } else if (msg.tipo === 'video' && msg.archivo_url) {
       return (
         <div className="message-file">
-          <video 
-            controls 
-            className="chat-video"
-            src={`http://localhost:8000${msg.archivo_url}`}
-          >
+          <video controls className="chat-video" src={`http://localhost:8000${msg.archivo_url}`}>
             Tu navegador no soporta el elemento video.
           </video>
           <div className="file-caption">{msg.text}</div>
@@ -483,13 +501,13 @@ const Messages: React.FC = () => {
 
   const handleStartChat = async (amigo: User) => {
     try {
-      console.log("Iniciando chat con:", amigo);
-      
+      console.log('Iniciando chat con:', amigo);
+
       const resultado = await crearObtenerChat(amigo.id_usuario);
-      console.log("Chat creado/obtenido:", resultado);
-      
-      const chatExistente = chats.find(chat => chat.id === resultado.id_chat);
-      
+      console.log('Chat creado/obtenido:', resultado);
+
+      const chatExistente = chats.find((chat) => chat.id === resultado.id_chat);
+
       if (chatExistente) {
         setSelectedChat(chatExistente);
       } else {
@@ -498,31 +516,30 @@ const Messages: React.FC = () => {
           username: amigo.nombre_usuario,
           nombre_completo: amigo.nombre_completo,
           foto_perfil: amigo.foto_perfil || null,
-          lastMessage: "Iniciar conversación",
-          color: "#6C63FF",
+          lastMessage: 'Iniciar conversación',
+          color: '#6C63FF',
           ultima_actividad: new Date().toISOString(),
-          no_leidos: 0
+          no_leidos: 0,
         };
-        
+
         setSelectedChat(nuevoChat);
-        setChats(prev => [nuevoChat, ...prev]);
+        setChats((prev) => [nuevoChat, ...prev]);
       }
-      
+
       setShowFriendsModal(false);
-      
+
       setTimeout(() => {
         cargarChats();
       }, 500);
-      
     } catch (error: any) {
-      console.error("Error al iniciar chat:", error);
-      
+      console.error('Error al iniciar chat:', error);
+
       if (error.response?.status === 404) {
-        alert("Usuario no encontrado");
+        alert('Usuario no encontrado');
       } else if (error.response?.status === 403) {
-        alert("No puedes chatear con este usuario");
+        alert('No puedes chatear con este usuario');
       } else {
-        alert("Error al iniciar el chat. Intenta nuevamente.");
+        alert('Error al iniciar el chat. Intenta nuevamente.');
       }
     }
   };
@@ -533,75 +550,74 @@ const Messages: React.FC = () => {
     try {
       await configurarChat(selectedChat.id, chatConfig);
       setShowConfigModal(false);
-      
-      setSelectedChat(prev => prev ? {...prev, color: chatConfig.color_burbuja} : null);
-      
-      setChats(prev => prev.map(chat => 
-        chat.id === selectedChat.id 
-          ? {...chat, color: chatConfig.color_burbuja}
-          : chat
-      ));
-      
+
+      setSelectedChat((prev) => (prev ? { ...prev, color: chatConfig.color_burbuja } : null));
+
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.id === selectedChat.id ? { ...chat, color: chatConfig.color_burbuja } : chat
+        )
+      );
     } catch (error) {
-      console.error("Error guardando configuración:", error);
-      alert("Error al guardar la configuración. Intenta nuevamente.");
+      console.error('Error guardando configuración:', error);
+      alert('Error al guardar la configuración. Intenta nuevamente.');
     }
   };
 
   const getChatBackground = () => {
-    if (chatConfig.fondo_chat === "personalizado" && chatConfig.fondo_personalizado) {
+    if (chatConfig.fondo_chat === 'personalizado' && chatConfig.fondo_personalizado) {
       return {
         backgroundImage: `url(http://localhost:8000${chatConfig.fondo_personalizado})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundRepeat: 'no-repeat',
       };
     }
 
     switch (chatConfig.fondo_chat) {
-      case "light-gray": 
-        return { backgroundColor: "#f5f5f5" };
-      case "dark": 
-        return { backgroundColor: "#1a1a1a" };
-      case "blue": 
-        return { backgroundColor: "#0d47a1" };
-      case "green": 
-        return { backgroundColor: "#1b5e20" };
-      case "purple": 
-        return { backgroundColor: "#4a148c" };
-      case "pink": 
-        return { backgroundColor: "#880e4f" };
-      case "orange": 
-        return { backgroundColor: "#e65100" };
-      case "gradient-blue":
-        return { 
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
+      case 'light-gray':
+        return { backgroundColor: '#f5f5f5' };
+      case 'dark':
+        return { backgroundColor: '#1a1a1a' };
+      case 'blue':
+        return { backgroundColor: '#0d47a1' };
+      case 'green':
+        return { backgroundColor: '#1b5e20' };
+      case 'purple':
+        return { backgroundColor: '#4a148c' };
+      case 'pink':
+        return { backgroundColor: '#880e4f' };
+      case 'orange':
+        return { backgroundColor: '#e65100' };
+      case 'gradient-blue':
+        return {
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         };
-      case "gradient-sunset":
-        return { 
-          background: "linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #48dbfb 100%)" 
+      case 'gradient-sunset':
+        return {
+          background: 'linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #48dbfb 100%)',
         };
-      case "gradient-forest":
-        return { 
-          background: "linear-gradient(135deg, #0ba360 0%, #3cba92 100%)" 
+      case 'gradient-forest':
+        return {
+          background: 'linear-gradient(135deg, #0ba360 0%, #3cba92 100%)',
         };
-      case "pattern-dots":
-        return { 
-          backgroundColor: "#f0f0f0",
+      case 'pattern-dots':
+        return {
+          backgroundColor: '#f0f0f0',
           backgroundImage: `radial-gradient(#6C63FF 1px, transparent 1px)`,
-          backgroundSize: '20px 20px'
+          backgroundSize: '20px 20px',
         };
-      case "pattern-grid":
-        return { 
-          backgroundColor: "#ffffff",
+      case 'pattern-grid':
+        return {
+          backgroundColor: '#ffffff',
           backgroundImage: `
             linear-gradient(#e0e0e0 1px, transparent 1px),
             linear-gradient(90deg, #e0e0e0 1px, transparent 1px)
           `,
-          backgroundSize: '20px 20px'
+          backgroundSize: '20px 20px',
         };
-      default: 
-        return { backgroundColor: "#ffffff" };
+      default:
+        return { backgroundColor: '#ffffff' };
     }
   };
 
@@ -611,33 +627,23 @@ const Messages: React.FC = () => {
       <div className="sidebar-chats">
         <div className="chats-header">
           <div className="chats-header-top">
-            <button 
-              className="btn-home"
-              onClick={goToHome}
-              title="Ir a la página principal"
-            >
+            <button className="btn-home" onClick={goToHome} title="Ir a la página principal">
               🏠
             </button>
             <h2>Mensajes</h2>
           </div>
-          <button 
-            className="btn-new-chat"
-            onClick={() => setShowFriendsModal(true)}
-          >
+          <button className="btn-new-chat" onClick={() => setShowFriendsModal(true)}>
             + Nuevo chat
           </button>
         </div>
-        
+
         <div className="chats-list" ref={chatListRef}>
           {loading ? (
             <div className="loading-chats">Cargando chats...</div>
           ) : chats.length === 0 ? (
             <div className="no-chats">
               <p>No tienes chats activos</p>
-              <button 
-                className="btn-start-chat"
-                onClick={() => setShowFriendsModal(true)}
-              >
+              <button className="btn-start-chat" onClick={() => setShowFriendsModal(true)}>
                 Iniciar una conversación
               </button>
             </div>
@@ -645,7 +651,7 @@ const Messages: React.FC = () => {
             chats.map((chat) => (
               <div
                 key={chat.id}
-                className={`chat-card ${selectedChat?.id === chat.id ? "active" : ""}`}
+                className={`chat-card ${selectedChat?.id === chat.id ? 'active' : ''}`}
                 style={{ borderLeftColor: chat.color }}
                 onClick={() => setSelectedChat(chat)}
                 onContextMenu={(e) => handleChatContextMenu(e, chat)}
@@ -658,17 +664,15 @@ const Messages: React.FC = () => {
                       {chat.username.charAt(0).toUpperCase()}
                     </div>
                   )}
-                  {chat.no_leidos > 0 && (
-                    <span className="unread-badge">{chat.no_leidos}</span>
-                  )}
+                  {chat.no_leidos > 0 && <span className="unread-badge">{chat.no_leidos}</span>}
                 </div>
                 <div className="chat-info">
                   <div className="chat-header-info">
                     <span className="chat-user">@{chat.username}</span>
                     <span className="chat-time">
-                      {new Date(chat.ultima_actividad).toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
+                      {new Date(chat.ultima_actividad).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
                       })}
                     </span>
                   </div>
@@ -681,10 +685,7 @@ const Messages: React.FC = () => {
       </div>
 
       {/* Panel central - Chat */}
-      <div 
-        className="chat-panel"
-        style={getChatBackground()}
-      >
+      <div className="chat-panel" style={getChatBackground()}>
         {selectedChat ? (
           <>
             <div className="chat-header">
@@ -704,14 +705,14 @@ const Messages: React.FC = () => {
                 </div>
               </div>
               <div className="chat-actions">
-                <button 
+                <button
                   className="btn-home-mobile"
                   onClick={goToHome}
                   title="Ir a la página principal"
                 >
                   🏠
                 </button>
-                <button 
+                <button
                   className="btn-config"
                   onClick={() => setShowConfigModal(true)}
                   title="Configurar chat"
@@ -731,24 +732,22 @@ const Messages: React.FC = () => {
                 messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`message-bubble ${msg.sender === "yo" ? "bubble-me" : "bubble-other"}`}
-                    style={{ 
-                      backgroundColor: msg.sender === "yo" ? chatConfig.color_burbuja : undefined 
+                    className={`message-bubble ${msg.sender === 'yo' ? 'bubble-me' : 'bubble-other'}`}
+                    style={{
+                      backgroundColor: msg.sender === 'yo' ? chatConfig.color_burbuja : undefined,
                     }}
                     onContextMenu={(e) => handleMessageContextMenu(e, msg)}
                   >
-                    {msg.sender === "otro" && (
+                    {msg.sender === 'otro' && (
                       <div className="message-sender">
                         <strong>@{msg.sender_username}</strong>
                       </div>
                     )}
-                    <div className="message-content">
-                      {renderMessageContent(msg)}
-                    </div>
+                    <div className="message-content">{renderMessageContent(msg)}</div>
                     <div className="message-time">
-                      {new Date(msg.fecha).toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
+                      {new Date(msg.fecha).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
                       })}
                     </div>
                   </div>
@@ -762,7 +761,7 @@ const Messages: React.FC = () => {
               <div className="file-preview">
                 <div className="file-preview-header">
                   <span>Vista previa - {filePreview.type === 'imagen' ? 'Imagen' : 'Video'}</span>
-                  <button 
+                  <button
                     className="btn-cancel-preview"
                     onClick={cancelFilePreview}
                     title="Cancelar"
@@ -792,35 +791,37 @@ const Messages: React.FC = () => {
                 onChange={handleFileSelect}
                 accept="image/*,video/*"
               />
-              <button 
+              <button
                 className="btn-attach"
                 onClick={() => fileInputRef.current?.click()}
                 title="Adjuntar archivo"
                 disabled={uploading}
               >
-                {uploading ? "⏳" : "📎"}
+                {uploading ? '⏳' : '📎'}
               </button>
               <input
                 type="text"
-                placeholder={filePreview ? "Escribe un mensaje opcional..." : "Escribe un mensaje..."}
+                placeholder={
+                  filePreview ? 'Escribe un mensaje opcional...' : 'Escribe un mensaje...'
+                }
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={uploading}
               />
-              <button 
-                onClick={handleSend} 
-                disabled={(newMessage.trim() === "" && !filePreview) || uploading}
-                className={filePreview ? "btn-send-with-file" : ""}
+              <button
+                onClick={handleSend}
+                disabled={(newMessage.trim() === '' && !filePreview) || uploading}
+                className={filePreview ? 'btn-send-with-file' : ''}
               >
-                {uploading ? "Enviando..." : filePreview ? "Enviar archivo" : "Enviar"}
+                {uploading ? 'Enviando...' : filePreview ? 'Enviar archivo' : 'Enviar'}
               </button>
             </div>
           </>
         ) : (
           <div className="empty-chat">
             <div className="empty-chat-content">
-              <button 
+              <button
                 className="btn-home-large"
                 onClick={goToHome}
                 title="Ir a la página principal"
@@ -829,10 +830,7 @@ const Messages: React.FC = () => {
               </button>
               <h3>Selecciona un chat</h3>
               <p>Elige una conversación de la lista o inicia una nueva</p>
-              <button 
-                className="btn-start-conversation"
-                onClick={() => setShowFriendsModal(true)}
-              >
+              <button className="btn-start-conversation" onClick={() => setShowFriendsModal(true)}>
                 Iniciar nueva conversación
               </button>
             </div>
@@ -842,35 +840,32 @@ const Messages: React.FC = () => {
 
       {/* Menú contextual para mensajes */}
       {showDeleteMenu && (
-        <div 
+        <div
           className="context-menu"
           style={{
             position: 'fixed',
             top: showDeleteMenu.y,
             left: showDeleteMenu.x,
-            zIndex: 1000
+            zIndex: 1000,
           }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="context-menu-content">
-            <button 
+            <button
               className="context-menu-item"
               onClick={() => handleDeleteMessage(showDeleteMenu.message)}
             >
               Eliminar para mí
             </button>
-            {showDeleteMenu.message.sender === "yo" && (
-              <button 
+            {showDeleteMenu.message.sender === 'yo' && (
+              <button
                 className="context-menu-item"
                 onClick={() => handleDeleteMessageForEveryone(showDeleteMenu.message)}
               >
                 Eliminar para todos
               </button>
             )}
-            <button 
-              className="context-menu-item"
-              onClick={() => setShowDeleteMenu(null)}
-            >
+            <button className="context-menu-item" onClick={() => setShowDeleteMenu(null)}>
               Cancelar
             </button>
           </div>
@@ -879,27 +874,24 @@ const Messages: React.FC = () => {
 
       {/* Menú contextual para chats */}
       {showChatMenu && (
-        <div 
+        <div
           className="context-menu"
           style={{
             position: 'fixed',
             top: showChatMenu.y,
             left: showChatMenu.x,
-            zIndex: 1000
+            zIndex: 1000,
           }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="context-menu-content">
-            <button 
+            <button
               className="context-menu-item delete"
               onClick={() => handleDeleteChat(showChatMenu.chat)}
             >
               Eliminar chat
             </button>
-            <button 
-              className="context-menu-item"
-              onClick={() => setShowChatMenu(null)}
-            >
+            <button className="context-menu-item" onClick={() => setShowChatMenu(null)}>
               Cancelar
             </button>
           </div>
@@ -912,14 +904,11 @@ const Messages: React.FC = () => {
           <div className="modal-content">
             <div className="modal-header">
               <h3>Seleccionar amigo para chatear</h3>
-              <button 
-                className="btn-close"
-                onClick={() => setShowFriendsModal(false)}
-              >
+              <button className="btn-close" onClick={() => setShowFriendsModal(false)}>
                 ×
               </button>
             </div>
-            
+
             <div className="friends-list-modal">
               {amigos.length === 0 ? (
                 <div className="no-friends">
@@ -946,19 +935,14 @@ const Messages: React.FC = () => {
                       <span className="friend-username">@{amigo.nombre_usuario}</span>
                       <span className="friend-name">{amigo.nombre_completo}</span>
                     </div>
-                    <button className="btn-start-chat">
-                      Chatear
-                    </button>
+                    <button className="btn-start-chat">Chatear</button>
                   </div>
                 ))
               )}
             </div>
-            
+
             <div className="modal-actions">
-              <button 
-                className="btn-cancel"
-                onClick={() => setShowFriendsModal(false)}
-              >
+              <button className="btn-cancel" onClick={() => setShowFriendsModal(false)}>
                 Cancelar
               </button>
             </div>
@@ -972,26 +956,25 @@ const Messages: React.FC = () => {
           <div className="modal-content config-modal">
             <div className="modal-header">
               <h3>Configuración del chat</h3>
-              <button 
-                className="btn-close"
-                onClick={() => setShowConfigModal(false)}
-              >
+              <button className="btn-close" onClick={() => setShowConfigModal(false)}>
                 ×
               </button>
             </div>
-            
+
             <div className="config-options">
               <div className="config-section">
                 <h4>Fondo del chat</h4>
-                
+
                 <div className="config-group">
                   <label>Fondo predefinido:</label>
-                  <select 
+                  <select
                     value={chatConfig.fondo_chat}
-                    onChange={(e) => setChatConfig(prev => ({
-                      ...prev,
-                      fondo_chat: e.target.value
-                    }))}
+                    onChange={(e) =>
+                      setChatConfig((prev) => ({
+                        ...prev,
+                        fondo_chat: e.target.value,
+                      }))
+                    }
                   >
                     <option value="default">Predeterminado (Blanco)</option>
                     <option value="light-gray">Gris claro</option>
@@ -1019,33 +1002,30 @@ const Messages: React.FC = () => {
                       onChange={handleBackgroundSelect}
                       accept="image/*"
                     />
-                    <button 
+                    <button
                       className="btn-upload-background"
                       onClick={() => backgroundInputRef.current?.click()}
                       disabled={uploadingBackground}
                     >
-                      {uploadingBackground ? "Subiendo..." : "Subir imagen"}
+                      {uploadingBackground ? 'Subiendo...' : 'Subir imagen'}
                     </button>
-                    
+
                     {(chatConfig.fondo_personalizado || backgroundPreview) && (
-                      <button 
-                        className="btn-remove-background"
-                        onClick={handleRemoveBackground}
-                      >
+                      <button className="btn-remove-background" onClick={handleRemoveBackground}>
                         Eliminar fondo personalizado
                       </button>
                     )}
                   </div>
-                  
+
                   {(chatConfig.fondo_personalizado || backgroundPreview) && (
                     <div className="background-preview">
                       <p>Vista previa del fondo:</p>
-                      <div 
+                      <div
                         className="preview-container"
                         style={{
                           backgroundImage: `url(${backgroundPreview || `http://localhost:8000${chatConfig.fondo_personalizado}`})`,
                           backgroundSize: 'cover',
-                          backgroundPosition: 'center'
+                          backgroundPosition: 'center',
                         }}
                       />
                       <small>Imagen se ajustará automáticamente al chat</small>
@@ -1057,17 +1037,17 @@ const Messages: React.FC = () => {
                   <p>Vista previa de fondos:</p>
                   <div className="preview-grid">
                     {[
-                      { value: "default", name: "Predeterminado", color: "#ffffff" },
-                      { value: "light-gray", name: "Gris", color: "#f5f5f5" },
-                      { value: "dark", name: "Oscuro", color: "#1a1a1a" },
-                      { value: "blue", name: "Azul", color: "#0d47a1" },
-                      { value: "green", name: "Verde", color: "#1b5e20" },
-                      { value: "purple", name: "Púrpura", color: "#4a148c" }
-                    ].map(bg => (
+                      { value: 'default', name: 'Predeterminado', color: '#ffffff' },
+                      { value: 'light-gray', name: 'Gris', color: '#f5f5f5' },
+                      { value: 'dark', name: 'Oscuro', color: '#1a1a1a' },
+                      { value: 'blue', name: 'Azul', color: '#0d47a1' },
+                      { value: 'green', name: 'Verde', color: '#1b5e20' },
+                      { value: 'purple', name: 'Púrpura', color: '#4a148c' },
+                    ].map((bg) => (
                       <div
                         key={bg.value}
                         className={`preview-item ${chatConfig.fondo_chat === bg.value ? 'selected' : ''}`}
-                        onClick={() => setChatConfig(prev => ({ ...prev, fondo_chat: bg.value }))}
+                        onClick={() => setChatConfig((prev) => ({ ...prev, fondo_chat: bg.value }))}
                         style={{ backgroundColor: bg.color }}
                         title={bg.name}
                       />
@@ -1078,17 +1058,19 @@ const Messages: React.FC = () => {
 
               <div className="config-section">
                 <h4>Colores de mensajes</h4>
-                
+
                 <div className="config-group">
                   <label>Color de tus mensajes:</label>
                   <div className="color-picker-container">
                     <input
                       type="color"
                       value={chatConfig.color_burbuja}
-                      onChange={(e) => setChatConfig(prev => ({
-                        ...prev,
-                        color_burbuja: e.target.value
-                      }))}
+                      onChange={(e) =>
+                        setChatConfig((prev) => ({
+                          ...prev,
+                          color_burbuja: e.target.value,
+                        }))
+                      }
                       className="color-picker"
                     />
                     <span className="color-value">{chatConfig.color_burbuja}</span>
@@ -1099,14 +1081,22 @@ const Messages: React.FC = () => {
                   <label>Colores sugeridos:</label>
                   <div className="color-presets">
                     {[
-                      "#6C63FF", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", 
-                      "#FFEAA7", "#DDA0DD", "#98D8C8", "#F7DC6F", "#BB8FCE"
-                    ].map(color => (
+                      '#6C63FF',
+                      '#FF6B6B',
+                      '#4ECDC4',
+                      '#45B7D1',
+                      '#96CEB4',
+                      '#FFEAA7',
+                      '#DDA0DD',
+                      '#98D8C8',
+                      '#F7DC6F',
+                      '#BB8FCE',
+                    ].map((color) => (
                       <div
                         key={color}
                         className="color-preset"
                         style={{ backgroundColor: color }}
-                        onClick={() => setChatConfig(prev => ({ ...prev, color_burbuja: color }))}
+                        onClick={() => setChatConfig((prev) => ({ ...prev, color_burbuja: color }))}
                         title={color}
                       />
                     ))}
@@ -1116,23 +1106,17 @@ const Messages: React.FC = () => {
 
               <div className="config-section">
                 <h4>Opciones de visualización</h4>
-                
+
                 <div className="config-group">
                   <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      onChange={() => {}}
-                    />
+                    <input type="checkbox" />
                     Mostrar hora en todos los mensajes
                   </label>
                 </div>
 
                 <div className="config-group">
                   <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      onChange={() => {}}
-                    />
+                    <input type="checkbox" />
                     Notificaciones de mensajes nuevos
                   </label>
                 </div>
@@ -1140,7 +1124,7 @@ const Messages: React.FC = () => {
             </div>
 
             <div className="modal-actions">
-              <button 
+              <button
                 className="btn-cancel"
                 onClick={() => {
                   setShowConfigModal(false);
@@ -1150,10 +1134,7 @@ const Messages: React.FC = () => {
               >
                 Cancelar
               </button>
-              <button 
-                className="btn-save"
-                onClick={handleSaveConfig}
-              >
+              <button className="btn-save" onClick={handleSaveConfig}>
                 Guardar configuración
               </button>
             </div>

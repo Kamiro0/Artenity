@@ -18,10 +18,10 @@ body {
 }
 .login-container {
   background: rgba(54, 0, 96, 0.9);
-  border-radius: 100px;   /* menos redondeado */
-  width: 450px;          /* más ancho */
-  padding: 40px 30px;    /* espacio interno más compacto */
-  height: auto;          /* que se adapte al contenido */
+  border-radius: 100px; /* menos redondeado */
+  width: 450px; /* más ancho */
+  padding: 40px 30px; /* espacio interno más compacto */
+  height: auto; /* que se adapte al contenido */
   box-shadow: 0 0 25px rgba(255, 153, 255, 0.3);
   text-align: center;
   border: 4px solid #000;
@@ -54,7 +54,9 @@ body {
   font-family: 'Pacifico', cursive;
   font-size: 34px;
   color: #fff;
-  text-shadow: 0 0 10px #00e0ff, 0 0 20px #7a00ff;
+  text-shadow:
+    0 0 10px #00e0ff,
+    0 0 20px #7a00ff;
   margin-bottom: 20px;
 }
 
@@ -64,7 +66,7 @@ body {
 }
 
 .input-group label {
-  font-size: 15px;  /* antes estaba en 13px */
+  font-size: 15px; /* antes estaba en 13px */
   font-weight: bold;
   margin-bottom: 6px;
   color: #fff;
@@ -72,12 +74,12 @@ body {
 
 .input-group input {
   width: 100%;
-  padding: 14px 0px;   /* más alto y con espacio interno */
+  padding: 14px 0px; /* más alto y con espacio interno */
   border: none;
-  border-radius: 25px;  /* esquinas más suaves */
+  border-radius: 25px; /* esquinas más suaves */
   background: #1b003b;
   color: #fff;
-  font-size: 12px;      /* texto más grande */
+  font-size: 12px; /* texto más grande */
   outline: none;
   box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.25);
 }
@@ -104,7 +106,9 @@ body {
 .login-btn:hover {
   background: linear-gradient(45deg, #00e0ff, #7a00ff, #4b00ff);
   transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(0, 224, 255, 0.8), 0 0 30px rgba(122, 0, 255, 0.6);
+  box-shadow:
+    0 0 20px rgba(0, 224, 255, 0.8),
+    0 0 30px rgba(122, 0, 255, 0.6);
 }
 
 .social-icons {
@@ -115,8 +119,10 @@ body {
   width: 34px;
   margin: 0 6px;
   cursor: pointer;
-  filter: drop-shadow(0 0 5px rgba(255,255,255,0.6));
-  transition: transform 0.2s, filter 0.3s;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6));
+  transition:
+    transform 0.2s,
+    filter 0.3s;
 }
 
 .social-icons img:hover {
@@ -131,7 +137,9 @@ body {
 .register a {
   color: #004aad;
   text-decoration: none;
-  transition: color 0.3s, text-shadow 0.3s;
+  transition:
+    color 0.3s,
+    text-shadow 0.3s;
 }
 
 .register a:hover {
@@ -141,26 +149,28 @@ body {
 /* Título + logo sin recuadro */
 .header-box {
   position: absolute;
-  top: -30px;              /* más arriba para que no choque */
+  top: -30px; /* más arriba para que no choque */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 20px;              /* espacio entre logo y texto */
-  background: none;       /* sin recuadro */
-  border: none;           /* sin borde */
-  box-shadow: none;       /* sin sombra */
+  gap: 20px; /* espacio entre logo y texto */
+  background: none; /* sin recuadro */
+  border: none; /* sin borde */
+  box-shadow: none; /* sin sombra */
   padding: 0;
   width: auto;
   height: auto;
 }
 
 .header-box h1 {
- font-family: 'Adlery', cursive;
+  font-family: 'Adlery', cursive;
   font-size: 50px;
   color: #fff;
   margin: 0;
-  text-shadow: 0 0 8px #00e0ff, 0 0 15px #7a00ff;
+  text-shadow:
+    0 0 8px #00e0ff,
+    0 0 15px #7a00ff;
 }
 
 .header-box .logo {
@@ -170,4 +180,3 @@ body {
 .input-group:first-of-type {
   margin-top: 120px; /* Ajusta el valor hasta que quede bien */
 }
-
