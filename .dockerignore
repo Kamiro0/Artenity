@@ -1,0 +1,13 @@
+.git
+**/.git
+node_modules
+**/node_modules
+frontend/build
+static
+venv
+**/venv
+backend/myenv
+**/myenv
+backend/artenity.sql
+**/.env
+**/.env.*

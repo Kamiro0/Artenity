@@ -229,6 +229,21 @@ Configura la carpeta `frontend` como raíz del proyecto y usa `npm run build` co
 
 Vercel solo despliega el frontend. Para que la aplicación funcione en producción, primero debes desplegar el backend y cambiar las URLs `localhost:8000` por la URL pública de la API. La base de datos MySQL/MariaDB también debe estar alojada por separado.
 
+### Backend en Railway y base de datos en Neon
+
+El `Dockerfile` de la raíz prepara FastAPI para desplegarlo como servicio en Railway. Configura estas variables en el servicio:
+
+- `DATABASE_URL`: cadena de conexión de Neon. El backend adapta las URLs `postgresql://` de Neon al driver de Psycopg.
+- `SECRET_KEY`: clave privada larga y aleatoria.
+- `FRONTEND_URL`: dominio de producción de Vercel.
+- `BACKEND_URL`: dominio público generado para el servicio de Railway.
+
+Después de generar el dominio del backend, configura `REACT_APP_API_URL` con esa URL en las variables de entorno de Vercel y vuelve a desplegar el frontend.
+
+El archivo `backend/artenity.sql` es un volcado de MariaDB/MySQL, no se puede ejecutar directamente en Neon (PostgreSQL). Contiene 39 tablas y datos; revisa esos datos antes de subirlos. Para migrarlos, primero restaura el volcado en una instancia MySQL/MariaDB y luego usa una herramienta de migración como `pgloader` para copiar las tablas y filas a Neon. `create_all()` del backend no sustituye esa migración. No compartas la URL de Neon ni sus credenciales en Git.
+
+Los archivos que la aplicación sube se guardan bajo `static/`. El contenedor no incluye esa carpeta; configura almacenamiento persistente en Railway o un servicio de objetos antes de depender de esos archivos en producción.
+
 ## 6. Inicio diario
 
 Abre dos terminales desde la raíz.
