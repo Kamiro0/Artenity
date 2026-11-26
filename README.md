@@ -223,6 +223,12 @@ El frontend actual usa `http://localhost:8000` directamente en su configuración
 
 Para producción, debes reemplazar las URLs locales por la URL real del servidor en `frontend/src/services/api.ts` y en los componentes que usan `fetch`.
 
+### Desplegar el frontend en Vercel
+
+Configura la carpeta `frontend` como raíz del proyecto y usa `npm run build` como comando de compilación. El script de build permite que las advertencias actuales de ESLint no cancelen la compilación en CI; las advertencias siguen visibles y deben corregirse.
+
+Vercel solo despliega el frontend. Para que la aplicación funcione en producción, primero debes desplegar el backend y cambiar las URLs `localhost:8000` por la URL pública de la API. La base de datos MySQL/MariaDB también debe estar alojada por separado.
+
 ## 6. Inicio diario
 
 Abre dos terminales desde la raíz.
