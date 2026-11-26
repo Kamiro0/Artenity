@@ -3,6 +3,7 @@ __pycache__/
 .pytest_cache/
 .env
 backend/.env
+backend/artenity_tidb.sql
 backend/venv/
 backend/myenv/
 frontend/node_modules/

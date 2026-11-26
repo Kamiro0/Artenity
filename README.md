@@ -229,18 +229,22 @@ Configura la carpeta `frontend` como raíz del proyecto y usa `npm run build` co
 
 Vercel solo despliega el frontend. Para que la aplicación funcione en producción, primero debes desplegar el backend y cambiar las URLs `localhost:8000` por la URL pública de la API. La base de datos MySQL/MariaDB también debe estar alojada por separado.
 
-### Backend y base de datos en Railway
+### Backend en Railway con TiDB Cloud
 
-El `Dockerfile` de la raíz prepara FastAPI para desplegarlo como servicio en Railway. Agrega al mismo proyecto un servicio MySQL y configura estas variables en el servicio del backend:
+La base de datos puede permanecer en TiDB Cloud; no es necesario crear otra base MySQL en Railway. El `Dockerfile` de la raíz prepara FastAPI para Railway e incluye el certificado CA usado para la conexión TLS a TiDB.
 
-- `DATABASE_URL`: referencia a la variable `MYSQL_URL` del servicio MySQL, por ejemplo `${{MySQL.MYSQL_URL}}`. El backend adapta el prefijo `mysql://` al driver PyMySQL.
-- `SECRET_KEY`: clave privada larga y aleatoria.
-- `FRONTEND_URL`: dominio de producción de Vercel.
-- `BACKEND_URL`: dominio público generado para el servicio de Railway.
+1. En Railway, crea un proyecto desde el repositorio de GitHub y despliega el servicio usando el `Dockerfile` de la raíz.
+2. En las variables del servicio configura:
+   - `DATABASE_URL`: conexión PyMySQL a TiDB, puerto `4000`, base `artenity_v2` y TLS. Usa `/app/backend/isrgrootx1.pem` como `ssl_ca`; codifica los caracteres especiales de la contraseña para URL.
+   - `SECRET_KEY`: clave privada larga y aleatoria.
+   - `FRONTEND_URL`: origen de producción de Vercel, sin ruta ni barra final.
+   - `BACKEND_URL`: URL pública generada para el servicio de Railway, sin barra final.
+3. En TiDB Cloud, permite en la lista de acceso de red las IP de salida de Railway. Restringe el acceso a las IP necesarias; no publiques las credenciales.
+4. Genera un dominio público para el servicio de Railway. En Vercel configura `REACT_APP_API_URL` con esa URL, sin barra final, y vuelve a desplegar el frontend.
 
-Después de generar el dominio del backend, configura `REACT_APP_API_URL` con esa URL en las variables de entorno de Vercel y vuelve a desplegar el frontend.
+En Vercel, configura la carpeta `frontend` como raíz del proyecto. La variable `REACT_APP_API_URL` se incorpora durante la compilación, así que cualquier cambio requiere un nuevo despliegue. No uses `localhost` en las variables de producción.
 
-El archivo `backend/artenity.sql` es un volcado de MariaDB/MySQL con 39 tablas y datos. Importa ese archivo en el servicio MySQL de Railway desde MySQL Workbench o un cliente MySQL; no se importa en Vercel. Revisa los datos antes de subirlos. `create_all()` del backend no importa las filas del volcado. No compartas la URL ni las credenciales de la base en Git.
+La base TiDB ya debe contener el volcado de tablas y datos; `create_all()` del backend no importa filas. Los archivos que la aplicación sube se guardan bajo `static/`; configura almacenamiento persistente en Railway o un servicio de objetos antes de depender de esos archivos en producción.
 
 Los archivos que la aplicación sube se guardan bajo `static/`. El contenedor no incluye esa carpeta; configura almacenamiento persistente en Railway o un servicio de objetos antes de depender de esos archivos en producción.
 

@@ -9,5 +9,6 @@ venv
 backend/myenv
 **/myenv
 backend/artenity.sql
+backend/artenity_tidb.sql
 **/.env
 **/.env.*
