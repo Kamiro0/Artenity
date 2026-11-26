@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../services/api';
 
 export default function ForgotPassword() {
   const [correo, setCorreo] = useState('');
@@ -15,7 +16,7 @@ export default function ForgotPassword() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8000/olvidaste-contrasena', {
+      const response = await fetch(`${API_URL}/olvidaste-contrasena`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ correo }),

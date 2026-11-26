@@ -219,9 +219,9 @@ Si necesitas volver a la raíz:
 cd ..
 ```
 
-El frontend actual usa `http://localhost:8000` directamente en su configuración. No necesita un archivo `.env` para el arranque local básico.
+En desarrollo, el frontend usa `http://localhost:8000` por defecto. Para producción, configura `REACT_APP_API_URL` con la URL pública del backend, sin una barra final. En Vercel, agrega esa variable de entorno y vuelve a desplegar; su valor es público y no debe contener credenciales.
 
-Para producción, debes reemplazar las URLs locales por la URL real del servidor en `frontend/src/services/api.ts` y en los componentes que usan `fetch`.
+Las llamadas a la API y las URLs de archivos usan esa configuración compartida en `frontend/src/services/api.ts`.
 
 ### Desplegar el frontend en Vercel
 

@@ -1,7 +1,12 @@
 // frontend/components/busqueda.tsx (versión completa)
 import React, { useEffect, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { obtenerContenidoCategoria, buscarContenido, obtenerUsuarioBasico } from '../services/api';
+import {
+  API_URL,
+  obtenerContenidoCategoria,
+  buscarContenido,
+  obtenerUsuarioBasico,
+} from '../services/api';
 import '../styles/busqueda.css';
 import defaultProfile from '../assets/img/fotoperfildefault.jpg';
 
@@ -113,7 +118,7 @@ const Busqueda: React.FC = () => {
       .map((url) => {
         if (!url) return null;
         if (url.startsWith('http')) return url;
-        return `http://localhost:8000${url.startsWith('/') ? '' : '/'}${url}`;
+        return `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
       })
       .filter((url): url is string => url !== null && url.trim() !== '');
   };

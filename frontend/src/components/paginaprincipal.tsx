@@ -25,6 +25,7 @@ import '../styles/paginaprincipal.css';
 import logoImg from '../assets/img/logo.png';
 import defaultProfile from '../assets/img/fotoperfildefault.jpg';
 import {
+  API_URL,
   getPublicaciones,
   crearPublicacion,
   eliminarPublicacion,
@@ -649,7 +650,7 @@ export default function PaginaPrincipal() {
           .map((url) => {
             if (!url) return null;
             if (url.startsWith('http')) return url;
-            return `http://localhost:8000${url.startsWith('/') ? '' : '/'}${url}`;
+            return `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
           })
           .filter((url): url is string => url !== null && url.trim() !== '');
 
@@ -868,7 +869,7 @@ export default function PaginaPrincipal() {
       const formData = new FormData();
       formData.append('motivo', motivo);
 
-      const response = await fetch(`http://localhost:8000/reportar/${idReportado}`, {
+      const response = await fetch(`${API_URL}/reportar/${idReportado}`, {
         method: 'POST',
         headers: {
           token: localStorage.getItem('token') || '',

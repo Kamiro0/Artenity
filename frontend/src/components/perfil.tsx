@@ -4,6 +4,7 @@ import { ArrowLeft, Shield } from 'lucide-react'; // Añade esto
 import defaultProfile from '../assets/img/fotoperfildefault.jpg';
 import { useAuth } from '../context/AuthContext';
 import {
+  API_URL,
   actualizarPerfil,
   getPerfil,
   getAmigos,
@@ -268,16 +269,13 @@ const Perfil: React.FC = () => {
 
       const parsedUsuario = JSON.parse(usuarioStorage);
 
-      const response = await fetch(
-        `http://localhost:8000/usuarios/${usuario.id_usuario}/megusta-dados`,
-        {
-          headers: {
-            token: token,
-            id_usuario: parsedUsuario.id_usuario.toString(),
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/usuarios/${usuario.id_usuario}/megusta-dados`, {
+        headers: {
+          token: token,
+          id_usuario: parsedUsuario.id_usuario.toString(),
+          'Content-Type': 'application/json',
+        },
+      });
 
       if (!response.ok) throw new Error('Error al cargar me gustas');
 

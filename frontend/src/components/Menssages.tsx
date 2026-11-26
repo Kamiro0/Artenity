@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Messages.css';
 import { useNavigate } from 'react-router-dom';
 import {
+  API_URL,
   obtenerChats,
   obtenerMensajesChat,
   enviarMensaje,
@@ -477,10 +478,10 @@ const Messages: React.FC = () => {
       return (
         <div className="message-file">
           <img
-            src={`http://localhost:8000${msg.archivo_url}`}
+            src={`${API_URL}${msg.archivo_url}`}
             alt="Imagen enviada"
             className="chat-image"
-            onClick={() => window.open(`http://localhost:8000${msg.archivo_url}`, '_blank')}
+            onClick={() => window.open(`${API_URL}${msg.archivo_url}`, '_blank')}
           />
           <div className="file-caption">{msg.text}</div>
         </div>
@@ -488,7 +489,7 @@ const Messages: React.FC = () => {
     } else if (msg.tipo === 'video' && msg.archivo_url) {
       return (
         <div className="message-file">
-          <video controls className="chat-video" src={`http://localhost:8000${msg.archivo_url}`}>
+          <video controls className="chat-video" src={`${API_URL}${msg.archivo_url}`}>
             Tu navegador no soporta el elemento video.
           </video>
           <div className="file-caption">{msg.text}</div>
@@ -567,7 +568,7 @@ const Messages: React.FC = () => {
   const getChatBackground = () => {
     if (chatConfig.fondo_chat === 'personalizado' && chatConfig.fondo_personalizado) {
       return {
-        backgroundImage: `url(http://localhost:8000${chatConfig.fondo_personalizado})`,
+        backgroundImage: `url(${API_URL}${chatConfig.fondo_personalizado})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -1023,7 +1024,7 @@ const Messages: React.FC = () => {
                       <div
                         className="preview-container"
                         style={{
-                          backgroundImage: `url(${backgroundPreview || `http://localhost:8000${chatConfig.fondo_personalizado}`})`,
+                          backgroundImage: `url(${backgroundPreview || `${API_URL}${chatConfig.fondo_personalizado}`})`,
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
                         }}

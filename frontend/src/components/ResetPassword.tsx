@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_URL } from '../services/api';
 
 export default function ResetPassword() {
   const { token } = useParams<{ token: string }>();
@@ -16,7 +17,7 @@ export default function ResetPassword() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8000/restablecer-contrasena', {
+      const response = await fetch(`${API_URL}/restablecer-contrasena`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, nueva_contrasena: nuevaContrasena }),
