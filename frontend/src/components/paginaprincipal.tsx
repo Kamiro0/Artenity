@@ -1019,7 +1019,7 @@ export default function PaginaPrincipal() {
   };
 
   const compartirEnRedSocial = (redSocial: string, publicacion: Publicacion) => {
-    const texto = `Mira esta publicación de ${publicacion.usuario.nombre_usuario} en Artenity: ${publicacion.contenido.substring(0, 100)}...`;
+    const texto = `Mira esta publicación de ${publicacion.usuario.nombre_usuario} en Artevora: ${publicacion.contenido.substring(0, 100)}...`;
     const url = `${window.location.origin}/publicacion/${publicacion.id_publicacion}`;
 
     let shareUrl = '';
@@ -1274,7 +1274,7 @@ export default function PaginaPrincipal() {
           <div className="header-botton">
             {/* Solo el logo es clickeable */}
             <button className="logo-btn" onClick={() => navigate('/')}>
-              <img src={logoImg} alt="Logo Artenity" className="logo" />
+              <img src={logoImg} alt="Logo Artevora" className="logo" />
             </button>
           </div>
 
@@ -1689,7 +1689,7 @@ export default function PaginaPrincipal() {
                   <div className="compartir-interno-x">
                     <div className="seccion-titulo-x">
                       <Users size={18} />
-                      <h4>Compartir en Artenity</h4>
+                      <h4>Compartir en Artevora</h4>
                     </div>
 
                     <button

@@ -33,6 +33,7 @@ app.add_middleware(
     allow_origins=[
         settings.FRONTEND_URL,
         settings.BACKEND_URL,
+        "http://localhost:3000",
         "http://localhost:5173",
     ],
     allow_credentials=True,

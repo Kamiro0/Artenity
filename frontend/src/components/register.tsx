@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../styles/auth.css';
 import '../styles/register.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUsuario } from '../services/api';
@@ -52,19 +53,35 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div>
-      {/* Pinceladas decorativas */}
-      <img src={brushImg} alt="" aria-hidden="true" className="brush top-left" />
-      <img src={brushImg} alt="" aria-hidden="true" className="brush bottom-right" />
+    <main className="auth-page register-page">
+      <img src={brushImg} alt="" aria-hidden="true" className="auth-art auth-art-top-left" />
+      <img src={brushImg} alt="" aria-hidden="true" className="auth-art auth-art-bottom-right" />
+      <span className="auth-note auth-note-one" aria-hidden="true">
+        ♪
+      </span>
+      <span className="auth-note auth-note-two" aria-hidden="true">
+        ♫
+      </span>
+      <span className="auth-note auth-note-three" aria-hidden="true">
+        ♬
+      </span>
 
-      <div className="registro-container">
-        {/* Cabecera */}
-        <div className="header">
-          <img src={logoImg} alt="Logo" className="logo" />
-          <div className="capsula-titulo">REGISTRO</div>
+      <section className="auth-panel registro-container" aria-labelledby="register-title">
+        <div className="header-box">
+          <button
+            className="logo-btn"
+            type="button"
+            onClick={() => navigate('/')}
+            aria-label="Volver a la página principal de Artevora"
+          >
+            <img src={logoImg} alt="" className="logo" />
+          </button>
+          <div>
+            <h1 id="register-title">REGISTRO</h1>
+            <p className="auth-tagline">Crea tu espacio en el universo del arte</p>
+          </div>
         </div>
 
-        {/* Formulario */}
         <form className="registro-form" onSubmit={handleSubmit}>
           <div className="campo-doble">
             <input
@@ -85,8 +102,9 @@ const Register: React.FC = () => {
             />
           </div>
 
-          <label>Fecha de nacimiento</label>
+          <label htmlFor="register-birth-date">Fecha de nacimiento</label>
           <input
+            id="register-birth-date"
             type="date"
             name="fecha_nacimiento"
             value={form.fecha_nacimiento}
@@ -94,8 +112,8 @@ const Register: React.FC = () => {
             required
           />
 
-          <label>Género</label>
-          <div className="campo-genero">
+          <label id="register-gender-label">Género</label>
+          <div className="campo-genero" role="radiogroup" aria-labelledby="register-gender-label">
             <label>
               <input
                 type="radio"
@@ -128,6 +146,7 @@ const Register: React.FC = () => {
             </label>
           </div>
           <input
+            aria-label="Especifique su género"
             type="text"
             name="especifique_genero"
             placeholder=" Especifique su género"
@@ -225,19 +244,22 @@ const Register: React.FC = () => {
             required
           />
 
-          <button type="submit" className="btn-registro">
+          <button type="submit" className="auth-primary-btn btn-registro">
             Regístrate!!
           </button>
         </form>
 
-        {mensaje && <p>{mensaje}</p>}
+        {mensaje && (
+          <p className="registro-mensaje" role="status">
+            {mensaje}
+          </p>
+        )}
 
-        {/* Enlace al login */}
         <p className="cuenta">
           <Link to="/login">¿Ya tienes una cuenta?</Link>
         </p>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 

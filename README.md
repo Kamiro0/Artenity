@@ -229,18 +229,18 @@ Configura la carpeta `frontend` como raíz del proyecto y usa `npm run build` co
 
 Vercel solo despliega el frontend. Para que la aplicación funcione en producción, primero debes desplegar el backend y cambiar las URLs `localhost:8000` por la URL pública de la API. La base de datos MySQL/MariaDB también debe estar alojada por separado.
 
-### Backend en Railway con TiDB Cloud
+### Backend en Render con TiDB Cloud
 
-La base de datos puede permanecer en TiDB Cloud; no es necesario crear otra base MySQL en Railway. El `Dockerfile` de la raíz prepara FastAPI para Railway e incluye el certificado CA usado para la conexión TLS a TiDB.
+La base de datos permanece en TiDB Cloud; no necesitas crear otra base en Render. El `Dockerfile` de la raíz prepara FastAPI para Render e incluye el certificado CA requerido para la conexión TLS a TiDB.
 
-1. En Railway, crea un proyecto desde el repositorio de GitHub y despliega el servicio usando el `Dockerfile` de la raíz.
+1. En Render, crea un **Web Service** desde el repositorio de GitHub y selecciona el runtime **Docker** con la raíz del repositorio como directorio.
 2. En las variables del servicio configura:
    - `DATABASE_URL`: conexión PyMySQL a TiDB, puerto `4000`, base `artenity_v2` y TLS. Usa `/app/backend/isrgrootx1.pem` como `ssl_ca`; codifica los caracteres especiales de la contraseña para URL.
    - `SECRET_KEY`: clave privada larga y aleatoria.
    - `FRONTEND_URL`: origen de producción de Vercel, sin ruta ni barra final.
-   - `BACKEND_URL`: URL pública generada para el servicio de Railway, sin barra final.
-3. En TiDB Cloud, permite en la lista de acceso de red las IP de salida de Railway. Restringe el acceso a las IP necesarias; no publiques las credenciales.
-4. Genera un dominio público para el servicio de Railway. En Vercel configura `REACT_APP_API_URL` con esa URL, sin barra final, y vuelve a desplegar el frontend.
+   - `BACKEND_URL`: URL pública generada para el servicio de Render, sin barra final.
+3. En TiDB Cloud, permite en la lista de acceso de red las IP de salida de Render que correspondan a la región del servicio. Restringe el acceso a las IP necesarias; no publiques las credenciales.
+4. Cuando Render genere el dominio público, configura `REACT_APP_API_URL` con esa URL en Vercel, sin barra final, y vuelve a desplegar el frontend.
 
 En Vercel, configura la carpeta `frontend` como raíz del proyecto. La variable `REACT_APP_API_URL` se incorpora durante la compilación, así que cualquier cambio requiere un nuevo despliegue. No uses `localhost` en las variables de producción.
 

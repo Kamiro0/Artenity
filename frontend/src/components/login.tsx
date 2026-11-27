@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../styles/login.css';
+import '../styles/auth.css';
 import { Link, useNavigate } from 'react-router-dom';
 
 import brushImg from '../assets/img/loginmusic.png';
@@ -12,10 +12,12 @@ import instagramImg from '../assets/img/instagram.png';
 import { loginWithGoogle, loginWithFacebook } from '../services/firebase';
 import { loginUsuario } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import ForgotPassword from './ForgotPassword';
 
 const Login: React.FC = () => {
   const [correo_electronico, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
+  const [mostrarRecuperacion, setMostrarRecuperacion] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -79,15 +81,40 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div>
-      <img src={brushImg} alt="Decoración" className="brush top-left" />
-      <img src={brushImg} alt="Decoración" className="brush bottom-right" />
+    <main className="auth-page">
+      <img src={brushImg} alt="" aria-hidden="true" className="auth-art auth-art-top-left" />
+      <img src={brushImg} alt="" aria-hidden="true" className="auth-art auth-art-bottom-right" />
+      <span className="auth-note auth-note-one" aria-hidden="true">
+        ♪
+      </span>
+      <span className="auth-note auth-note-two" aria-hidden="true">
+        ♫
+      </span>
+      <span className="auth-note auth-note-three" aria-hidden="true">
+        ♬
+      </span>
 
-      <div className="login-container">
+      <section className="auth-panel" aria-labelledby="login-title">
+        <div className="header-box">
+          <button
+            className="logo-btn"
+            type="button"
+            onClick={() => navigate('/')}
+            aria-label="Volver a la página principal de Artevora"
+          >
+            <img src={logoImg} alt="" className="logo" />
+          </button>
+          <div>
+            <h1 id="login-title">ARTEVORA</h1>
+            <p className="auth-tagline">Un universo donde el arte cobra vida</p>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit}>
           <div className="input-group">
-            <label>CORREO ELECTRÓNICO</label>
+            <label htmlFor="login-email">CORREO ELECTRÓNICO</label>
             <input
+              id="login-email"
               type="email"
               placeholder="CORREO ELECTRÓNICO"
               value={correo_electronico}
@@ -97,8 +124,9 @@ const Login: React.FC = () => {
           </div>
 
           <div className="input-group">
-            <label>CONTRASEÑA</label>
+            <label htmlFor="login-password">CONTRASEÑA</label>
             <input
+              id="login-password"
               type="password"
               placeholder="CONTRASEÑA"
               value={contrasena}
@@ -107,41 +135,62 @@ const Login: React.FC = () => {
             />
           </div>
 
-          <button type="submit" className="login-btn">
+          <button type="submit" className="auth-primary-btn">
             Iniciar Sesión!!
           </button>
         </form>
 
-        <div className="header-box">
-          <h1>ARTENITY</h1>
-          <button className="logo-btn" onClick={() => navigate('/')}>
-            <img src={logoImg} alt="Logo Artenity" className="logo" />
-          </button>
-        </div>
-
-        {/* SOCIAL LOGIN */}
         <div className="social-icons">
-          <img src={googleImg} onClick={googleLogin} alt="Google" />
-          <img src={facebookImg} onClick={facebookLogin} alt="Facebook" />
-          <img
-            src={discordImg}
+          <button
+            type="button"
+            className="social-login"
+            onClick={googleLogin}
+            aria-label="Iniciar sesión con Google"
+          >
+            <img src={googleImg} alt="" />
+          </button>
+          <button
+            type="button"
+            className="social-login"
+            onClick={facebookLogin}
+            aria-label="Iniciar sesión con Facebook"
+          >
+            <img src={facebookImg} alt="" />
+          </button>
+          <button
+            type="button"
+            className="social-login"
             onClick={() => (window.location.href = '/oauth/discord')}
-            alt="Discord"
-          />
-          <img
-            src={instagramImg}
+            aria-label="Iniciar sesión con Discord"
+          >
+            <img src={discordImg} alt="" />
+          </button>
+          <button
+            type="button"
+            className="social-login"
             onClick={() => (window.location.href = '/oauth/instagram')}
-            alt="Instagram"
-          />
+            aria-label="Iniciar sesión con Instagram"
+          >
+            <img src={instagramImg} alt="" />
+          </button>
         </div>
 
         <p className="register">
           ¿No tienes una cuenta? <Link to="/register">Regístrate</Link>
           <br />
-          <a href="/forgot-password">Olvidé mi contraseña</a>
+          <button
+            type="button"
+            className="forgot-password-trigger"
+            aria-haspopup="dialog"
+            aria-expanded={mostrarRecuperacion}
+            onClick={() => setMostrarRecuperacion(true)}
+          >
+            Olvidé mi contraseña
+          </button>
         </p>
-      </div>
-    </div>
+      </section>
+      {mostrarRecuperacion && <ForgotPassword onClose={() => setMostrarRecuperacion(false)} />}
+    </main>
   );
 };
 

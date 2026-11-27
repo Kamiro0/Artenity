@@ -47,7 +47,7 @@ const Artenity: React.FC = () => {
         id_anuncio: 0,
         titulo: 'LO QUE SUCEDE CON EL MUNDO DEL ARTE',
         contenido:
-          'Bienvenido a Artenity, la plataforma donde el arte cobra vida. Descubre, comparte y conecta con artistas de todo el mundo.',
+          'Bienvenido a Artevora, la plataforma donde el arte cobra vida. Descubre, comparte y conecta con artistas de todo el mundo.',
         activo: true,
         fecha_creacion: new Date().toISOString(),
         fecha_actualizacion: new Date().toISOString(),
@@ -67,13 +67,14 @@ const Artenity: React.FC = () => {
     <div
       className="fullscreen-bg"
       style={{
-        width: '100vw',
-        minHeight: '100vh',
-        background: `url(${artenityimg}) no-repeat center center`,
+        backgroundImage: `url(${artenityimg})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
         backgroundSize: 'cover',
       }}
     >
-      <div className="header-text">ARTENITY</div>
+      <div className="ambient-effects" aria-hidden="true" />
+      <div className="header-text">ARTEVORA</div>
 
       <div className="icons-row">
         <div
@@ -137,7 +138,7 @@ const Artenity: React.FC = () => {
                     />
                   ) : (
                     <p className="anuncio-sin-contenido">
-                      Bienvenido a Artenity, la plataforma donde el arte cobra vida. Descubre,
+                      Bienvenido a Artevora, la plataforma donde el arte cobra vida. Descubre,
                       comparte y conecta con artistas de todo el mundo.
                     </p>
                   )}
